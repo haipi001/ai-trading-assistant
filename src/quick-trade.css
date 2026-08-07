@@ -1,0 +1,130 @@
+.quick-trade .quick-order-types,
+.quick-trade .quick-percentages {
+  grid-column: 1 / 3;
+  display: grid;
+  gap: 5px;
+}
+
+.quick-trade .quick-order-types {
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  border-radius: 4px;
+  background: #f0f2f4;
+}
+
+.quick-trade .quick-order-types button {
+  border: 0;
+  padding: 7px;
+  background: transparent;
+}
+
+.quick-trade .quick-order-types button.on {
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+}
+
+.quick-trade .quick-percentages {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.quick-trade .quick-percentages button {
+  border: 1px solid #e1e4e8;
+  border-radius: 3px;
+  padding: 5px 0;
+  background: #fff;
+  font-size: 10px;
+}
+
+.quick-trade output {
+  grid-column: 1 / 3;
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  color: #737b85;
+  font-size: 11px;
+}
+
+.quick-trade output b {
+  color: #20252c;
+}
+
+.sim-orders > header span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sim-orders > header span button {
+  border: 0;
+  background: none;
+  color: #da4e59;
+  font-size: 10px;
+}
+
+.sim-orders article > span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.sim-orders article > span small {
+  margin-top: 2px;
+  color: #8a929c;
+  font-size: 8px;
+}
+
+.terminal.red-up {
+  --green: #eb5260;
+  --red: #00a877;
+}
+
+.book {
+  position: relative;
+  width: 100%;
+  border: 0;
+  background: #fff;
+  padding: 0;
+  font-size: 10px;
+}
+
+.book:hover,
+.orderbook .last:hover,
+.recent-trades > button:hover {
+  background: #f2f4f5;
+}
+
+.book > span {
+  position: relative;
+  z-index: 1;
+}
+
+.book .depth-fill {
+  position: absolute;
+  z-index: 0;
+  inset: 1px 0 1px auto;
+  opacity: 0.09;
+}
+
+.book.sell .depth-fill { background: var(--red); }
+.book.buy .depth-fill { background: var(--green); }
+
+.orderbook .last {
+  width: 100%;
+  border: 0;
+  background: #fff;
+  text-align: left;
+}
+
+.recent-trades > button {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 1fr 1fr 1fr;
+  border: 0;
+  background: #fff;
+  padding: 2px 0;
+  text-align: right;
+  font-size: 10px;
+}
+
+.recent-trades > button b { text-align: left; }
+.recent-trades > button time { color: #8b929a; }

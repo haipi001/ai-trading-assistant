@@ -1,0 +1,159 @@
+.plot.drawing-active {
+  cursor: crosshair;
+}
+
+.chart-drawing-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.chart-drawing-layer line,
+.chart-drawing-layer path,
+.chart-drawing-layer rect {
+  fill: rgb(41 121 255 / 8%);
+  stroke: #2979ff;
+  stroke-width: 0.55;
+  vector-effect: non-scaling-stroke;
+}
+
+.chart-drawing-layer text {
+  fill: #2979ff;
+  font-size: 2.6px;
+  font-weight: 700;
+}
+
+.chart-drawing-layer .drawing-text {
+  fill: #d88400;
+  font-size: 3.2px;
+}
+
+.chart-drawing-layer .measure-line {
+  stroke-dasharray: 2 1;
+}
+
+.chart-drawing-layer .fib-lines line {
+  stroke-width: 0.35;
+}
+
+.chart-drawing-layer .fib-lines text {
+  font-size: 2.1px;
+}
+
+.drawing-mode-tip {
+  position: absolute;
+  z-index: 8;
+  left: 12px;
+  top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border: 1px solid #d8e5ff;
+  border-radius: 4px;
+  background: rgb(246 249 255 / 94%);
+  font-size: 9px;
+  color: #4e5b71;
+  pointer-events: none;
+}
+
+.drawing-mode-tip b {
+  color: #1b66d9;
+}
+
+.drawing-mode-tip span {
+  white-space: nowrap;
+}
+
+.chart-trader-strip {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-bottom: 1px solid #e5e7e9;
+  background: #fbfcfd;
+  overflow-x: auto;
+}
+
+.chart-trader-strip > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #68717d;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.chart-trader-strip > div {
+  display: flex;
+  border: 1px solid #dde1e5;
+  background: #fff;
+  white-space: nowrap;
+}
+
+.chart-trader-strip > div.active {
+  border-color: #7aa995;
+  background: #edf8f3;
+}
+
+.chart-trader-strip button {
+  border: 0;
+  background: transparent;
+  padding: 5px 7px;
+  font-size: 9px;
+}
+
+.chart-trader-strip button small {
+  margin-left: 5px;
+  color: #838a93;
+}
+
+.chart-trader-strip > div > button:last-child {
+  padding-left: 3px;
+  color: #8c929a;
+}
+
+.chart-trader-strip .clear {
+  margin-left: auto;
+  color: #d84c59;
+  white-space: nowrap;
+}
+
+.trader-marker {
+  position: absolute;
+  z-index: 9;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 2px 5px;
+  max-width: 150px;
+  transform: translate(-50%, -50%);
+  border: 1px solid #71b99d;
+  border-radius: 4px;
+  background: rgb(244 253 249 / 94%);
+  padding: 5px 7px;
+  color: #176f55;
+  text-align: left;
+  box-shadow: 0 3px 10px rgb(27 55 45 / 12%);
+}
+
+.trader-marker.sell {
+  border-color: #e49aa2;
+  background: rgb(255 246 247 / 94%);
+  color: #c13f4c;
+}
+
+.trader-marker span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trader-marker small {
+  grid-column: 1 / 3;
+  color: #777f88;
+}
