@@ -850,6 +850,40 @@ function HomeChannel({ tab, go, say, openOverlay, marketMode = "web3" }) {
             </button>
           ))}
         </div>
+        <section className="product-intro" aria-labelledby="product-intro-title">
+          <header>
+            <div>
+              <small>AI-native personal market workspace</small>
+              <h2 id="product-intro-title">把行情、研究、策略和复盘放进同一个工作台</h2>
+            </div>
+            <p>AI 交易助手服务于需要同时观察 Web3 与股票市场的个人投资者。它不仅展示价格，也持续保存你为什么关注、准备在什么条件下行动，以及什么变化会让原判断失效。</p>
+          </header>
+          <div className="product-capabilities">
+            <article className="capability-primary">
+              <span><I.ChartLineUp/>统一市场视图</span>
+              <h3>一套界面，切换两类市场</h3>
+              <p>在 Web3 与股票之间切换行情、榜单、筛选器、资金数据和事件日历，减少分散工具造成的上下文丢失。</p>
+              <button onClick={()=>go("market")}>进入行情工作台 <I.ArrowRight/></button>
+            </article>
+            <article>
+              <span><I.Notebook/>策略记忆</span>
+              <h3>记录假设，也记录失效条件</h3>
+              <p>用标签和双向关联组织交易笔记，把市场事实、风险边界与策略草稿连成可以回看的知识网络。</p>
+              <button onClick={()=>go("strategy")}>打开策略中心 <I.ArrowRight/></button>
+            </article>
+            <article>
+              <span><I.Sparkle/>AI 辅助研究</span>
+              <h3>从提问到结构化判断</h3>
+              <p>围绕当前标的整理信息、提炼触发条件、检查风险缺口。AI 只辅助分析，不替代人的最终决定。</p>
+            </article>
+            <article className="capability-safety">
+              <span><I.Fingerprint/>安全边界</span>
+              <h3>默认本地模拟，操作始终可控</h3>
+              <ul><li>不保存私钥或助记词</li><li>不自动批准或提交真实订单</li><li>策略、预警与笔记保存在浏览器本地</li></ul>
+            </article>
+          </div>
+          <footer><b>研究 → 假设 → 风险检查 → 策略草稿 → 模拟执行 → 复盘</b><span>先建立判断闭环，再考虑行动。</span></footer>
+        </section>
       </div>
     );
   if (tab === "市场概览")
