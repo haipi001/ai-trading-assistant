@@ -11,21 +11,36 @@ function useLocalState(key, seed) {
 }
 
 const seedNotes = [
-  { id: "btc-breakout", title: "BTC 4小时突破观察", body: "价格在 64,200 附近反复测试，成交量收缩。等待放量站稳再介入。\n\n关联：[[主力净流入]] [[风险清单]]\n#BTC #突破", links: ["flow", "risk"], updated: "今天 14:32", ai: "偏多但尚未确认。触发条件：4H 收盘站上 64,200 且成交量高于 20 日均量 1.4 倍。" },
-  { id: "flow", title: "主力净流入", body: "BTC 大单净流入连续 3 个周期转正，现货买盘强于永续。\n\n关联：[[BTC 4小时突破观察]]", links: ["btc-breakout"], updated: "今天 13:18", ai: "资金行为与突破假设一致，但要排除短时拉盘。" },
-  { id: "risk", title: "风险清单", body: "失效位 62,800；单次风险不超过账户 0.8%；重要宏观数据前不追单。", links: ["btc-breakout"], updated: "昨天 21:06", ai: "已识别 3 条硬性风控约束。" },
+  { id: "btc-breakout", title: "BTC 4小时突破观察", body: "价格在 64,200 附近反复测试，成交量收缩。等待放量站稳再介入。\n\n关联：[[主力净流入]] [[风险清单]]\n#BTC #突破", tags: ["BTC", "突破"], links: ["flow", "risk"], updated: "今天 14:32", ai: "偏多但尚未确认。触发条件：4H 收盘站上 64,200 且成交量高于 20 日均量 1.4 倍。" },
+  { id: "flow", title: "主力净流入", body: "BTC 大单净流入连续 3 个周期转正，现货买盘强于永续。\n\n关联：[[BTC 4小时突破观察]]", tags: ["BTC", "资金流"], links: ["btc-breakout"], updated: "今天 13:18", ai: "资金行为与突破假设一致，但要排除短时拉盘。" },
+  { id: "risk", title: "风险清单", body: "失效位 62,800；单次风险不超过账户 0.8%；重要宏观数据前不追单。", tags: ["BTC", "风控"], links: ["btc-breakout"], updated: "昨天 21:06", ai: "已识别 3 条硬性风控约束。" },
 ];
+
+const noteTags = (note) => note.tags?.length ? note.tags : (note.body.match(/#[\w\u4e00-\u9fa5]+/g) || []).map((tag) => tag.slice(1));
 
 export function StrategyNotebook({ say, setSavedStrategies }) {
   const [notes, setNotes] = useLocalState("ai-trading-assistant-strategy-notes", seedNotes);
   const [selectedId, setSelectedId] = useState(notes[0]?.id);
   const [query, setQuery] = useState("");
+  const [graphOpen, setGraphOpen] = useState(false);
+  const [tagDraft, setTagDraft] = useState("");
+  const [nodeOffsets, setNodeOffsets] = useState({});
   const selected = notes.find((note) => note.id === selectedId) || notes[0];
   const update = (patch) => setNotes(notes.map((note) => note.id === selected.id ? { ...note, ...patch, updated: "刚刚" } : note));
-  const filtered = notes.filter((note) => `${note.title}${note.body}`.toLowerCase().includes(query.toLowerCase()));
-  const positions = useMemo(() => notes.map((note, index) => ({ ...note, x: 50 + (index % 3) * 180, y: 55 + Math.floor(index / 3) * 125 })), [notes]);
+  const filtered = notes.filter((note) => `${note.title}${note.body}${noteTags(note).join(" ")}`.toLowerCase().includes(query.toLowerCase()));
+  const positions = useMemo(() => notes.map((note, index) => ({ ...note, x: 52 + (index % 3) * 168 + (nodeOffsets[note.id]?.x || 0), y: 48 + Math.floor(index / 3) * 112 + (nodeOffsets[note.id]?.y || 0) })), [notes, nodeOffsets]);
+  const relatedIds = useMemo(() => {
+    const map = new Map();
+    notes.forEach((note) => map.set(note.id, new Set(note.links || [])));
+    notes.forEach((note) => notes.forEach((other) => {
+      if (note.id === other.id) return;
+      const shared = noteTags(note).filter((tag) => noteTags(other).includes(tag));
+      if (shared.length || (other.links || []).includes(note.id)) map.get(note.id).add(other.id);
+    }));
+    return map;
+  }, [notes]);
   const createNote = () => {
-    const note = { id: `${Date.now()}`, title: "未命名交易笔记", body: "记录行情事实、交易假设与失效条件…", links: [], updated: "刚刚", ai: "" };
+    const note = { id: `${Date.now()}`, title: "未命名交易笔记", body: "记录行情事实、交易假设与失效条件…", tags: ["待整理"], links: [], updated: "刚刚", ai: "" };
     setNotes([note, ...notes]); setSelectedId(note.id); say("已创建本地策略笔记");
   };
   const analyze = () => {
@@ -37,27 +52,33 @@ export function StrategyNotebook({ say, setSavedStrategies }) {
     setSavedStrategies((items) => [{ id: Date.now(), name: selected.title, coin: selected.body.match(/BTC|ETH|SOL|XRP/)?.[0] || "BTC", type: "AI笔记策略", amount: "100", status: "草稿" }, ...items]);
     say("已生成策略草稿，可在“我的套利”继续编辑");
   };
+  const addTag = () => {
+    const tag = tagDraft.trim().replace(/^#/, "");
+    if (!tag || noteTags(selected).includes(tag)) return setTagDraft("");
+    update({ tags: [...noteTags(selected), tag] }); setTagDraft(""); say(`已添加标签 #${tag}`);
+  };
   if (!selected) return <div className="strategy-empty"><I.Notebook/><h3>暂无策略笔记</h3><button onClick={createNote}>新建第一篇笔记</button></div>;
-  return <section className="strategy-notebook">
+  return <section className={`strategy-notebook ${graphOpen ? "graph-open" : "graph-closed"}`}>
     <aside className="note-library">
       <header><span><small>本地知识库</small><b>{notes.length} 篇笔记</b></span><button aria-label="新建策略笔记" onClick={createNote}><I.Plus/></button></header>
       <label><I.MagnifyingGlass/><input aria-label="搜索策略笔记" value={query} onChange={(e)=>setQuery(e.target.value)} placeholder="搜索笔记、标签或币种"/></label>
-      <nav>{filtered.map((note)=><button key={note.id} className={selected.id===note.id?"on":""} onClick={()=>setSelectedId(note.id)}><b>{note.title}</b><small>{note.body.replace(/\n/g," ").slice(0,46)}</small><em>{note.updated}</em></button>)}</nav>
+      <nav>{filtered.map((note)=><button key={note.id} className={selected.id===note.id?"on":""} onClick={()=>setSelectedId(note.id)}><b>{note.title}</b><small>{note.body.replace(/\n/g," ").slice(0,46)}</small><span className="note-list-tags">{noteTags(note).slice(0,3).map((tag)=><i key={tag}>#{tag}</i>)}</span><em>{note.updated}</em></button>)}</nav>
     </aside>
     <article className="note-editor">
-      <header><div><small>交易笔记 / 自动保存</small><input aria-label="策略笔记标题" value={selected.title} onChange={(e)=>update({title:e.target.value})}/></div><button aria-label="删除当前策略笔记" onClick={()=>{ const next=notes.filter(n=>n.id!==selected.id); setNotes(next); setSelectedId(next[0]?.id); say("笔记已删除"); }}><I.Trash/></button></header>
+      <header><div><small>交易笔记 / 自动保存</small><input aria-label="策略笔记标题" value={selected.title} onChange={(e)=>update({title:e.target.value})}/></div><button className={graphOpen ? "on" : ""} aria-label="展开双向关联" title="双向关联" onClick={()=>setGraphOpen(!graphOpen)}><I.Graph/></button><button aria-label="删除当前策略笔记" onClick={()=>{ const next=notes.filter(n=>n.id!==selected.id); setNotes(next); setSelectedId(next[0]?.id); say("笔记已删除"); }}><I.Trash/></button></header>
+      <div className="note-tag-editor"><span>{noteTags(selected).map((tag)=><button key={tag} title={`移除 #${tag}`} onClick={()=>update({tags:noteTags(selected).filter((item)=>item!==tag)})}>#{tag}<I.X/></button>)}</span><label><I.Tag/><input aria-label="添加笔记标签" value={tagDraft} onChange={(e)=>setTagDraft(e.target.value)} onKeyDown={(e)=>{if(e.key==="Enter"){e.preventDefault();addTag();}}} placeholder="添加标签，回车确认"/></label></div>
       <textarea aria-label="策略笔记正文" value={selected.body} onChange={(e)=>update({body:e.target.value})}/>
       <div className="note-actions"><button onClick={analyze}><I.Sparkle/>AI 分析笔记</button><button className="primary" onClick={generate}><I.Robot/>生成策略草稿</button></div>
       <section className="note-ai-result"><header><I.Sparkle/><b>AI 策略分析</b><span>基于当前笔记</span></header><p>{selected.ai || "点击“AI 分析笔记”，提取交易假设、触发条件与风险缺口。"}</p></section>
     </article>
-    <aside className="knowledge-graph">
-      <header><div><small>双向关联</small><b>策略知识图谱</b></div><span>{notes.reduce((n,x)=>n+x.links.length,0)} 条连接</span></header>
+    {graphOpen && <aside className="knowledge-graph">
+      <header><div><small>标签驱动 · 可拖动</small><b>双向关联</b></div><span>{Array.from(relatedIds.values()).reduce((n,set)=>n+set.size,0)} 条连接</span><button aria-label="收起双向关联" onClick={()=>setGraphOpen(false)}><I.X/></button></header>
       <svg viewBox="0 0 580 360" role="img" aria-label="策略笔记双向关联图谱">
-        {positions.flatMap((node)=>node.links.map((id)=>{const target=positions.find(n=>n.id===id);return target?<line key={`${node.id}-${id}`} x1={node.x+55} y1={node.y+22} x2={target.x+55} y2={target.y+22}/>:null}))}
-        {positions.map((node)=><g key={node.id} className={node.id===selected.id?"on":""} onClick={()=>setSelectedId(node.id)} role="button"><rect x={node.x} y={node.y} width="110" height="44" rx="7"/><text x={node.x+55} y={node.y+26} textAnchor="middle">{node.title.slice(0,9)}</text></g>)}
+        {positions.flatMap((node)=>Array.from(relatedIds.get(node.id) || []).map((id)=>{const target=positions.find(n=>n.id===id);return target?<line key={`${node.id}-${id}`} x1={node.x+40} y1={node.y+40} x2={target.x+40} y2={target.y+40}/>:null}))}
+        {positions.map((node)=><g key={node.id} className={node.id===selected.id?"on":""} transform={`translate(${node.x} ${node.y})`} onClick={()=>setSelectedId(node.id)} onPointerMove={(e)=>{if(e.buttons===1)setNodeOffsets((current)=>({...current,[node.id]:{x:(current[node.id]?.x||0)+e.movementX,y:(current[node.id]?.y||0)+e.movementY}}));}} role="button" tabIndex="0"><circle cx="40" cy="40" r="38"/><text x="40" y="36" textAnchor="middle">{node.title.slice(0,7)}</text><text className="bubble-tag" x="40" y="53" textAnchor="middle">#{noteTags(node)[0] || "未分类"}</text></g>)}
       </svg>
-      <footer><span><i/>当前笔记</span><span><i/>关联笔记</span><small>使用 [[笔记名]] 记录双向关系</small></footer>
-    </aside>
+      <footer><span><i/>当前笔记</span><span><i/>标签关联</span><small>拖动气泡调整视图</small></footer>
+    </aside>}
   </section>;
 }
 

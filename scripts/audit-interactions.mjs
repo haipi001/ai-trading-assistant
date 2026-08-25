@@ -200,7 +200,7 @@ const expectedChannelCounts = {
   market: 5,
   flash: 12,
   news: 12,
-  strategy: 5,
+  strategy: 4,
   chain: 3,
   assets: 6,
   auth: 3,
@@ -218,8 +218,8 @@ const totalChannels = Object.values(metaTabs).reduce(
   (sum, tabs) => sum + tabs.length,
   0,
 );
-if (totalChannels !== 60)
-  failures.push(`META contains ${totalChannels} channels; expected 60`);
+if (totalChannels !== 59)
+  failures.push(`META contains ${totalChannels} channels; expected 59`);
 
 for (const component of [
   "Home",

@@ -81,7 +81,7 @@ const META = {
   },
   strategy: {
     title: "策略",
-    tabs: ["自动赚币", "套利机会", "专业套利", "我的套利", "我的策略"],
+    tabs: ["自动赚币", "套利机会", "专业套利", "我的套利"],
   },
   chain: { title: "链上", tabs: ["聪明钱", "Hyperliquid", "Polymarket"] },
   assets: {
@@ -96,7 +96,7 @@ const HOME_TABS = {
   web3: META.home.tabs,
   stocks: ["AI智搜", "市场概览", "条件选股", "热门股票", "涨幅榜", "财经日历", "板块热力", "财报雷达"],
 };
-const STRATEGY_CATEGORY_LABELS = ["策略广场", "智能套利", "全币种 DCA", "AI网格", "指标策略", "跟单策略 · CEX", "跟单策略 · DEX", "主力追踪", "游资追踪"];
+const STRATEGY_CATEGORY_LABELS = ["我的策略", "智能套利", "全币种 DCA", "AI网格", "指标策略", "跟单策略 · CEX", "跟单策略 · DEX", "主力追踪", "游资追踪"];
 const coins = [
   ["XAU", "4,067.95", "+0.19%", "美股合约"],
   ["XAG", "58.67", "+1.24%", "美股合约"],
@@ -3219,7 +3219,7 @@ function MorePage({ tab, go, say, openOverlay }) {
 }
 
 const stratSide = [
-  ["策略广场", "智能策略/自动下单/稳定运行"],
+  ["我的策略", "交易笔记/标签关联/策略草稿"],
   ["智能套利", "低风险/稳健收益/随存随取"],
   ["全币种 DCA", "均摊成本/分批抄底/复利效应"],
   ["AI网格", "捕捉差价/可加杠杆/中短线"],
@@ -3478,7 +3478,7 @@ function Strategy({
             <option>期货</option>
           </select>
         </div>}
-        {category === 1 && tab === "我的策略" ? (
+        {category === 0 ? (
           <StrategyNotebook say={say} setSavedStrategies={setSavedStrategies} />
         ) : category === 1 && tab === "我的套利" ? (
           savedStrategies.length ? (
@@ -3548,8 +3548,6 @@ function Strategy({
         ) : category !== 1 ? (
           category === 7 || category === 8
             ? <CapitalTracker mode={category === 7 ? "main" : "hot"} say={say} setSavedStrategies={setSavedStrategies} />
-            : category === 0
-            ? <StrategyCategoryPanel category={category} openOverlay={openOverlay} say={say} />
             : <StrategyProductWorkbench category={category} openOverlay={openOverlay} say={say} authorizedAccounts={authorizedAccounts} />
         ) : tab === "自动赚币" ? (
           <AutoEarnPanel openOverlay={openOverlay} say={say} favorites={arbFavorites} setFavorites={setArbFavorites} />
