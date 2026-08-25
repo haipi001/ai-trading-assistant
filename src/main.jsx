@@ -31,7 +31,7 @@ const META = {
   home: {
     title: "首页",
     tabs: [
-      "Ace智搜",
+      "AI智搜",
       "市场概览",
       "条件选币",
       "热门榜单",
@@ -92,6 +92,10 @@ const META = {
   data: { title: "数据", tabs: ["加密货币储备", "Hyperliquid"] },
   more: { title: "更多", tabs: ["钱包", "宏观", "自定义导航", "帮助中心"] },
 };
+const HOME_TABS = {
+  web3: META.home.tabs,
+  stocks: ["AI智搜", "市场概览", "条件选股", "热门股票", "涨幅榜", "财经日历", "板块热力", "财报雷达"],
+};
 const STRATEGY_CATEGORY_LABELS = ["策略广场", "智能套利", "全币种 DCA", "AI网格", "指标策略", "跟单策略 · CEX", "跟单策略 · DEX", "主力追踪", "游资追踪"];
 const coins = [
   ["XAU", "4,067.95", "+0.19%", "美股合约"],
@@ -150,9 +154,10 @@ const news = [
 ];
 
 function readLastWorkspace() {
-  const fallback = { page: "home", tab: "Ace智搜" };
+  const fallback = { page: "home", tab: "AI智搜" };
   try {
     const saved = JSON.parse(localStorage.getItem("aicoin-workspace") || "null");
+    if (saved?.page === "home" && saved?.tab === "Ace智搜") return fallback;
     if (saved && META[saved.page]?.tabs.includes(saved.tab)) return saved;
   } catch {
     return fallback;
@@ -307,9 +312,9 @@ function App() {
       <PrimaryNav page={page} go={go} openOverlay={openOverlay} />
       <div className={`pagebar ${page === "market" ? `with-symbol ${marketSideOpen ? "market-side-expanded" : "market-side-collapsed"}` : "channels-only"}`}>
         <div>
-          {page === "market" && <div className={`market-mode-switch ${marketMode}`} role="group" aria-label="市场类型切换"><button className={marketMode === "web3" ? "on" : ""} onClick={() => { setMarketMode("web3"); setMarketSymbol("BTC"); }}>WEB3</button><button className={marketMode === "stocks" ? "on" : ""} onClick={() => { setMarketMode("stocks"); setMarketSymbol("AAPL"); }}>股票市场</button></div>}
+          {(page === "home" || page === "market") && <div className={`market-mode-switch ${marketMode}`} role="group" aria-label="市场类型切换"><button className={marketMode === "web3" ? "on" : ""} onClick={() => { setMarketMode("web3"); setMarketSymbol("BTC"); if (page === "home" && !HOME_TABS.web3.includes(tab)) setTab("AI智搜"); }}>WEB3</button><button className={marketMode === "stocks" ? "on" : ""} onClick={() => { setMarketMode("stocks"); setMarketSymbol("AAPL"); if (page === "home" && !HOME_TABS.stocks.includes(tab)) setTab("AI智搜"); }}>股票</button></div>}
           {page === "strategy" && strategyCategory !== 1 && <small>{STRATEGY_CATEGORY_LABELS[strategyCategory]}</small>}
-          {(page === "strategy" && strategyCategory !== 1 ? [] : META[page].tabs).map((x) => (
+          {(page === "strategy" && strategyCategory !== 1 ? [] : page === "home" ? HOME_TABS[marketMode] : META[page].tabs).map((x) => (
             <button
               key={x}
               className={tab === x ? "on" : ""}
@@ -588,7 +593,7 @@ function PageActions({ page, say, openOverlay, chartSnapshotCount = 0, onMarketA
   );
 }
 
-function Home({ tab, go, say, openOverlay }) {
+function Home({ tab, go, say, openOverlay, marketMode }) {
   const [range, setRange] = useState("24H");
   const [heatScale, setHeatScale] = useState("x1");
   const [heatMode, setHeatMode] = useState({
@@ -599,7 +604,7 @@ function Home({ tab, go, say, openOverlay }) {
   });
   if (tab !== "云图")
     return (
-      <HomeChannel tab={tab} go={go} say={say} openOverlay={openOverlay} />
+      <HomeChannel tab={tab} go={go} say={say} openOverlay={openOverlay} marketMode={marketMode} />
     );
   return (
     <div className="aicoin-home">
@@ -756,11 +761,12 @@ function Heat({ coin, value, cls, open }) {
     </button>
   );
 }
-function HomeChannel({ tab, go, say, openOverlay }) {
+function HomeChannel({ tab, go, say, openOverlay, marketMode = "web3" }) {
   const [aceQuery, setAceQuery] = useState("");
   const [aceMode, setAceMode] = useState("快速回答");
   const [attachmentOpen, setAttachmentOpen] = useState(false);
-  if (tab === "Ace智搜")
+  const isStocks = marketMode === "stocks";
+  if (tab === "AI智搜")
     return (
       <div className="ace-search">
         <div className="ace-logo">
@@ -771,7 +777,7 @@ function HomeChannel({ tab, go, say, openOverlay }) {
           <textarea
             value={aceQuery}
             onChange={(e) => setAceQuery(e.target.value)}
-            placeholder="行情、指标、数据、信息和功能的一站式 Web3 搜索引擎"
+            placeholder={isStocks ? "行情、财报、估值、新闻和宏观数据的一站式股票搜索引擎" : "行情、指标、数据、信息和功能的一站式 Web3 搜索引擎"}
           />
           <footer>
             <button
@@ -783,7 +789,7 @@ function HomeChannel({ tab, go, say, openOverlay }) {
               <I.Plus />
             </button>
             <button
-              aria-label="提交 Ace 智搜"
+              aria-label="提交 AI 智搜"
               onClick={() =>
                 setAceMode(aceMode === "快速回答" ? "深度思考" : "快速回答")
               }
@@ -793,7 +799,7 @@ function HomeChannel({ tab, go, say, openOverlay }) {
             <button
               onClick={() =>
                 aceQuery.trim()
-                  ? openOverlay("aceResult", "Ace 智搜结果", {
+                  ? openOverlay("aceResult", "AI 智搜结果", {
                       description: `正在以“${aceMode}”分析：${aceQuery}`,
                     })
                   : say("请输入问题")
@@ -807,7 +813,7 @@ function HomeChannel({ tab, go, say, openOverlay }) {
               <button
                 onClick={() =>
                   openOverlay("attachment", "添加图表快照", {
-                    description: "选择当前行情图表作为 Ace 智搜上下文。",
+                    description: "选择当前行情图表作为 AI 智搜上下文。",
                   })
                 }
               >
@@ -816,20 +822,26 @@ function HomeChannel({ tab, go, say, openOverlay }) {
               <button
                 onClick={() =>
                   openOverlay("attachment", "添加自选币种", {
-                    description: "选择一个自选币种作为问题上下文。",
+                    description: `选择一个自选${isStocks ? "股票" : "币种"}作为问题上下文。`,
                   })
                 }
               >
-                <I.Star /> 自选币种
+                <I.Star /> 自选{isStocks ? "股票" : "币种"}
               </button>
             </div>
           ) : null}
         </div>
         <div className="question-grid">
           {[
-            ["快速学习", "特朗普关税政策如何影响BTC？"],
-            ["市场情绪", "当前恐惧与贪婪指数意味着什么？"],
-            ["价格分析", "BTC关键支撑位在哪里？"],
+            ...(isStocks ? [
+              ["财报速读", "NVDA 最新财报的增长质量如何？"],
+              ["市场情绪", "利率变化如何影响科技股估值？"],
+              ["价格分析", "AAPL 当前关键支撑位在哪里？"],
+            ] : [
+              ["快速学习", "特朗普关税政策如何影响BTC？"],
+              ["市场情绪", "当前恐惧与贪婪指数意味着什么？"],
+              ["价格分析", "BTC关键支撑位在哪里？"],
+            ]),
           ].map((x) => (
             <button key={x[0]} onClick={() => setAceQuery(x[1])}>
               <b>{x[0]}</b>
@@ -844,10 +856,7 @@ function HomeChannel({ tab, go, say, openOverlay }) {
     return (
       <div className="overview-page">
         <section className="market-cards">
-          <OverviewCard t="恐惧&贪婪指数" v="40" s="中性" onClick={()=>openOverlay("tool","市场情绪")} />
-          <OverviewCard t="全网爆仓" v="$1.82亿" s="24H -12.4%" onClick={()=>openOverlay("tool","合约数据")} />
-          <OverviewCard t="BTC 市占率" v="54.21%" s="+0.18%" onClick={()=>openOverlay("coin","BTC/USDT",{description:"BTC 市场占有率与价格概览"})} />
-          <OverviewCard t="市场总市值" v="$2.34万亿" s="+1.02%" onClick={()=>go("market")} />
+          {(isStocks ? [["标普 500","6,389.77","+0.32%"],["纳斯达克","21,108.32","+0.41%"],["VIX 波动率","14.72","-2.18%"],["美股总市值","$62.8万亿","+0.36%"]] : [["恐惧&贪婪指数","40","中性"],["全网爆仓","$1.82亿","24H -12.4%"],["BTC 市占率","54.21%","+0.18%"],["市场总市值","$2.34万亿","+1.02%"]]).map((item) => <OverviewCard key={item[0]} t={item[0]} v={item[1]} s={item[2]} onClick={()=>openOverlay("tool",item[0])} />)}
         </section>
         <div className="overview-grid">
           <section>
@@ -861,9 +870,9 @@ function HomeChannel({ tab, go, say, openOverlay }) {
             ))}
           </section>
           <section>
-            <h3>热门币种</h3>
-            {coins.map((x) => (
-              <button key={x[0]} onClick={()=>openOverlay("coin",`${x[0]}/USDT`,{description:`最新价 ${x[1]}，24H涨跌 ${x[2]}`})}>
+            <h3>热门{isStocks ? "股票" : "币种"}</h3>
+            {(isStocks ? stocks : coins).map((x) => (
+              <button key={x[0]} onClick={()=>openOverlay("coin",isStocks ? x[0] : `${x[0]}/USDT`,{description:`最新价 ${x[1]}，24H涨跌 ${x[2]}`})}>
                 <b>{x[0]}</b>
                 <span>{x[1]}</span>
                 <em>{x[2]}</em>
@@ -871,21 +880,22 @@ function HomeChannel({ tab, go, say, openOverlay }) {
             ))}
           </section>
           <section>
-            <h3>合约数据</h3>
-            {[
+            <h3>{isStocks ? "市场数据" : "合约数据"}</h3>
+            {(isStocks ? ["美债 10Y 4.24%", "美元指数 97.84", "今日财报 42 家", "北向 ADR +0.62%"] : [
               "多空持仓人数比 1.62",
               "BTC 资金费率 0.0081%",
               "24H 爆仓 $8,420万",
               "主力挂单 $43.56亿",
-            ].map((x) => (
+            ]).map((x) => (
               <p key={x}>{x}</p>
             ))}
           </section>
         </div>
       </div>
     );
-  if (tab === "条件选币") return <Screener />;
-  if (tab === "热门榜单" || tab === "排行") return <Ranking title={tab} />;
+  if (tab === "条件选币" || tab === "条件选股") return <Screener marketMode={marketMode} />;
+  if (["热门榜单", "排行", "热门股票", "涨幅榜"].includes(tab)) return <Ranking title={tab} marketMode={marketMode} />;
+  if (["财经日历", "板块热力", "财报雷达"].includes(tab)) return <StockChannel tab={tab} openOverlay={openOverlay} />;
   if (tab === "功能指南") return <Toolbox go={go} />;
   if (tab === "合约雷达") return <FuturesRadar />;
   return <div />;
@@ -900,16 +910,19 @@ function OverviewCard({ t, v, s, onClick }) {
     </button>
   );
 }
-function Screener() {
+function Screener({ marketMode = "web3" }) {
+  const isStocks = marketMode === "stocks";
   const [filter, setFilter] = useState("市值排名");
   const [search, setSearch] = useState("");
-  const rows = [
+  const cryptoRows = [
     ["BTC", "64,020.04", "+1.44%", "$1.28万亿", "$21.8亿"],
     ["ETH", "3,172.22", "+0.55%", "$3820亿", "$12.4亿"],
     ["SOL", "148.32", "+0.29%", "$714亿", "$6.8亿"],
     ["XRP", "0.55", "0.00%", "$302亿", "$3.2亿"],
     ["HYPE", "42.06", "-2.20%", "$126亿", "$2.7亿"],
   ];
+  const stockRows = stocks.slice(0, 6).map((x) => [x[0], x[1], x[2], quoteFor(x[0]).marketCap, quoteFor(x[0]).turnover]);
+  const rows = isStocks ? stockRows : cryptoRows;
   const sortedRows = rows.slice().sort((a,b)=>{
     if(filter === "涨跌幅") return parseFloat(b[2])-parseFloat(a[2]);
     if(filter === "成交额") return parseFloat(b[4].replace(/[^\d.]/g,""))-parseFloat(a[4].replace(/[^\d.]/g,""));
@@ -946,19 +959,20 @@ function Screener() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="搜索币种"
+          placeholder={`搜索${isStocks ? "股票" : "币种"}`}
         />
       </div>
       <Table
         rows={sortedRows.filter((r) =>
           r[0].toLowerCase().includes(search.toLowerCase()),
         )}
-        heads={["币种", "最新价", "24H涨跌", "流通市值", "成交额"]}
+        heads={[isStocks ? "股票" : "币种", "最新价", "24H涨跌", "流通市值", "成交额"]}
       />
     </div>
   );
 }
-function Ranking({ title }) {
+function Ranking({ title, marketMode = "web3" }) {
+  const isStocks = marketMode === "stocks";
   const [rankType, setRankType] = useState("涨幅榜");
   const baseRows = [
     ["1", "BTC", "+1.44%", "$21.8亿", "热度 98"],
@@ -967,7 +981,8 @@ function Ranking({ title }) {
     ["4", "CRO", "+2.60%", "$2.9亿", "热度 88"],
     ["5", "CAKE", "+2.17%", "$1.8亿", "热度 82"],
   ];
-  const rankRows = rankType === "跌幅榜"
+  const stockBaseRows = stocks.slice(0, 5).map((x, index) => [String(index + 1), x[0], x[2], quoteFor(x[0]).turnover, `关注 ${98 - index * 4}`]);
+  const rankRows = isStocks ? (rankType === "跌幅榜" ? stockBaseRows.slice().sort((a,b)=>parseFloat(a[2])-parseFloat(b[2])) : stockBaseRows.slice().sort((a,b)=>parseFloat(b[2])-parseFloat(a[2]))) : rankType === "跌幅榜"
     ? [["1","HYPE","-2.20%","$2.7亿","热度 89"],["2","AAVE","-3.22%","$1.9亿","热度 86"],["3","GNO","-4.50%","$0.8亿","热度 72"],["4","POL","-3.64%","$1.4亿","热度 78"],["5","BDX","-4.24%","$0.6亿","热度 69"]]
     : rankType === "成交榜"
       ? baseRows.slice().sort((a,b)=>parseFloat(b[3].replace(/[^\d.]/g,""))-parseFloat(a[3].replace(/[^\d.]/g,"")))
@@ -990,9 +1005,17 @@ function Ranking({ title }) {
           ))}
         </div>
       </div>
-      <Table rows={rankRows} heads={["排名", "币种", "涨跌幅", "成交额", "热度"]} />
+      <Table rows={rankRows} heads={["排名", isStocks ? "股票" : "币种", "涨跌幅", "成交额", isStocks ? "关注度" : "热度"]} />
     </div>
   );
+}
+function StockChannel({ tab, openOverlay }) {
+  const data = {
+    财经日历: { heads: ["时间", "事件", "重要性", "预期", "前值"], rows: [["20:30", "美国初请失业金人数", "高", "23.1万", "22.8万"], ["22:00", "美国成屋销售", "中", "3.92M", "3.93M"], ["次日 02:00", "美联储褐皮书", "高", "—", "—"], ["次日 04:30", "API 原油库存", "中", "—", "+130万桶"]] },
+    板块热力: { heads: ["板块", "涨跌幅", "领涨股", "成交额", "资金趋势"], rows: [["半导体", "+2.41%", "NVDA", "$38.6B", "净流入"], ["云计算", "+1.32%", "MSFT", "$19.2B", "净流入"], ["电动车", "+0.84%", "TSLA", "$12.8B", "震荡"], ["金融科技", "-0.26%", "HOOD", "$6.4B", "净流出"]] },
+    财报雷达: { heads: ["股票", "发布时间", "EPS 预期", "营收预期", "关注点"], rows: [["NVDA", "盘后", "$1.01", "$45.8B", "AI 芯片指引"], ["CRM", "盘后", "$2.78", "$10.1B", "订阅增长"], ["DELL", "盘后", "$2.30", "$29.2B", "服务器订单"], ["BABA", "盘前", "$2.19", "$34.6B", "云业务利润"]] },
+  }[tab];
+  return <div className="list-page stock-channel"><div className="channel-title"><div><small>股票市场 · 本地模拟数据</small><h1>{tab}</h1></div><button onClick={() => openOverlay("tool", `${tab}提醒`, { description: `已创建${tab}本地提醒预览。` })}><I.Bell /> 设置提醒</button></div><Table heads={data.heads} rows={data.rows} /></div>;
 }
 function Toolbox({ go }) {
   const tools = [
