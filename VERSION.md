@@ -1,6 +1,6 @@
-# AiCoin UI Clone 版本记录
+# AI Trading Assistant UI Clone 版本记录
 
-## aicoin-ui-clone-full-2026.08.07-r12
+## ai-trading-assistant-full-2026.08.07-r12
 
 - 状态：专业抽屉可调布局版。
 - 所有右侧数据页从全局顶部栏下方开始，消除行情页面栏上方的空白断层。
@@ -8,31 +8,31 @@
 - 数据区与下单区之间增加上下拖拽挡板；比例限制在 28%–76%，本地持久化，双击恢复 58% 默认值。
 - 浏览器实际完成把手收起、重新展开和挡板向上拖动验证；生产构建与交互审计通过。
 
-## aicoin-ui-clone-full-2026.08.07-r11
+## ai-trading-assistant-full-2026.08.07-r11
 
 - 状态：专业侧栏顶部占位联动版。
 - 固定侧栏展开时，其占位延伸至行情页顶部操作栏；“快照 / 保存布局 / 新建”整体左移到图表工作区上方。
 - 固定侧栏收起时，三枚按钮自动回到页面最右侧，完整释放 K 线宽度。
 - 浏览器分别对展开态与收起态完成视觉回归；交互审计与生产构建通过。
 
-## aicoin-ui-clone-full-2026.08.07-r10
+## ai-trading-assistant-full-2026.08.07-r10
 
 - 状态：专业侧栏固定工作区纠正版。
 - 最右按钮轨与其左侧唯一数据列绑定：同项复点收起/展开，换项切换内容并强制展开。
 - 盘口、资讯、资金、分析、特色、ETF、Ace Agent 不再以覆盖 K 线的额外抽屉出现。
 - 下单面板作为同一工作区的下半区独立收放，并保留授权入口、本地模拟单与盘口回填。
-- 依据：AiCoin 原应用实测与 `renderer/5908/deobfuscated.js` 的 `sideTab` / `order` 切换逻辑。
+- 依据：AI Trading Assistant 原应用实测与 `renderer/5908/deobfuscated.js` 的 `sideTab` / `order` 切换逻辑。
 - 验证：浏览器完成收起、换项重开、单工作区和下单区独立收放验证；交互审计与生产构建通过。
 
-> 唯一前端路径：`/Users/lizekai/Documents/交易系统/aicoin-ui-clone`
+> 唯一前端路径：`/Users/lizekai/Documents/交易系统/ai-trading-assistant`
 >
 > 唯一运行地址：`http://localhost:3002/`
 >
 > 2026-08-05 起，“3002 UI”、“当前 UI”和“最新完整复刻版”均指本目录的 r5 及其后续版本。
 
-## aicoin-ui-clone-full-2026.08.07-r9
+## ai-trading-assistant-full-2026.08.07-r9
 
-- 依据 AiCoin 当前桌面端源码 `renderer/5908/deobfuscated.js` 与中文资源 `main.json`、`trading.json`，恢复专业右侧栏的真实顺序与交互语义。
+- 依据 AI Trading Assistant 当前桌面端源码 `renderer/5908/deobfuscated.js` 与中文资源 `main.json`、`trading.json`，恢复专业右侧栏的真实顺序与交互语义。
 - 专业入口顺序固定为：订单表与最新成交、最新资讯、资金流向、技术分析、特色数据、ETF 数据、Ace Agent、下单面板、侧栏布局、联系客服、AI 智能分析。
 - 专业行情头新增当前币对、报价、加预警、主力、加/移除自选、简况，以及盘口/资金/消息/分析四向联动。
 - 侧栏布局恢复“经典侧栏 / 专业侧栏”双预览选择器；本版本优先完成并验收专业侧栏，经典侧栏作为下一阶段。
@@ -40,16 +40,16 @@
 - 浏览器实测：8 个业务抽屉、4 个行情内页签、简况/主力/自选/预警、布局选择、客服、AI 分析和下单三栏均有可见结果。
 - 验证：524/524 按钮、162/162 表单控件通过；生产构建通过；3002、后端 `/health`、`/assets` 均为 HTTP 200。
 
-## aicoin-ui-clone-full-2026.08.07-r8
+## ai-trading-assistant-full-2026.08.07-r8
 
-- 基于 `/Applications/AiCoin.app` 实际只读体验，补全行情工具栏三个核心功能中心。
+- 基于 `/Applications/AI Trading Assistant.app` 实际只读体验，补全行情工具栏三个核心功能中心。
 - 指标中心：指标库、指标广场、指标胜率、信号预警、布局广场，以及搜索、收藏、我的、快捷和编写指标；指标可实际加入或移出 TradingView 图表。
 - 多窗中心：支持 1–18 窗排布、自定义多窗，并保存十字光标、交易对、指标、周期、日期范围、对比K线、缩放比例和坐标轴等同步选项。
 - 自定义周期：覆盖秒、分钟、小时、日、周、月、季、年，支持输入任意数值和单位、底部栏显示与恢复默认。
 - 高密度多窗具备动态网格列数及精简窗头，避免 10–18 窗重叠。
 - 验证：506/506 按钮、156/156 表单控件通过；生产构建通过；3002 与后端 8000 均为 HTTP 200。
 
-## aicoin-ui-clone-full-2026.08.07-r7
+## ai-trading-assistant-full-2026.08.07-r7
 
 - 行情图表明确采用 TradingView 官方 Lightweight Charts 5.2 内核，保留 TradingView attribution、自研工具栏、指标和绘图联动。
 - 行情顶部新增鲜艳的“WEB3 / 股票市场”切换；切换时同步更新标的、自选列表、交易所、时间周期、交易时段、报价单位、盘口与指标语义。
@@ -59,7 +59,7 @@
 - 后端默认 CORS 增加 3002，允许唯一复刻前端只读访问。
 - 验证：487/487 按钮、151/151 表单控件通过；生产构建通过。
 
-## aicoin-ui-clone-full-2026.08.05-r6
+## ai-trading-assistant-full-2026.08.05-r6
 
 - 顶部广告位替换为可轮播的 AI 行情建议，点击可直接打开 AI 交易助手。
 - 原消息入口升级为突出显示的悬浮 AI 对话窗，支持快捷问题、连续对话和本地历史保存。
@@ -68,7 +68,7 @@
 - 安全边界：所有 AI 回答、信号、笔记和策略均为本地模拟，不连接真实交易接口。
 - 验证：485/485 按钮、151/151 表单控件通过；全站 60 个顶部频道完整；生产构建通过。
 
-## aicoin-ui-clone-full-2026.08.05-r5
+## ai-trading-assistant-full-2026.08.05-r5
 
 - 状态：优先保障 UI 完整的 3001 能力吸收版。
 - 图表右键菜单：在光标价格处创建预警、限价买入/卖出、切换自选、启动复盘、重置视图和清除绘图。
@@ -79,7 +79,7 @@
 - 保留边界：未将 3001 的精简布局、Lucide 图标、Canvas 图表或 AI Trading OS 审批语义覆盖到 3002。实时 Binance 行情留作后续可选数据源。
 - 唯一化记录：2026-08-05 已移入交易系统根目录，并成为唯一保留的 3002 前端。
 
-## aicoin-ui-clone-full-2026.08.02-r4
+## ai-trading-assistant-full-2026.08.02-r4
 
 - 状态：行情页全控件功能化版。
 - 图表：MA、EMA、BOLL、Volume、RSI、MACD、KDJ、OI和资金费率均有可见结果；价格线、网格线、倒计时、买卖信号、委托线与成本线作用于真实图表状态。
@@ -91,7 +91,7 @@
 - 验证：460/460 按钮、145/145 表单控件、228 个动态列表 key；`npm run test:interactions` 与 `npm run build` 通过。
 - 安全边界：图表和交易数据仍为本地确定性演示，不会向交易所发送真实订单。
 
-## aicoin-ui-clone-full-2026.08.02-r3
+## ai-trading-assistant-full-2026.08.02-r3
 
 - 状态：专业行情工作台升级版
 - 图表内核：TradingView Lightweight Charts 5.2（Apache-2.0）
@@ -99,23 +99,23 @@
 - 保留：本地画线、K 线复盘、链上交易员标记、盘口、成交、资金与底部策略工作台。
 - 安全边界：行情数据仍为确定性本地演示，不调用真实交易接口。
 
-## aicoin-ui-clone-full-2026.08.02-r2
+## ai-trading-assistant-full-2026.08.02-r2
 
 - 状态：参考源码推荐 UI 缺口补全版
 - 新增：AI 指标助手、AI K 线解读四动作闭环、策略订单详情、批量管理、运行异常与恢复。
 - 交互审计：442/442 按钮、142/142 表单控件、213 个动态列表 key。
 - 安全边界：AI、策略、订单和异常恢复均为本地演示，不接真实交易服务。
 
-## aicoin-ui-clone-full-2026.08.02-r1
+## ai-trading-assistant-full-2026.08.02-r1
 
 - 状态：基于原始完整复刻版的补全版本
-- 参考验证：`AiCoin_cleaned_v5` 解包源码
+- 参考验证：`AI Trading Assistant_cleaned_v5` 解包源码
 - 新增：完整 K 线复盘训练层、播放与倍速控制、起始点重选、双模式、本地模拟交易和训练结果。
 - 交互审计：427/427 按钮、138/138 表单控件、206 个动态列表 key。
 - `npm run test:interactions` 与 `npm run build` 通过。
 - 安全边界：复盘交易仅存在于页面内存，不连接真实交易所。
 
-## aicoin-ui-clone-full-2026.08.02
+## ai-trading-assistant-full-2026.08.02
 
 - 状态：原始完整复刻版基线
 - 固化日期：2026-08-02
@@ -139,7 +139,7 @@
 c77152191af7f4d3b22acaaa99ceb8ce5cff3a30581510925b614368a9a747e2  src/market-workbench.jsx
 b7b63e4523920773bda323cb36990dfe785e92ad1a2b72979fa2b8c243e93dea  src/market-workbench.css
 4c2fa3085801028c4684abaf9f481c95eae4c801961213fbe37ef220f6279b24  scripts/audit-interactions.mjs
-55dd6a7a8988e92d13c679317c5a58406d08052e825c942ab8d1f631ef5ba7de  docs/AICOIN_UI_REVERSE_ENGINEERING.md
+55dd6a7a8988e92d13c679317c5a58406d08052e825c942ab8d1f631ef5ba7de  docs/AI_TRADING_ASSISTANT_UI_REVERSE_ENGINEERING.md
 ```
 
 ### 验证

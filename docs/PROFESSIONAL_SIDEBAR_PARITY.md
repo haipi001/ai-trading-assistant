@@ -1,11 +1,11 @@
-# AiCoin 专业侧栏对照记录
+# AI Trading Assistant 专业侧栏对照记录
 
 ## 依据
 
-- 桌面应用：`/Applications/AiCoin.app`
-- 解包参考：`AiCoin_cleaned_v5/renderer/5908/deobfuscated.js`
-- 中文资源：`_aicoin_reference/02_功能文案_locales/zh/main.json`
-- 交易资源：`_aicoin_reference/02_功能文案_locales/zh/trading.json`
+- 桌面应用：`/Applications/AI Trading Assistant.app`
+- 解包参考：`AI Trading Assistant_cleaned_v5/renderer/5908/deobfuscated.js`
+- 中文资源：`_ai-trading-assistant_reference/02_功能文案_locales/zh/main.json`
+- 交易资源：`_ai-trading-assistant_reference/02_功能文案_locales/zh/trading.json`
 - 用户提供的 2026-08-07 专业侧栏、布局选择和授权下单截图。
 
 ## 专业侧栏顺序

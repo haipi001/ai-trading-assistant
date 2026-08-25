@@ -394,11 +394,11 @@ for (const marketWorkflow of [
   "首次保证金需不少于20 USDT",
   "请先完成风险测算",
   "已生成本地导出记录",
-  'useLocalState("aicoin-grid-strategies"',
-  'useLocalState("aicoin-spot-dca-strategies"',
-  'useLocalState("aicoin-futures-dca-strategies"',
-  'useLocalState("aicoin-indicator-live-strategies"',
-  'venue === "DEX" ? "aicoin-dex-copy-subscriptions" : "aicoin-copy-subscriptions"',
+  'useLocalState("ai-trading-assistant-grid-strategies"',
+  'useLocalState("ai-trading-assistant-spot-dca-strategies"',
+  'useLocalState("ai-trading-assistant-futures-dca-strategies"',
+  'useLocalState("ai-trading-assistant-indicator-live-strategies"',
+  'venue === "DEX" ? "ai-trading-assistant-dex-copy-subscriptions" : "ai-trading-assistant-copy-subscriptions"',
   'export function StrategyProductWorkbench',
   'venue="CEX"',
   'venue="DEX"',
@@ -498,7 +498,7 @@ for (const completeMarketControlContract of [
   '"面积图"',
   '个K线窗口周期',
   'onPanePeriodChange?.(index,value)',
-  'aicoin-prefill-order',
+  'ai-trading-assistant-prefill-order',
   '在此价格添加预警',
   '限价买入',
   '限价卖出',
@@ -515,7 +515,7 @@ for (const completeMarketControlContract of [
 }
 
 for (const chartLayoutContract of [
-  'useStoredState("aicoin-chart-tabs"',
+  'useStoredState("ai-trading-assistant-chart-tabs"',
   'aria-label="新增图表标签页"',
   '至少保留一个图表标签页',
   '当前图表标签页已保存',
@@ -526,7 +526,7 @@ for (const chartLayoutContract of [
 }
 
 for (const drawingContract of [
-  'useStoredState("aicoin-chart-drawings"',
+  'useStoredState("ai-trading-assistant-chart-drawings"',
   'aria-label="K线绘图区"',
   'className="chart-drawing-layer"',
   'drawing.type === "趋势线"',
@@ -548,7 +548,7 @@ for (const drawingContract of [
 }
 
 for (const quickTradeContract of [
-  'useStoredState("aicoin-quick-orders"',
+  'useStoredState("ai-trading-assistant-quick-orders"',
   'useState("限价")',
   '["限价", "市价"]',
   'aria-label="快捷交易价格"',
@@ -562,15 +562,15 @@ for (const quickTradeContract of [
 }
 
 for (const arbitrageContract of [
-  'useStoredState("aicoin-arb-favorites"',
+  'useStoredState("ai-trading-assistant-arb-favorites"',
   'aria-label="套利平台筛选"',
   'aria-label="套利合约筛选"',
   'setCategory(1)',
   'tab === "自动赚币"',
   'tab === "专业套利"',
   'tab === "我的套利"',
-  'useStoredState("aicoin-arb-combinations"',
-  'useStoredState("aicoin-professional-arb-orders"',
+  'useStoredState("ai-trading-assistant-arb-combinations"',
+  'useStoredState("ai-trading-assistant-professional-arb-orders"',
   'aria-label="自动赚币平台筛选"',
   'aria-label="专业套利下单金额"',
   '模拟双腿下单',
@@ -633,8 +633,8 @@ for (const rightRailContract of [
 }
 
 for (const chainChartContract of [
-  '"aicoin-followed-traders"',
-  '"aicoin-chart-traders"',
+  '"ai-trading-assistant-followed-traders"',
+  '"ai-trading-assistant-chart-traders"',
   'className="chart-trader-strip"',
   'className={`trader-marker ${trader.side === "卖出" ? "sell" : "buy"}`}',
   'trackedTraders={chartTraders.filter((trader) => trader.symbol === symbol)}',
@@ -648,7 +648,7 @@ for (const chainChartContract of [
 }
 
 for (const topMarketToolbarContract of [
-  '"aicoin-chart-snapshots"',
+  '"ai-trading-assistant-chart-snapshots"',
   'onMarketAction={(type) => setMarketCommand({ type, id: Date.now() })}',
   'marketCommand.type === "snapshot"',
   'marketCommand.type === "saveLayout"',
@@ -668,8 +668,8 @@ for (const topMarketToolbarContract of [
 }
 
 for (const marketSymbolContract of [
-  'useStoredState("aicoin-market-symbol", "BTC")',
-  'useStoredState("aicoin-market-mode", "web3")',
+  'useStoredState("ai-trading-assistant-market-symbol", "BTC")',
+  'useStoredState("ai-trading-assistant-market-mode", "web3")',
   'aria-label="市场类型切换"',
   'const quote = quoteFor(symbol)',
   '<MarketChannel tab={tab} openOverlay={openOverlay} watch={watch} setWatch={setWatch} symbol={symbol}',
@@ -684,9 +684,9 @@ for (const marketSymbolContract of [
 }
 
 for (const localOrderLedgerContract of [
-  'useLocalState("aicoin-quick-orders", [])',
-  'window.addEventListener("aicoin-local-state", sync)',
-  'window.dispatchEvent(new CustomEvent("aicoin-local-state"',
+  'useLocalState("ai-trading-assistant-quick-orders", [])',
+  'window.addEventListener("ai-trading-assistant-local-state", sync)',
+  'window.dispatchEvent(new CustomEvent("ai-trading-assistant-local-state"',
   'const pendingOrders = scopedOrders.filter((order) => order.status === "等待成交")',
   'const historicalOrders = scopedOrders.filter((order) => order.status !== "等待成交")',
   'const filledOrders = scopedOrders.filter((order) => order.status === "模拟成交")',
@@ -722,15 +722,15 @@ for (const globalWorkflowContract of [
   '资金费率排行',
   '最近24小时',
   '"K线设置", "下单设置", "预警", "快讯弹窗", "策略通知", "市场异动", "消息中心", "Webhook"',
-  'useStoredState("aicoin-system-settings"',
-  'useStoredState("aicoin-notifications"',
+  'useStoredState("ai-trading-assistant-system-settings"',
+  'useStoredState("ai-trading-assistant-notifications"',
   '查看关联内容',
   '"消息通知": [',
   '"账户活动": [',
   '请输入 https:// 开头的 Webhook 地址',
   'model.type === "alertCenter"',
-  'useStoredState("aicoin-alerts"',
-  'useStoredState("aicoin-alert-history"',
+  'useStoredState("ai-trading-assistant-alerts"',
+  'useStoredState("ai-trading-assistant-alert-history"',
   '["价格预警", "指标预警", "价差预警", "资金费率", "链上预警"]',
   '["我的预警", "历史预警"]',
   '请至少选择一种预警方式',
@@ -750,8 +750,8 @@ for (const excludedFeature of ["群聊", "DCA社区", ">VIP<", '"VIP"']) {
 }
 
 for (const contract of [
-  'localStorage.getItem("aicoin-workspace")',
-  'localStorage.setItem("aicoin-workspace"',
+  'localStorage.getItem("ai-trading-assistant-workspace")',
+  'localStorage.setItem("ai-trading-assistant-workspace"',
   'useState("自定义指标/回测/实盘")',
   'watchOpen ? "watch-open" : "watch-collapsed"',
   'event.key === "/"',

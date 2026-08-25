@@ -17,7 +17,7 @@ const seedNotes = [
 ];
 
 export function StrategyNotebook({ say, setSavedStrategies }) {
-  const [notes, setNotes] = useLocalState("aicoin-strategy-notes", seedNotes);
+  const [notes, setNotes] = useLocalState("ai-trading-assistant-strategy-notes", seedNotes);
   const [selectedId, setSelectedId] = useState(notes[0]?.id);
   const [query, setQuery] = useState("");
   const selected = notes.find((note) => note.id === selectedId) || notes[0];
@@ -68,7 +68,7 @@ const TRACKING = {
 
 export function CapitalTracker({ mode, say, setSavedStrategies }) {
   const data=TRACKING[mode]; const [period,setPeriod]=useState("24小时"); const [market,setMarket]=useState("全部市场");
-  const [watch,setWatch]=useLocalState(`aicoin-${mode}-tracking-watch`,[]); const [selected,setSelected]=useState(data.rows[0]);
+  const [watch,setWatch]=useLocalState(`ai-trading-assistant-${mode}-tracking-watch`,[]); const [selected,setSelected]=useState(data.rows[0]);
   const create=(row)=>{setSavedStrategies((items)=>[{id:Date.now(),name:`${row[0]} ${data.title}策略`,coin:row[0].split("/")[0],type:data.title,amount:"100",status:"草稿"},...items]);say("信号已生成本地策略草稿");};
   return <section className="capital-tracker"><header><div><small>{data.kicker}</small><h3>{data.title}</h3><p>信号为本地模拟分析，仅用于研究，不会自动提交订单。</p></div><div><select aria-label={`${data.title}周期`} value={period} onChange={(e)=>setPeriod(e.target.value)}><option>1小时</option><option>4小时</option><option>24小时</option><option>7天</option></select><select aria-label={`${data.title}市场`} value={market} onChange={(e)=>setMarket(e.target.value)}><option>全部市场</option><option>币安</option><option>欧易OKX</option><option>Hyperliquid</option></select></div></header>
     <div className="tracker-stats">{data.stats.map((x)=><article key={x[0]}><small>{x[0]}</small><strong>{x[1]}</strong><span>{period} · {market}</span></article>)}</div>
@@ -78,7 +78,7 @@ export function CapitalTracker({ mode, say, setSavedStrategies }) {
 }
 
 export function FloatingAIChat({ open, onClose, page, symbol, say }) {
-  const [messages,setMessages]=useLocalState("aicoin-ai-dialog",[{id:1,role:"ai",text:"我是交易工作台 AI。可以整理当前行情、分析策略笔记，或把想法转成模拟策略。"}]);
+  const [messages,setMessages]=useLocalState("ai-trading-assistant-ai-dialog",[{id:1,role:"ai",text:"我是交易工作台 AI。可以整理当前行情、分析策略笔记，或把想法转成模拟策略。"}]);
   const [input,setInput]=useState(""); const ask=(text=input)=>{if(!text.trim())return;const answer=`已结合 ${symbol}/USDT 与当前${page==="strategy"?"策略":"行情"}工作区分析：建议先定义触发条件、失效位和最大风险，再做本地模拟验证。`;setMessages([...messages,{id:Date.now(),role:"user",text},{id:Date.now()+1,role:"ai",text:answer}]);setInput("");};
   if(!open)return null;
   return <aside className="floating-ai"><header><div className="ai-avatar"><I.Sparkle/></div><span><b>AI 交易助手</b><small><i/>正在读取当前工作区</small></span><button aria-label="关闭AI对话" onClick={onClose}><I.X/></button></header><div className="ai-context"><span>{symbol}/USDT</span><span>{page==="strategy"?"策略工作区":"全局工作区"}</span><em>本地模拟</em></div><div className="ai-messages">{messages.slice(-6).map(m=><p key={m.id} className={m.role}>{m.text}</p>)}</div><div className="ai-prompts">{["总结当前机会","检查策略风险","整理成交易笔记"].map(x=><button key={x} onClick={()=>ask(x)}>{x}</button>)}</div><footer><textarea aria-label="向AI交易助手提问" value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();ask();}}} placeholder="输入问题，Enter 发送…"/><button aria-label="发送AI消息" onClick={()=>{ask();say("AI 已回复");}}><I.ArrowUp/></button></footer></aside>;

@@ -156,7 +156,7 @@ const news = [
 function readLastWorkspace() {
   const fallback = { page: "home", tab: "AI智搜" };
   try {
-    const saved = JSON.parse(localStorage.getItem("aicoin-workspace") || "null");
+    const saved = JSON.parse(localStorage.getItem("ai-trading-assistant-workspace") || "null");
     if (saved?.page === "home" && saved?.tab === "Ace智搜") return fallback;
     if (saved && META[saved.page]?.tabs.includes(saved.tab)) return saved;
   } catch {
@@ -176,7 +176,7 @@ function useStoredState(key, initialValue) {
   });
   useEffect(() => {
     localStorage.setItem(key, JSON.stringify(state));
-    window.dispatchEvent(new CustomEvent("aicoin-local-state", { detail: { key, value: state } }));
+    window.dispatchEvent(new CustomEvent("ai-trading-assistant-local-state", { detail: { key, value: state } }));
   }, [key, state]);
   return [state, setState];
 }
@@ -189,20 +189,20 @@ function App() {
     [drawer, setDrawer] = useState(null);
   const [strategyCategory, setStrategyCategory] = useState(1);
   const [sidebarMode, setSidebarMode] = useStoredState(
-    "aicoin-sidebar-mode",
+    "ai-trading-assistant-sidebar-mode",
     "professional",
   );
-  const [marketSideTab, setMarketSideTab] = useStoredState("aicoin-market-side-tab", "depth");
-  const [marketSideOpen, setMarketSideOpen] = useStoredState("aicoin-market-side-open", true);
-  const [marketOrderOpen, setMarketOrderOpen] = useStoredState("aicoin-market-order-open", false);
-  const [watch, setWatch] = useStoredState("aicoin-watch", [
+  const [marketSideTab, setMarketSideTab] = useStoredState("ai-trading-assistant-market-side-tab", "depth");
+  const [marketSideOpen, setMarketSideOpen] = useStoredState("ai-trading-assistant-market-side-open", true);
+  const [marketOrderOpen, setMarketOrderOpen] = useStoredState("ai-trading-assistant-market-order-open", false);
+  const [watch, setWatch] = useStoredState("ai-trading-assistant-watch", [
       "BTC",
       "ETH",
       "SOL",
     ]),
     [query, setQuery] = useState(""),
     [toast, setToast] = useState("");
-  const [prefs, setPrefs] = useStoredState("aicoin-prefs", {
+  const [prefs, setPrefs] = useStoredState("ai-trading-assistant-prefs", {
     currency: "USD",
     desktop: true,
     sound: false,
@@ -212,33 +212,33 @@ function App() {
   });
   const [quickTradePrefill, setQuickTradePrefill] = useState(null);
   const [savedStrategies, setSavedStrategies] = useStoredState(
-    "aicoin-strategies",
+    "ai-trading-assistant-strategies",
     [],
   );
-  const [assetGroups, setAssetGroups] = useStoredState("aicoin-groups", []);
+  const [assetGroups, setAssetGroups] = useStoredState("ai-trading-assistant-groups", []);
   const [authorizedAccounts, setAuthorizedAccounts] = useStoredState(
-    "aicoin-accounts",
+    "ai-trading-assistant-accounts",
     [],
   );
   const [followedTraders, setFollowedTraders] = useStoredState(
-    "aicoin-followed-traders",
+    "ai-trading-assistant-followed-traders",
     [],
   );
   const [chartTraders, setChartTraders] = useStoredState(
-    "aicoin-chart-traders",
+    "ai-trading-assistant-chart-traders",
     [],
   );
   const [chartSnapshots, setChartSnapshots] = useStoredState(
-    "aicoin-chart-snapshots",
+    "ai-trading-assistant-chart-snapshots",
     [],
   );
-  const [marketSymbol, setMarketSymbol] = useStoredState("aicoin-market-symbol", "BTC");
-  const [marketMode, setMarketMode] = useStoredState("aicoin-market-mode", "web3");
+  const [marketSymbol, setMarketSymbol] = useStoredState("ai-trading-assistant-market-symbol", "BTC");
+  const [marketMode, setMarketMode] = useStoredState("ai-trading-assistant-market-mode", "web3");
   const [marketCommand, setMarketCommand] = useState(null);
   const [overlay, setOverlay] = useState(null);
   const [aiFloatOpen, setAiFloatOpen] = useState(false);
   useEffect(() => {
-    localStorage.setItem("aicoin-workspace", JSON.stringify({ page, tab }));
+    localStorage.setItem("ai-trading-assistant-workspace", JSON.stringify({ page, tab }));
     if (canvasRef.current) canvasRef.current.scrollTop = 0;
   }, [page, tab]);
   useEffect(() => {
@@ -247,8 +247,8 @@ function App() {
       setMarketSideOpen(true);
       setMarketOrderOpen(true);
     };
-    window.addEventListener("aicoin-prefill-order", handlePrefill);
-    return () => window.removeEventListener("aicoin-prefill-order", handlePrefill);
+    window.addEventListener("ai-trading-assistant-prefill-order", handlePrefill);
+    return () => window.removeEventListener("ai-trading-assistant-prefill-order", handlePrefill);
   }, []);
   const go = (p) => {
     setPage(p);
@@ -607,7 +607,7 @@ function Home({ tab, go, say, openOverlay, marketMode }) {
       <HomeChannel tab={tab} go={go} say={say} openOverlay={openOverlay} marketMode={marketMode} />
     );
   return (
-    <div className="aicoin-home">
+    <div className="ai-trading-assistant-home">
       <div className="heat-controls">
         <button
           onClick={() =>
@@ -1180,9 +1180,9 @@ function Market({
     [tool, setTool] = useState(null),
     [bottom, setBottom] = useState("自定义指标/回测/实盘");
   const [watchOpen, setWatchOpen] = useState(false);
-  const [orderSplit, setOrderSplit] = useStoredState("aicoin-market-order-split", 58);
+  const [orderSplit, setOrderSplit] = useStoredState("ai-trading-assistant-market-order-split", 58);
   const [drawingTool, setDrawingTool] = useState("光标");
-  const [drawings, setDrawings] = useStoredState("aicoin-chart-drawings", []);
+  const [drawings, setDrawings] = useStoredState("ai-trading-assistant-chart-drawings", []);
   const [drawingHistory, setDrawingHistory] = useState([]);
   const [drawingRedo, setDrawingRedo] = useState([]);
   const [drawingLocked, setDrawingLocked] = useState(false);
@@ -1240,10 +1240,10 @@ function Market({
   const [layoutDraft, setLayoutDraft] = useState({ name: "专业多窗", mode: "双窗" });
   const [chartType, setChartType] = useState("蜡烛图");
   const [panePeriods, setPanePeriods] = useState(["分时", "4时", "1日", "15分", "1时", "8时", "1周", "5分", "45分"]);
-  const [paneCount, setPaneCount] = useStoredState("aicoin-chart-pane-count", 1);
-  const [paneSync, setPaneSync] = useStoredState("aicoin-chart-pane-sync", ["十字光标", "周期"]);
+  const [paneCount, setPaneCount] = useStoredState("ai-trading-assistant-chart-pane-count", 1);
+  const [paneSync, setPaneSync] = useStoredState("ai-trading-assistant-chart-pane-sync", ["十字光标", "周期"]);
   const [chartReset, setChartReset] = useState(0);
-  const [chartLayouts, setChartLayouts] = useStoredState("aicoin-chart-tabs", [
+  const [chartLayouts, setChartLayouts] = useStoredState("ai-trading-assistant-chart-tabs", [
     { id: "default", name: "未命名", symbol: "BTC", saved: true },
   ]);
   const [activeLayout, setActiveLayout] = useState(() => chartLayouts[0]?.id || "default");
@@ -1643,7 +1643,7 @@ function Market({
             else setPanePeriods(panePeriods.map((item,paneIndex)=>paneIndex===index?value:item));
           }}
           onCreateAlert={(price)=>openOverlay("alertCenter", "预警中心", {symbol:instrument,price:String(price)})}
-          onPrefillOrder={(price,side)=>window.dispatchEvent(new CustomEvent("aicoin-prefill-order",{detail:{symbol,price:String(price),side}}))}
+          onPrefillOrder={(price,side)=>window.dispatchEvent(new CustomEvent("ai-trading-assistant-prefill-order",{detail:{symbol,price:String(price),side}}))}
           onToggleWatch={()=>setWatch(watch.includes(symbol)?watch.filter((coin)=>coin!==symbol):[...watch,symbol])}
           onClearDrawings={()=>commitDrawings([], `已清除 ${drawings.length} 个图表对象`)}
           onStartReplay={()=>setReplayOpen(true)}
@@ -2371,7 +2371,7 @@ function OrderBook({ openOverlay, watch = [], setWatch = () => {}, symbol = "BTC
   const quote = quoteOverride || quoteFor(symbol);
   const tick = quote.decimals > 2 ? 0.0001 : 0.01;
   const isWatched = watch.includes(symbol);
-  const prefillOrder = (price, side = "买入") => window.dispatchEvent(new CustomEvent("aicoin-prefill-order", { detail: { symbol, price: String(price), side } }));
+  const prefillOrder = (price, side = "买入") => window.dispatchEvent(new CustomEvent("ai-trading-assistant-prefill-order", { detail: { symbol, price: String(price), side } }));
   const selectAction = (action) => {
     if (action === "加预警") {
       openOverlay("alertCenter", "预警中心", {
@@ -3104,7 +3104,7 @@ function DataPage({ tab, openOverlay }) {
 function MorePage({ tab, go, say, openOverlay }) {
   const defaultNav = ["行情工作区", "常用策略", "数据看板"];
   const [customNav, setCustomNav] = useStoredState(
-    "aicoin-custom-nav",
+    "ai-trading-assistant-custom-nav",
     defaultNav,
   );
   const [navSaved, setNavSaved] = useState(true);
@@ -3314,8 +3314,8 @@ function AutoEarnPanel({ openOverlay, say, favorites, setFavorites }) {
 
 function ProfessionalArbitragePanel({ openOverlay, say }) {
   const seed = [{ id: "btc-basis", name: "BTC 期现基差", left: "BTC/USDT 币安 永续", right: "BTC/USDT 欧易OKX 现货", leftSide: "卖出", rightSide: "买入" }];
-  const [combinations, setCombinations] = useStoredState("aicoin-arb-combinations", seed);
-  const [orders, setOrders] = useStoredState("aicoin-professional-arb-orders", []);
+  const [combinations, setCombinations] = useStoredState("ai-trading-assistant-arb-combinations", seed);
+  const [orders, setOrders] = useStoredState("ai-trading-assistant-professional-arb-orders", []);
   const [selectedId, setSelectedId] = useState(combinations[0]?.id || null);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ name: "", left: "BTC/USDT 币安 永续", right: "BTC/USDT 欧易OKX 现货", leftSide: "卖出", rightSide: "买入" });
@@ -3371,7 +3371,7 @@ function Strategy({
   const [strategySearch, setStrategySearch] = useState("");
   const [arbPlatform, setArbPlatform] = useState("全部平台");
   const [arbContract, setArbContract] = useState("全部合约");
-  const [arbFavorites, setArbFavorites] = useStoredState("aicoin-arb-favorites", []);
+  const [arbFavorites, setArbFavorites] = useStoredState("ai-trading-assistant-arb-favorites", []);
   useEffect(() => {
     setCategory(1);
     setArbType(tab);
@@ -4275,7 +4275,7 @@ function UtilityDrawer({ type, close, go, say, watch, setWatch, marketSymbol = "
   const [orderPanelTab, setOrderPanelTab] = useState("下单");
   const [orderTool, setOrderTool] = useState(null);
   const [tradeForm, setTradeForm] = useState({ price: "", quantity: "" });
-  const [simulatedOrders, setSimulatedOrders] = useStoredState("aicoin-quick-orders", []);
+  const [simulatedOrders, setSimulatedOrders] = useStoredState("ai-trading-assistant-quick-orders", []);
   const quote = quoteFor(marketSymbol);
   const marketPrice = quote.price;
   const estimatedTradeValue = (tradeOrderType === "市价" ? marketPrice : Number(tradeForm.price)) * Number(tradeForm.quantity || 0);
@@ -4588,7 +4588,7 @@ function RailPanel({ type, say, go, watch, setWatch, symbol = "BTC" }) {
   const tick = quote.decimals > 2 ? 0.0001 : 0.01;
   const [active, setActive] = useState(0);
   const [enabled, setEnabled] = useStoredState(
-    "aicoin-rail-layout",
+    "ai-trading-assistant-rail-layout",
     [0, 1, 2, 3],
   );
   const [layoutSaved, setLayoutSaved] = useState(true);
@@ -4931,7 +4931,7 @@ function NotificationCenterPanel({ close, say, go }) {
     { id: 3, type: "宏观", title: "美国 CPI 将在 20:30 公布", detail: "市场预计同比 2.8%，发布前后可能出现流动性收缩和滑点扩大。", time: "18分钟前", read: true },
     { id: 4, type: "系统", title: "行情线路已切换至线路3", detail: "当前线路延迟 42ms，数据订阅与本地工作区均保持正常。", time: "1小时前", read: true },
   ];
-  const [items, setItems] = useStoredState("aicoin-notifications", initialItems);
+  const [items, setItems] = useStoredState("ai-trading-assistant-notifications", initialItems);
   const [filter, setFilter] = useState("全部");
   const [selected, setSelected] = useState(null);
   const visible = filter === "全部" ? items : items.filter((item) => item.type === filter);
@@ -4987,9 +4987,9 @@ function SystemSettingsPanel({ prefs, setPrefs, close, say }) {
     movementRise: "5", movementFall: "5", movementVolume: true,
     messageNotice: true, accountActivity: true,
   };
-  const [settings, setSettings] = useStoredState("aicoin-system-settings", settingDefaults);
+  const [settings, setSettings] = useStoredState("ai-trading-assistant-system-settings", settingDefaults);
   const [webhook, setWebhook] = useState("");
-  const [webhooks, setWebhooks] = useStoredState("aicoin-webhooks", []);
+  const [webhooks, setWebhooks] = useStoredState("ai-trading-assistant-webhooks", []);
   const toggle = (key) => setSettings({ ...settings, [key]: !settings[key] });
   const resetSection = () => {
     const keys = {
@@ -5027,8 +5027,8 @@ function AlertCenterPanel({ model, close, say }) {
     { id: 1, type: "价格预警", symbol: "BTC/USDT", condition: "上涨至", threshold: "66,120", frequency: "仅一次", ways: ["PC通知"], remark: "突破首要阻力", enabled: true, createdAt: "07-29 16:40" },
     { id: 2, type: "资金费率", symbol: "ETH/USDT", condition: "上涨至", threshold: "0.030%", frequency: "每5分钟一次", ways: ["PC通知", "Webhook"], remark: "拥挤风险", enabled: true, createdAt: "07-29 14:18" },
   ];
-  const [alerts, setAlerts] = useStoredState("aicoin-alerts", defaultAlerts);
-  const [history, setHistory] = useStoredState("aicoin-alert-history", [
+  const [alerts, setAlerts] = useStoredState("ai-trading-assistant-alerts", defaultAlerts);
+  const [history, setHistory] = useStoredState("ai-trading-assistant-alert-history", [
     { id: 101, time: "07-28 21:14", symbol: "BTC/USDT", type: "价格预警", condition: "下跌至 63,800", result: "已触发" },
     { id: 102, time: "07-27 08:00", symbol: "SOL/USDT", type: "指标预警", condition: "RSI 超卖", result: "已触发" },
   ]);
@@ -5241,7 +5241,7 @@ function ActionOverlay({
               {["单图专业版", "双图对比", "四图监控"].map((name)=><button key={name} className={layoutPreset===name?"on":""} onClick={()=>setLayoutPreset(name)}><I.ChartLine/><b>{name}</b><small>{name==="单图专业版"?"K线 + 盘口 + 工作台":name==="双图对比"?"两个币种并排":"四个周期同步观察"}</small></button>)}
             </div>
             <button className="layout-sync" onClick={()=>setLayoutSync(!layoutSync)}><span><b>同步当前指标与周期</b><small>保存 MA、Volume、5分及工作台状态</small></span><i className={layoutSync?"switch on":"switch"}/></button>
-            <footer className="feature-actions"><button onClick={close}>取消</button><button className="overlay-primary" onClick={()=>{if(!layoutName.trim())return say("请输入布局名称");localStorage.setItem("aicoin-chart-layout",JSON.stringify({name:layoutName.trim(),preset:layoutPreset,sync:layoutSync}));done(`图表布局“${layoutName.trim()}”已保存`);}}>创建布局</button></footer>
+            <footer className="feature-actions"><button onClick={close}>取消</button><button className="overlay-primary" onClick={()=>{if(!layoutName.trim())return say("请输入布局名称");localStorage.setItem("ai-trading-assistant-chart-layout",JSON.stringify({name:layoutName.trim(),preset:layoutPreset,sync:layoutSync}));done(`图表布局“${layoutName.trim()}”已保存`);}}>创建布局</button></footer>
           </div>
         ) : model.type === "create" ? (
           <div className="create-grid">

@@ -33,14 +33,14 @@ function useLocalState(key, initialValue) {
     const sync = (event) => {
       if (event.detail?.key === key) setValue(event.detail.value);
     };
-    window.addEventListener("aicoin-local-state", sync);
-    return () => window.removeEventListener("aicoin-local-state", sync);
+    window.addEventListener("ai-trading-assistant-local-state", sync);
+    return () => window.removeEventListener("ai-trading-assistant-local-state", sync);
   }, [key]);
   const update = (nextValue) => {
     setValue((current) => {
       const resolved = typeof nextValue === "function" ? nextValue(current) : nextValue;
       try { window.localStorage.setItem(key, JSON.stringify(resolved)); } catch { /* local demo can continue without persistence */ }
-      window.dispatchEvent(new CustomEvent("aicoin-local-state", { detail: { key, value: resolved } }));
+      window.dispatchEvent(new CustomEvent("ai-trading-assistant-local-state", { detail: { key, value: resolved } }));
       return resolved;
     });
   };
@@ -140,7 +140,7 @@ function MainForcePanel({ symbol, openOverlay }) {
 function OrdersPanel({ symbol, authorized, openOverlay, say }) {
   const [sub, setSub] = useState("现货仓位(0)");
   const [onlyPair, setOnlyPair] = useState(false);
-  const [orders, setOrders] = useLocalState("aicoin-quick-orders", []);
+  const [orders, setOrders] = useLocalState("ai-trading-assistant-quick-orders", []);
   const scopedOrders = onlyPair ? orders.filter((order) => (order.symbol || "BTC") === symbol) : orders;
   const pendingOrders = scopedOrders.filter((order) => order.status === "等待成交");
   const historicalOrders = scopedOrders.filter((order) => order.status !== "等待成交");
@@ -201,7 +201,7 @@ function IndicatorPanel({ symbol, setSymbol, say }) {
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiStage, setAiStage] = useState("idle");
   const [aiMessages, setAiMessages] = useState([]);
-  const [liveStrategies, setLiveStrategies] = useLocalState("aicoin-indicator-live-strategies", []);
+  const [liveStrategies, setLiveStrategies] = useLocalState("ai-trading-assistant-indicator-live-strategies", []);
   const runningLiveCount = liveStrategies.filter((item) => item.status !== "已终止").length;
   const menus = [{ key: "AI指标助手", label: "AI指标助手" }, { key: "指标编辑", label: "指标编辑" }, { key: "指标选币", label: "指标选币" }, { key: "策略回测", label: "策略回测" }, { key: "实盘运行 (0/30)", label: `实盘运行 (${runningLiveCount}/30)` }, { key: "实盘历史", label: "实盘历史" }];
   const candidates = [["BTC/USDT","5分","超卖","22:41","-1.24%"],["ETH/USDT","15分","金叉","22:36","-0.82%"],["SOL/USDT","1时","趋势转强","22:15","+1.16%"]]
@@ -223,7 +223,7 @@ function GridPanel({ symbol, authorized, openOverlay, say }) {
   const [upper, setUpper] = useState("68400");
   const [gridCount, setGridCount] = useState("24");
   const [calculated, setCalculated] = useState(false);
-  const [strategies, setStrategies] = useLocalState("aicoin-grid-strategies", []);
+  const [strategies, setStrategies] = useLocalState("ai-trading-assistant-grid-strategies", []);
   const createStrategy = () => {
     if (!calculated) return say("请先完成收益测算");
     const record = makeLocalStrategy({ kind: "AI网格", name: `${symbol} ${mode}`, symbol: `${symbol}/USDT`, amount, mode, detail: `${lower}–${upper} · ${gridCount}格${authorized ? " · 已关联演示授权" : " · 未连接真实账户"}` });
@@ -243,7 +243,7 @@ function DcaPanel({ symbol, openOverlay, say }) {
   const [frequency, setFrequency] = useState("每天");
   const [firstRun, setFirstRun] = useState("");
   const [takeProfit, setTakeProfit] = useState("20");
-  const [strategies, setStrategies] = useLocalState("aicoin-spot-dca-strategies", []);
+  const [strategies, setStrategies] = useLocalState("ai-trading-assistant-spot-dca-strategies", []);
   const createStrategy = () => {
     if (Number(amount) <= 0) return say("请输入每期金额");
     if (mode === "手动创建" && Number(takeProfit) <= 0) return say("请输入有效止盈比例");
@@ -266,7 +266,7 @@ function FuturesDcaPanel({ symbol, openOverlay, say }) {
   const [addRatio, setAddRatio] = useState("2.5");
   const [takeProfit, setTakeProfit] = useState("8");
   const [estimated, setEstimated] = useState(false);
-  const [strategies, setStrategies] = useLocalState("aicoin-futures-dca-strategies", []);
+  const [strategies, setStrategies] = useLocalState("ai-trading-assistant-futures-dca-strategies", []);
   const valid = Number(amount) >= 20 && Number(addRatio) > 0 && Number(takeProfit) > 0;
   return (
     <div className="bot-terminal futures-dca-terminal">
@@ -411,7 +411,7 @@ function CopyPanel({ openOverlay, say, venue = "CEX" }) {
   const [amount, setAmount] = useState("500");
   const [stopLoss, setStopLoss] = useState("50");
   const [mode, setMode] = useState("定额跟单");
-  const [subscriptions, setSubscriptions] = useLocalState(venue === "DEX" ? "aicoin-dex-copy-subscriptions" : "aicoin-copy-subscriptions", []);
+  const [subscriptions, setSubscriptions] = useLocalState(venue === "DEX" ? "ai-trading-assistant-dex-copy-subscriptions" : "ai-trading-assistant-copy-subscriptions", []);
   const strategies = venue === "DEX"
     ? [{ name:"0x71…8A 趋势仓",author:"Hyperliquid · 0x71…8A",profit:"+92.6%",win:"74%",risk:"中风险",symbol:"BTC-PERP" },{ name:"Smart Whale 08",author:"Hyperliquid · 0x9F…31",profit:"+138.1%",win:"61%",risk:"高风险",symbol:"ETH-PERP" },{ name:"Macro Fund 链上组合",author:"Hyperliquid · 0x42…D7",profit:"+38.4%",win:"79%",risk:"低风险",symbol:"SOL-PERP" }]
     : [{ name:"山寨轮动",author:"量化研究院",profit:"+84.2%",win:"68%",risk:"中风险",symbol:"SOL/USDT" },{ name:"趋势突破",author:"Crypto Alpha",profit:"+62.7%",win:"72%",risk:"中风险",symbol:"BTC/USDT" },{ name:"Meme猎手",author:"Whale Lab",profit:"+118.4%",win:"54%",risk:"高风险",symbol:"PEPE/USDT" }];

@@ -1,12 +1,12 @@
-# AiCoin Desktop UI 逆向拆解记录
+# AI Trading Assistant Desktop UI 逆向拆解记录
 
-分析对象：`/Applications/AiCoin.app`  
+分析对象：`/Applications/AI Trading Assistant.app`
 版本：2.16.10（build 2.16.10.21973）
 
 ## 1. 框架结论
 
 - Electron 桌面客户端，`NSPrincipalClass = AtomApplication`。
-- ARM64 Mach-O 主程序，Bundle ID 为 `com.aicoin.desktop`。
+- ARM64 Mach-O 主程序，Bundle ID 为 `com.ai-trading-assistant.desktop`。
 - 渲染层为 React + Webpack，主入口是 `dist/renderer/index.html`，挂载节点为 `#root`。
 - 主进程入口是 `dist/main/main.js`。
 - 除主窗口外，还有浏览器、OAuth、视频预览和图片预览窗口。
@@ -82,17 +82,17 @@ MarketWorkspace
 | MP4        |    5 | 教程 / 功能演示                          |
 | MP3        |    7 | 快讯或预警声音                           |
 
-字体样式中可确认 `AiCoinNumber`、`AiCoinChinese` 和 `AiCoinLatin` 三套语义字体，回退到 HarmonyOS Sans、PingFang SC、Microsoft YaHei、SF Pro 和 Segoe UI。
+字体样式中可确认 `AI Trading AssistantNumber`、`AI Trading AssistantChinese` 和 `AI Trading AssistantLatin` 三套语义字体，回退到 HarmonyOS Sans、PingFang SC、Microsoft YaHei、SF Pro 和 Segoe UI。
 
 ## 5. 原生模块与边界
 
-`@aicoin/cryptaddon`、`@aicoin/data_server_addon`、`better-sqlite3-multiple-ciphers`、`keytar` 属于原生或敏感能力，分别涉及加密、数据服务、加密数据库和系统钥匙串。当前 UI 复刻不复制这些模块，也不接触用户密钥。
+`@ai-trading-assistant/cryptaddon`、`@ai-trading-assistant/data_server_addon`、`better-sqlite3-multiple-ciphers`、`keytar` 属于原生或敏感能力，分别涉及加密、数据服务、加密数据库和系统钥匙串。当前 UI 复刻不复制这些模块，也不接触用户密钥。
 
 Electron 的 macOS Accessibility 暴露较浅，完整 DOM 控件关系主要以解包后的 React bundle、locale 命名空间和运行态页面核验共同确定。
 
 ## 6. 当前复刻边界
 
-当前实现只复刻 AiCoin 自身的信息架构与交互逻辑，不再映射其他产品的研究、审批或决策流程。
+当前实现只复刻 AI Trading Assistant 自身的信息架构与交互逻辑，不再映射其他产品的研究、审批或决策流程。
 
 - 首页：市场概览、云图、条件选币、榜单等市场发现入口。
 - 行情：自选、K 线工具、指标、盘口、委单与策略工作台。
@@ -162,7 +162,7 @@ Electron 的 macOS Accessibility 暴露较浅，完整 DOM 控件关系主要以
 
 - 以用户提供的 2048×1208 原版行情截图为硬基准，补齐“指标/周期工具条 → 绘图工具条 → K线标题与实时 OHLC → 图表 → 技术指标栏 → 快捷周期栏 → 底部工作台”的完整纵向层级。
 - 新增光标、趋势线、水平线、平行线、测量、矩形、文本、斐波那契、画笔、磁吸、锁定、删除、撤销和重做等可选绘图工具，并提供可见选中态。
-- K线区域增加超买/超卖信号、最高/最低点、价格轴、时间轴、实时价线和 AiCoin 水印；右侧盘口补齐成交额、净流入、最高/最低、预警/自选/策略/简况操作区。
+- K线区域增加超买/超卖信号、最高/最低点、价格轴、时间轴、实时价线和 AI Trading Assistant 水印；右侧盘口补齐成交额、净流入、最高/最低、预警/自选/策略/简况操作区。
 - 套利机会表恢复价差率、持仓价值、预估回本等列，并扩充到 7 行演示数据，使信息密度接近原版。
 - 自动审计现为 162 个按钮 / 162 个非空处理、77 个稳定动态列表 key；生产构建通过，1440×900 运行态控制台错误为 0。
 
@@ -203,7 +203,7 @@ Electron 的 macOS Accessibility 暴露较浅，完整 DOM 控件关系主要以
 
 ### 逆向依据
 
-- 运行态：直接操作 `/Applications/AiCoin.app` 行情窗口，核对顶部双层图表工具栏、K线/指标/周期区、底部工作台、Ace Agent 和最右工具轨。
+- 运行态：直接操作 `/Applications/AI Trading Assistant.app` 行情窗口，核对顶部双层图表工具栏、K线/指标/周期区、底部工作台、Ace Agent 和最右工具轨。
 - 静态包：确认客户端为 Electron，界面资源位于 `Contents/Resources/app.asar`；解包后核对 `locales/zh/chart.json`、`trading.json`、`tradingBot.json`、`indicator.json`、`forecastliq.json`、`aiAnalysis.json` 等声明。
 - 安全边界：真实下单、实盘启动、跟单和授权只实现参数、校验、预览与授权引导，不向交易所发送订单。
 
@@ -242,7 +242,7 @@ Electron 的 macOS Accessibility 暴露较浅，完整 DOM 控件关系主要以
 - 依据原版 `locales/zh/alert.json` 补齐独立预警中心，包含“我的预警 / 历史预警”、价格预警、指标预警、价差预警、资金费率和链上预警五种类型。
 - 行情右侧盘口“加预警”不再停留在单个价格输入框，改为进入统一预警中心；图表“高级 → 信号预警”会直接打开已选择“指标预警”的新增表单。
 - 新增交易对、周期、触发条件、阈值、频率、PC 通知、Webhook、备注等配置；支持新增、编辑、暂停/恢复、删除归档、类型筛选、交易对搜索和历史记录重新添加。
-- 预警与历史记录分别写入 `aicoin-alerts` 和 `aicoin-alert-history` 本地存储；编辑暂停中的预警会保留暂停状态，不会隐式恢复运行。
+- 预警与历史记录分别写入 `ai-trading-assistant-alerts` 和 `ai-trading-assistant-alert-history` 本地存储；编辑暂停中的预警会保留暂停状态，不会隐式恢复运行。
 - 浏览器实际完成新增指标预警、Webhook 选择、暂停、编辑、删除归档、历史恢复和信号预警直达测试；系统设置、通知中心和消息中心也完成运行态回归，控制台应用错误为 0。
 - 当前自动审计为 350/350 按钮、123/123 表单控件和 167 个稳定动态列表 key；`npm run test:interactions` 与 `npm run build` 均通过。生产包仍只有 Vite 的单包体积提示，不影响运行。
 
@@ -253,7 +253,7 @@ Electron 的 macOS Accessibility 暴露较浅，完整 DOM 控件关系主要以
 - 现货 DCA 补齐金额、频率、首次执行、止盈参数；合约 DCA 补齐方向、杠杆、保证金、加仓与止盈测算。两者均接入同一套运行中/历史策略生命周期。
 - 指标回测结果新增“创建模拟实盘”，与侧栏实时数量、实盘运行、暂停/恢复、终止、实盘历史和重新运行连通。
 - 跟单面板补齐策略详情、跟单模式、投入上限、跟单止损、我的跟单、暂停/恢复、结束归档、跟单历史与重新跟单配置；全部仅写本地模拟状态，不绑定账户或提交真实委托。
-- 五类状态分别持久化到 `aicoin-grid-strategies`、`aicoin-spot-dca-strategies`、`aicoin-futures-dca-strategies`、`aicoin-indicator-live-strategies` 与 `aicoin-copy-subscriptions`。
+- 五类状态分别持久化到 `ai-trading-assistant-grid-strategies`、`ai-trading-assistant-spot-dca-strategies`、`ai-trading-assistant-futures-dca-strategies`、`ai-trading-assistant-indicator-live-strategies` 与 `ai-trading-assistant-copy-subscriptions`。
 - 浏览器实际跑通网格、现货 DCA、合约 DCA、指标实盘和跟单完整链路；跟单参数 650 USDT / 75 USDT 经创建、暂停、恢复、归档和重新配置后保持一致，控制台应用错误为 0。
 - 当前自动审计为 361/361 按钮、126/126 表单控件和 171 个稳定动态列表 key；`npm run test:interactions` 与 `npm run build` 均通过。生产包仅保留 Vite 的单包体积提示。
 
@@ -261,9 +261,9 @@ Electron 的 macOS Accessibility 暴露较浅，完整 DOM 控件关系主要以
 
 - 修正绘图工具“只有选中提示、没有图表对象”的问题：趋势线、水平线、平行线、测量、矩形、文本、斐波那契和画笔现在会按点击位置真实渲染到 K 线绘图区。
 - 磁吸会把落点吸附到 5% 网格；锁定会阻止新增和删除；删除会清空当前对象；撤销/重做保存的是整份绘图快照，不再只是切换工具名称。
-- 绘图对象写入 `aicoin-chart-drawings`，刷新页面后继续显示；图表语义树同步暴露对象数量，便于运行态回归。
+- 绘图对象写入 `ai-trading-assistant-chart-drawings`，刷新页面后继续显示；图表语义树同步暴露对象数量，便于运行态回归。
 - 右侧快捷交易新增限价/市价、25/50/75/100% 数量快捷值、预估金额、委托时间和等待成交/模拟成交状态。
-- 模拟委托写入 `aicoin-quick-orders`，关闭并重开右侧面板后仍保留；支持单笔撤单/删除和全部清空，始终不提交真实交易。
+- 模拟委托写入 `ai-trading-assistant-quick-orders`，关闭并重开右侧面板后仍保留；支持单笔撤单/删除和全部清空，始终不提交真实交易。
 - 浏览器实际完成趋势线、磁吸矩形、锁定拦截、删除、撤销、重做，以及限价/市价模拟单、跨面板持久化和清空测试；应用错误为 0。
 - 当前自动审计为 364/364 按钮、126/126 表单控件和 174 个稳定动态列表 key；`npm run test:interactions` 与 `npm run build` 均通过，仅有 Vite 单包体积提示。
 
@@ -272,7 +272,7 @@ Electron 的 macOS Accessibility 暴露较浅，完整 DOM 控件关系主要以
 - 继续核对原版 `locales/zh/quant.json`，确认策略页顶部频道为“自动赚币 / 套利机会 / 专业套利 / 我的套利”，套利机会内部另有方向、期限、跨所和收藏维度。
 - 修正顶部频道只改变选中样式、不驱动左侧业务分类的问题：自动赚币会进入全币种 DCA，套利机会与专业套利进入智能套利，我的套利进入本地策略管理；每次切换同时重置对应筛选条件。
 - 套利表新增平台与合约类型筛选，并让正向、反向、跨所永续、永续-期货、价差-期现和收藏六类子频道产生真实不同的数据集合。
-- 每个套利组合新增本地收藏/取消收藏，写入 `aicoin-arb-favorites`；顶部频道来回切换后收藏仍保留，收藏列表为空时提供清除筛选入口。
+- 每个套利组合新增本地收藏/取消收藏，写入 `ai-trading-assistant-arb-favorites`；顶部频道来回切换后收藏仍保留，收藏列表为空时提供清除筛选入口。
 - 修正“我的套利”状态锁死左侧导航的问题：点击 AI 网格、DCA、指标或跟单分类会退出套利子导航，显示该分类自己的标题、说明、风险筛选与策略卡片。
 - 浏览器实测币安筛选为 4 条、期货筛选为 2 条；收藏跨频道保持为 1 条；从我的套利进入 AI 网格后不再残留套利筛选栏，运行时应用错误为 0。
 - 当前自动审计为 366/366 按钮、128/128 表单控件和 174 个稳定动态列表 key；`npm run test:interactions` 与 `npm run build` 均通过，仅保留 Vite 单包体积提示。
@@ -280,10 +280,10 @@ Electron 的 macOS Accessibility 暴露较浅，完整 DOM 控件关系主要以
 ## 22. 自动赚币与专业套利独立工作台（2026-07-29）
 
 - 进一步核对原版 `locales/zh/quant.json` 后纠正导航语义：顶部“自动赚币 / 套利机会 / 专业套利 / 我的套利”都属于左侧“智能套利”，不应把自动赚币错误跳到 DCA、把我的套利错误跳到策略广场。
-- 自动赚币新增“精选 / 仅看自选 / 按收益率”、币种搜索、平台筛选、组合收藏、收益指标和开始赚币入口；收藏复用 `aicoin-arb-favorites`，创建仍进入三步本地策略向导。
+- 自动赚币新增“精选 / 仅看自选 / 按收益率”、币种搜索、平台筛选、组合收藏、收益指标和开始赚币入口；收藏复用 `ai-trading-assistant-arb-favorites`，创建仍进入三步本地策略向导。
 - 自动赚币创建向导现在能保留 PENDLE 等来源币种和“自动赚币”类型，不再因固定下拉选项静默回退到 BTC/正向套利。
 - 专业套利新增套利组合侧栏、左右腿币对与方向配置、组合新增/删除、价差 K 线、开平仓价差、资金费差、双边市价/挂单/超价、同金额/同数量、金额校验、双腿预览和本地模拟记录。
-- 套利组合与模拟订单分别写入 `aicoin-arb-combinations`、`aicoin-professional-arb-orders`；模拟订单跨顶部频道切换保持，支持单条删除和全部清空，永不向交易所发单。
+- 套利组合与模拟订单分别写入 `ai-trading-assistant-arb-combinations`、`ai-trading-assistant-professional-arb-orders`；模拟订单跨顶部频道切换保持，支持单条删除和全部清空，永不向交易所发单。
 - 修复所有一级页面/顶部频道切换时内容区不回顶部的问题，避免标题被上一页面滚动位置裁切。
 - 浏览器实测币安自动赚币筛选为 3 条、收藏筛选为 1 条；成功创建并恢复 ETH 双腿套利组合，250 USDT × 2 的双边超价预览和模拟记录参数一致；测试数据已清理，运行时应用错误为 0。
 - 当前自动审计为 384/384 按钮、136/136 表单控件和 181 个稳定动态列表 key；`npm run test:interactions` 与 `npm run build` 均通过，仅保留 Vite 单包体积提示。
@@ -293,7 +293,7 @@ Electron 的 macOS Accessibility 暴露较浅，完整 DOM 控件关系主要以
 - 策略页左侧“全币种 DCA / AI网格 / 指标策略 / 跟单策略·CEX / 跟单策略·DEX”不再停留在静态模板卡，统一复用行情页已经验证的创建、运行、暂停、终止、历史与重启状态组件。
 - 新增 `StrategyProductWorkbench` 复用层，并在策略页提供统一交易标的选择、授权状态提示及完整产品工作台；DCA、网格和指标实盘继续使用原有 localStorage 数据，因此从行情页或策略页进入看到的是同一份状态。
 - `BotStrategyList` 增加“清空历史”，让网格、DCA、指标实盘等本地模拟生命周期具备可逆清理出口。
-- CEX 与 DEX 跟单现在使用不同数据源、策略卡和持久化键：CEX 为 `aicoin-copy-subscriptions`，Hyperliquid DEX 为 `aicoin-dex-copy-subscriptions`；DEX 展示链上地址、PERP 标的与独立风险文案。
+- CEX 与 DEX 跟单现在使用不同数据源、策略卡和持久化键：CEX 为 `ai-trading-assistant-copy-subscriptions`，Hyperliquid DEX 为 `ai-trading-assistant-dex-copy-subscriptions`；DEX 展示链上地址、PERP 标的与独立风险文案。
 - 修复 `useLocalState` 在存储键变化时不重新载入的问题，解决 CEX 切换到 DEX 后错误沿用 CEX 订阅的状态串线；跟单历史也新增独立清空入口。
 - 策略分类状态提升到应用层：左侧选择非智能套利产品时，顶部不再错误高亮上一次“专业套利”；重新进入智能套利时恢复“自动赚币 / 套利机会 / 专业套利 / 我的套利”四频道。
 - 浏览器真实创建并清理 ETH 120 USDT DCA、SOL 80 USDT 网格、SOL 指标模拟实盘；CEX 610 USDT 与 DEX 720 USDT 跟单并行存在且互不串线，随后均终止归档并清空。运行时应用错误为 0。
@@ -301,7 +301,7 @@ Electron 的 macOS Accessibility 暴露较浅，完整 DOM 控件关系主要以
 
 ## 24. 行情右侧九业务子页按原版语义重构（2026-07-29）
 
-- 运行态再次打开 `/Applications/AiCoin.app` 行情窗口，交叉核对 `locales/zh/main.json` 的 `sideTab_*` 声明，确认右侧业务页应为 Ace Agent、AI助手、技术分析、订单表与最新成交、ETF数据、特色数据、资金流向、最新资讯和下单面板；组件列表属于辅助入口，不应占用业务子页名额。
+- 运行态再次打开 `/Applications/AI Trading Assistant.app` 行情窗口，交叉核对 `locales/zh/main.json` 的 `sideTab_*` 声明，确认右侧业务页应为 Ace Agent、AI助手、技术分析、订单表与最新成交、ETF数据、特色数据、资金流向、最新资讯和下单面板；组件列表属于辅助入口，不应占用业务子页名额。
 - 右侧工具轨按上述九类重新排列并使用原版名称；组件列表和帮助移动到独立的底部辅助区。旧的“币种资料 / 主力动向 / 数据图表”等近似命名不再冒充原版业务页。
 - AI助手支持行情问答、指标帮助、功能导航、快捷问题回填和回答结果；技术分析支持 5分/15分/1时/4时评分、分项信号和支撑阻力；订单表与最新成交支持盘口/成交切换和价格选择反馈。
 - 特色数据支持主力挂单、合约、链上三类独立数据；最新资讯支持快讯、要闻、自选相关三类列表与详情预览；ETF、资金流、Ace Agent 和下单面板继续保留各自独立状态与业务动作。
@@ -311,7 +311,7 @@ Electron 的 macOS Accessibility 暴露较浅，完整 DOM 控件关系主要以
 ## 25. 链上交易员“上K线”跨页面闭环（2026-07-29）
 
 - 修复链上卡片的“关注 / 上K线”只存在于 `ChainPage` 临时状态、离开页面后失效且行情图表完全不消费该状态的问题。
-- 关注列表和 K 线交易员分别持久化到 `aicoin-followed-traders` 与 `aicoin-chart-traders`；市场、角色、币种、方向和参考价随交易员记录保存。
+- 关注列表和 K 线交易员分别持久化到 `ai-trading-assistant-followed-traders` 与 `ai-trading-assistant-chart-traders`；市场、角色、币种、方向和参考价随交易员记录保存。
 - 链上英雄区会显示已上 K 线数量并可直接进入行情；行情图表增加交易员管理条，可切换到对应币种、逐个移除或全部清空。
 - 对应币种 K 线会渲染买入/卖出交易员标记；点击标记打开交易员详情，不触发当前绘图工具，也不会生成真实交易。
 - 浏览器实际完成“关注 → 上K线 → 进入 BTC 图表 → 打开标记详情 → 刷新保持 → 行情移除 → 链上同步 → 清理关注”完整链路，所有测试状态已清理。
@@ -320,7 +320,7 @@ Electron 的 macOS Accessibility 暴露较浅，完整 DOM 控件关系主要以
 ## 26. 行情顶部快照与布局操作接入真实图表状态（2026-07-29）
 
 - 修复页面顶部“快照 / 保存布局”和图表内部状态彼此独立的问题：顶部按钮此前只改变自身文字，不保存当前币种、周期、指标、绘图或活动布局。
-- 新增 App 级行情命令通道；顶部快照与图表相机现在统一生成包含币种、周期、指标、绘图数、布局名称、来源和时间的记录，持久化到 `aicoin-chart-snapshots`，最多保留 20 条。
+- 新增 App 级行情命令通道；顶部快照与图表相机现在统一生成包含币种、周期、指标、绘图数、布局名称、来源和时间的记录，持久化到 `ai-trading-assistant-chart-snapshots`，最多保留 20 条。
 - 图表布局栏新增快照记录入口；独立管理器支持查看、应用到图表、单条删除和全部清空。恢复快照会同步恢复币种、周期、指标与仍存在的布局标签。
 - 顶部“保存布局”调用图表真实布局保存函数；币种切换导致的未保存圆点会在保存后恢复为“默认/已保存”状态。
 - 浏览器保存了 5分与 15分+RSI 两份不同快照，恢复 5分快照后周期和指标同步回滚；切换 ETH 使布局变脏，顶部保存后脏状态消失。测试快照已清理并恢复 BTC。
@@ -329,7 +329,7 @@ Electron 的 macOS Accessibility 暴露较浅，完整 DOM 控件关系主要以
 ## 27. 行情交易标的全局一致性（2026-07-29）
 
 - 修复“切币只改变 K 线标题”的状态断裂：原实现把 `symbol` 留在图表页局部，页面顶部、深度频道、盘口、右侧分析与快捷下单仍写死 BTC，切换顶部子页后也无法继承当前标的。
-- 新增 `aicoin-market-symbol` 应用级持久状态和统一行情模型；BTC、ETH、SOL、HYPE、XRP、ADA、AVAX 分别提供价格、涨跌、开高低、成交额、净流入、市值、波动率和价格精度。
+- 新增 `ai-trading-assistant-market-symbol` 应用级持久状态和统一行情模型；BTC、ETH、SOL、HYPE、XRP、ADA、AVAX 分别提供价格、涨跌、开高低、成交额、净流入、市值、波动率和价格精度。
 - 顶部交易对、图表标签与 OHLC、价格轴、深度中间价、盘口卖买档、成交记录、预警、策略入口、技术支撑阻力、币种资料、资讯、主力挂单和右侧下单面板均消费同一标的与行情快照。
 - 本地模拟委托记录下单时的币种，切换标的后历史记录不会被错误显示成当前币种；价格预估也使用当前标的市场价。所有操作仍仅为本地模拟。
 - 浏览器真实完成 BTC→ETH、图表→深度、ETH 市价模拟下单和刷新保持回归；验证顶部、深度标题、中间价、盘口与下单单位一致。测试订单已删除，当前标的恢复 BTC。
@@ -338,16 +338,16 @@ Electron 的 macOS Accessibility 暴露较浅，完整 DOM 控件关系主要以
 ## 28. 右侧下单与底部委单区共享本地委托簿（2026-07-29）
 
 - 修复右侧下单面板与底部委单区完全断开的伪功能：此前创建模拟订单后，“现货仓位(0) / 当前委托(0) / 历史委托 / 买卖记录”始终展示空表。
-- `aicoin-quick-orders` 成为两处共同数据源，并通过页面内状态广播实现即时同步；币种筛选可限制为当前交易对。
+- `ai-trading-assistant-quick-orders` 成为两处共同数据源，并通过页面内状态广播实现即时同步；币种筛选可限制为当前交易对。
 - 限价模拟单进入当前委托；从底部或右侧撤单都会写入“已撤销”状态并进入历史委托。市价模拟单进入买卖记录，并按成交方向和数量聚合成本、现价与盈亏形成现货仓位。
 - 仓位支持本地模拟平仓：生成反向市价成交记录并把净仓位归零。每个子页的数量角标会随委托和仓位实时变化。
 - 底部状态栏同时接入当前全局交易标的，切换 ETH 后展示 ETH/USDT、对应涨跌与价格，不再固定 BTC。
 - 浏览器真实完成“限价下单 → 当前委托 → 撤单 → 历史委托 → 市价成交 → 买卖记录 → 现货仓位 → 模拟平仓”完整链路；另验证 ETH 底部行情联动。测试订单全部清理并恢复 BTC。
 - 当前自动审计为 415/415 按钮、138/138 表单控件和 204 个稳定动态列表 key；新增共享委托簿防回归契约，`npm run test:interactions` 与 `npm run build` 均通过。
 
-## 29. 参考 AiCoin_cleaned_v5 补全 K 线复盘（2026-08-02）
+## 29. 参考 AI Trading Assistant_cleaned_v5 补全 K 线复盘（2026-08-02）
 
-- 对照 `AiCoin_cleaned_v5/renderer/9256/deobfuscated.js` 验证复盘业务语义，确认原复刻版只有“开始K线复盘”菜单入口，缺少实际训练层。
+- 对照 `AI Trading Assistant_cleaned_v5/renderer/9256/deobfuscated.js` 验证复盘业务语义，确认原复刻版只有“开始K线复盘”菜单入口，缺少实际训练层。
 - 新增复盘进度、播放/暂停、单步、1x/2x/4x 倍速、选择起始时间、重新选择起点和简洁/持仓模式切换。
 - 新增本地模拟买入/卖出、持仓、浮动盈亏和交易次数反馈；结束训练会显示进度、盈亏、交易次数与推荐指标胜率摘要。
 - 所有复盘委托只存在于组件内存，不写入真实委托簿、不连接交易所，并在结果页明确标识不会启用实盘交易。
@@ -374,7 +374,7 @@ Electron 的 macOS Accessibility 暴露较浅，完整 DOM 控件关系主要以
 
 ## 32. 行情页潜在控件全量功能化（2026-08-02）
 
-- 对照 `AiCoin_cleaned_v5` 中的图表菜单、高级行情、复盘、多窗和工具条语义，将原有只切换样式或弹提示的入口改成图表、面板或业务状态变化。
+- 对照 `AI Trading Assistant_cleaned_v5` 中的图表菜单、高级行情、复盘、多窗和工具条语义，将原有只切换样式或弹提示的入口改成图表、面板或业务状态变化。
 - 指标与显示项会增删 Lightweight Charts 序列、价格线、网格、信号标记和指标读数；筹码、大额成交、主力大单、挂单统计与胜率均有独立可见结果。
 - 多窗扩展到单、双、四、六、九窗；布局管理器可命名、预览和保存布局；图表分享与新标签产生独立结果。
 - 根据用户原版截图红框复核，新增蜡烛、空心蜡烛、折线和面积图类型切换；每个多窗 K 线面板拥有独立周期选择器，不再将副窗周期写死。
@@ -385,9 +385,9 @@ Electron 的 macOS Accessibility 暴露较浅，完整 DOM 控件关系主要以
 
 ## 33. 优先保障 UI 完整的 3001 能力迁移（2026-08-05）
 
-- 保留 3002 完整 AiCoin 页面、Phosphor 图标与 Lightweight Charts 内核，只吸收 3001 中能直接补强现有 UI 闭环的行为。
+- 保留 3002 完整 AI Trading Assistant 页面、Phosphor 图标与 Lightweight Charts 内核，只吸收 3001 中能直接补强现有 UI 闭环的行为。
 - 图表绘图层新增原生右键菜单；菜单按光标纵向位置换算参考价，提供预警、买卖限价回填、自选、复盘、重置和清图六类结果。
-- 盘口与最新成交行改为可点击价格源，通过 `aicoin-prefill-order` 事件打开右侧下单抽屉，回填标的、买卖方向与限价。
+- 盘口与最新成交行改为可点击价格源，通过 `ai-trading-assistant-prefill-order` 事件打开右侧下单抽屉，回填标的、买卖方向与限价。
 - 系统设置增加盘口深度背景条开关；红涨绿跌与绿涨红跌偏好进入全局 CSS 变量及图表序列配色。
 - EMA 采用指数移动平均，BOLL 使用 20 期均线与两倍标准差，RSI、MACD/信号线与 KDJ 读数基于当前图表数据动态计算。
 - 防回归契约覆盖右键菜单、点价事件、深度条、配色偏好和指标函数；472/472 按钮、145/145 表单控件、生产构建和 3002 HTTP 200 通过。

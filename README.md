@@ -1,8 +1,8 @@
-# AiCoin UI Clone
+# AI Trading Assistant UI Clone
 
-> Canonical UI: `/Users/lizekai/Documents/交易系统/aicoin-ui-clone` · `http://localhost:3002/`
+> Canonical UI: `/Users/lizekai/Documents/交易系统/ai-trading-assistant` · `http://localhost:3002/`
 
-独立的 AiCoin 桌面端 UI 复刻项目。包括首页、行情、快讯、要闻、策略、链上、资产、授权、数据和更多。当前版本不包含群聊与 VIP 页面或功能。
+独立的 AI Trading Assistant 桌面端 UI 复刻项目。包括首页、行情、快讯、要闻、策略、链上、资产、授权、数据和更多。当前版本不包含群聊与 VIP 页面或功能。
 
 所有行情、收益率、账户、策略和交易数据均为本地 Mock；项目不会连接真实交易所、提交订单、保存 API Key 或发起支付。
 
@@ -40,4 +40,4 @@ npm run build
 npm run test:interactions
 ```
 
-行情页的完整状态树和 Electron 静态逆向依据见 `docs/AICOIN_UI_REVERSE_ENGINEERING.md` 第 16—28 节。当前行情实现覆盖 9 个底部工作台、委单区 10 个子页、图表工具浮层和原版语义的右侧 9 个业务抽屉；交易相关操作停留在本地校验/预览，不提交真实订单。
+行情页的完整状态树和 Electron 静态逆向依据见 `docs/AI_TRADING_ASSISTANT_UI_REVERSE_ENGINEERING.md` 第 16—28 节。当前行情实现覆盖 9 个底部工作台、委单区 10 个子页、图表工具浮层和原版语义的右侧 9 个业务抽屉；交易相关操作停留在本地校验/预览，不提交真实订单。
