@@ -1,0 +1,19 @@
+.backend-health {
+  height: 25px !important;
+  display: flex !important;
+  align-items: center;
+  gap: 5px !important;
+  border: 1px solid #dfe2e5 !important;
+  border-radius: 12px !important;
+  background: #f6f7f8 !important;
+  padding: 0 8px !important;
+  font-size: 9px !important;
+  color: #727981 !important;
+  white-space: nowrap;
+}
+.backend-health i { width: 6px; height: 6px; border-radius: 50%; background: #a1a7ae; }
+.backend-health.connected { color: #176b5b !important; background: #edf6f2 !important; border-color: #cce2da !important; }
+.backend-health.connected i { background: #1b8d70; box-shadow: 0 0 0 3px #1b8d7018; }
+.backend-health.offline i { background: #c78935; }
+.spin { animation: backend-spin 800ms linear infinite; }
+@keyframes backend-spin { to { transform: rotate(360deg); } }

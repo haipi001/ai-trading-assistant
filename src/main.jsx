@@ -8,11 +8,13 @@ import "./quick-trade.css";
 import "./strategy-filters.css";
 import "./professional-sidebar.css";
 import "./brand.css";
+import "./backend-status.css";
 import { ChartToolPopover, KlineReplayPanel, MarketWorkbench, StrategyProductWorkbench } from "./market-workbench.jsx";
 import { FEATURE_OVERLAY_TYPES, FeatureOverlayPanel } from "./feature-overlays.jsx";
 import { TradingChartGrid } from "./trading-chart.jsx";
 import { CapitalTracker, FloatingAIChat, StrategyNotebook } from "./strategy-intelligence.jsx";
 import { loadBackendCandles } from "./market-api.js";
+import { getBackendStatus, runBackendQuery } from "./backend-api.js";
 import { CustomPeriodCenter, IndicatorCenter, MultiWindowCenter } from "./chart-command-centers.jsx";
 
 const NAV = [
@@ -237,6 +239,14 @@ function App() {
   const [marketCommand, setMarketCommand] = useState(null);
   const [overlay, setOverlay] = useState(null);
   const [aiFloatOpen, setAiFloatOpen] = useState(false);
+  const [backendStatus, setBackendStatus] = useState({ connected: false, status: "checking" });
+  useEffect(() => {
+    let active = true;
+    const check = () => getBackendStatus().then((result) => active && setBackendStatus(result));
+    check();
+    const timer = setInterval(check, 30000);
+    return () => { active = false; clearInterval(timer); };
+  }, []);
   useEffect(() => {
     localStorage.setItem("ai-trading-assistant-workspace", JSON.stringify({ page, tab }));
     if (canvasRef.current) canvasRef.current.scrollTop = 0;
@@ -308,6 +318,7 @@ function App() {
         openOverlay={openOverlay}
         currency={prefs.currency}
         openAI={() => setAiFloatOpen(true)}
+        backendStatus={backendStatus}
       />
       <PrimaryNav page={page} go={go} openOverlay={openOverlay} />
       <div className={`pagebar ${page === "market" ? `with-symbol ${marketSideOpen ? "market-side-expanded" : "market-side-collapsed"}` : "channels-only"}`}>
@@ -414,7 +425,7 @@ function App() {
   );
 }
 
-function GlobalTop({ query, setQuery, go, openOverlay, currency, openAI }) {
+function GlobalTop({ query, setQuery, go, openOverlay, currency, openAI, backendStatus }) {
   const searchRef = useRef(null);
   const suggestions = ["AI建议：BTC 4小时波动收窄，等待突破确认", "AI建议：主力净流入增强，留意 64,200 压力位", "AI建议：3 篇交易笔记待补全失效条件"];
   const [suggestionIndex, setSuggestionIndex] = useState(0);
@@ -445,6 +456,7 @@ function GlobalTop({ query, setQuery, go, openOverlay, currency, openAI }) {
       <I.Browsers className="window-mark" />
       <div className="pulse" />
       <strong className="service-name">AI交易助手</strong>
+      <button className={`backend-health ${backendStatus.connected ? "connected" : backendStatus.status}`} title={backendStatus.baseUrl || "正在检查后端"} onClick={()=>openOverlay("tool","后端连接状态",{description:backendStatus.connected?`API 已连接 · ${backendStatus.status}`:`API 未连接 · ${backendStatus.error || "正在检查"}`})}><i/>{backendStatus.connected ? "API 已连接" : backendStatus.status === "checking" ? "检查 API" : "本地模式"}</button>
       <button className="ai-suggestion" aria-label="打开AI建议" onClick={openAI}><I.Sparkle/><span>{suggestions[suggestionIndex]}</span></button>
       <div className="command">
         <I.MagnifyingGlass />
@@ -765,7 +777,19 @@ function HomeChannel({ tab, go, say, openOverlay, marketMode = "web3" }) {
   const [aceQuery, setAceQuery] = useState("");
   const [aceMode, setAceMode] = useState("快速回答");
   const [attachmentOpen, setAttachmentOpen] = useState(false);
+  const [aceLoading, setAceLoading] = useState(false);
   const isStocks = marketMode === "stocks";
+  const submitAIQuery = async () => {
+    if (!aceQuery.trim()) return say("请输入问题");
+    setAceLoading(true);
+    try {
+      const payload = await runBackendQuery(aceQuery.trim());
+      const result = payload.result?.structured_result_json || payload.result || payload;
+      openOverlay("aceResult", "AI 智搜 · 后端结果", { description: result.summary || result.answer || result.reason || JSON.stringify(result).slice(0, 320) });
+    } catch {
+      openOverlay("aceResult", "AI 智搜 · 本地回退", { description: `后端暂不可用，已保留问题：“${aceQuery.trim()}”。部署 API 后将自动切换为结构化研究结果。` });
+    } finally { setAceLoading(false); }
+  };
   if (tab === "AI智搜")
     return (
       <div className="ace-search">
@@ -796,16 +820,8 @@ function HomeChannel({ tab, go, say, openOverlay, marketMode = "web3" }) {
             >
               {aceMode} <I.CaretDown />
             </button>
-            <button
-              onClick={() =>
-                aceQuery.trim()
-                  ? openOverlay("aceResult", "AI 智搜结果", {
-                      description: `正在以“${aceMode}”分析：${aceQuery}`,
-                    })
-                  : say("请输入问题")
-              }
-            >
-              <I.ArrowUp />
+            <button aria-label="发送 AI 智搜问题" disabled={aceLoading} onClick={submitAIQuery}>
+              {aceLoading ? <I.CircleNotch className="spin"/> : <I.ArrowUp />}
             </button>
           </footer>
           {attachmentOpen ? (
