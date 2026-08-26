@@ -1233,7 +1233,13 @@ function Market({
   const [marketSort, setMarketSort] = useState("成交额");
   const venueFactor = isStocks ? 1 : ({"币安":1,"欧易OKX":1.0006,"Hyperliquid":.9993,"Bitget":1.0002}[marketPlatform] || 1);
   const baseQuote = quoteFor(symbol);
-  const quote = {...baseQuote,price:baseQuote.price*venueFactor,open:baseQuote.open*venueFactor,high:baseQuote.high*venueFactor,low:baseQuote.low*venueFactor};
+  const liveCandle = backendMarket.candles.at(-1);
+  const liveChange = liveCandle?.open
+    ? `${((liveCandle.close / liveCandle.open - 1) * 100) >= 0 ? "+" : ""}${((liveCandle.close / liveCandle.open - 1) * 100).toFixed(2)}%`
+    : baseQuote.change;
+  const quote = liveCandle
+    ? {...baseQuote, price:liveCandle.close, open:liveCandle.open, high:liveCandle.high, low:liveCandle.low, change:liveChange}
+    : {...baseQuote,price:baseQuote.price*venueFactor,open:baseQuote.open*venueFactor,high:baseQuote.high*venueFactor,low:baseQuote.low*venueFactor};
   useEffect(() => {
     let active = true;
     setBackendMarket({ status: "loading", candles: [], source: "连接后端…" });
@@ -1244,7 +1250,7 @@ function Market({
   useEffect(() => {
     setMarketPlatform(isStocks ? "NASDAQ" : "币安");
     setMarketCategory(isStocks ? "美股" : "平台");
-    setPeriod(isStocks ? "1日" : "5分");
+    setPeriod(isStocks ? "1日" : "1时");
   }, [isStocks]);
   const [studies, setStudies] = useState(["MA", "Volume", "价格线", "倒计时", "买卖信号", "网格线"]);
   const [fullscreen, setFullscreen] = useState(false);

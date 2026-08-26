@@ -2,7 +2,7 @@ import { apiRequest } from "./backend-api.js";
 
 export async function loadBackendCandles(symbol, timeframe = "1d") {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 3500);
+  const timer = setTimeout(() => controller.abort(), 12000);
   try {
     const assets = await apiRequest("/assets?limit=1000", { signal: controller.signal });
     const normalized = symbol.replace("/USDT", "").toUpperCase();
