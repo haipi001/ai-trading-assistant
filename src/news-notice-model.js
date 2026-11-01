@@ -1,0 +1,6 @@
+export const NEWS_NOTICE_KEY='ai-trading-news-notices-v1';
+export const NEWS_NOTICE_EVENT='news-notice-settings-saved';
+export const DEFAULT_NEWS_NOTICES={enabled:true,keywords:'被盗,攻击,暂停提现,暂停交易,监管,降息,加息,ETF获批,清算'};
+export function newsNoticeSettings(value){return {enabled:typeof value?.enabled==='boolean'?value.enabled:true,keywords:typeof value?.keywords==='string'?value.keywords.slice(0,300):DEFAULT_NEWS_NOTICES.keywords};}
+export function newsNoticeMatch(article,settings){const words=settings.keywords.split(/[,，\n]/).map(value=>value.trim()).filter(Boolean).slice(0,30);const text=`${article.title} ${article.description}`.toLocaleLowerCase();return words.find(word=>text.includes(word.toLocaleLowerCase()))||null;}
+export function createNewsNoticeTracker(){let provider=null,seen=new Set();return (snapshot,settings,now=Date.now())=>{if(!snapshot)return [];const changed=provider!==snapshot.provider;provider=snapshot.provider;const rows=snapshot.articles||[];const unseen=rows.filter(row=>!seen.has(row.id));if(changed)seen=new Set();for(const row of rows)seen.add(row.id);if(seen.size>1000)seen=new Set(rows.map(row=>row.id));if(!settings.enabled)return [];return (changed?rows:unseen).filter(row=>{const stamp=Date.parse(row.publishedAt);return Number.isFinite(stamp)&&stamp<=now+60000&&now-stamp<=1800000&&newsNoticeMatch(row,settings);}).slice(0,changed?1:3);};}

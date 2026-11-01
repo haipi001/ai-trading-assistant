@@ -1,0 +1,4 @@
+account_name,asset_symbol,asset_type,action,quantity,price,currency,transaction_date,notes
+Demo Brokerage,AAPL,stock,BUY,4,190,USD,2026-06-01,manual historical fill
+Demo Brokerage,NVDA,stock,BUY,2,820,USD,2026-06-02,manual historical fill
+Demo Brokerage,AAPL,stock,SELL,1,225,USD,2026-06-10,manual historical trim

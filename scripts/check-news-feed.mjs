@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {safeNewsURL,newsSnapshot,filterNews} from '../src/news-feed-model.js';
+for(const value of ['javascript:alert(1)','http://example.com','https://user:password@example.com','https://example.com:8443','//example.com','not a url'])assert.equal(safeNewsURL(value),null);
+assert.equal(safeNewsURL('https://example.com/news'),'https://example.com/news');
+const row=(title,url,date)=>({title,url,published_at:date,publisher:'Fixture media',description:'Fixture summary'});
+const result=newsSnapshot({provider:'newsapi',status:'ready',articles:[row('BTC ETF','https://example.com/a','2026-10-29T12:00:00Z'),row('Macro CPI','https://example.com/b','2026-10-29T13:00:00Z'),row('Duplicate','https://example.com/a','2026-10-29T12:00:00Z'),row('Unsafe','javascript:alert(1)',null),row('Raw date','https://example.com/c','Oct 29, 2026')]});
+assert.equal(result.articles.length,3);
+assert.equal(result.articles[0].title,'Macro CPI');
+assert.equal(result.articles[2].publishedAt,null);
+assert.equal(filterNews(result.articles,'ETF').length,1);
+assert.equal(filterNews(result.articles,'宏观').length,1);
+assert.equal(filterNews(result.articles,'精选','ｂｔｃ').length,1);
+assert.equal(filterNews(result.articles,'未知').length,0);
+assert.equal(filterNews(result.articles,'未知','',true).length,3);
+assert.throws(()=>newsSnapshot({provider:'other',status:'ready',articles:[]}));
+assert.throws(()=>newsSnapshot({provider:'newsapi',status:'ready',articles:new Array(201)}));
+console.log('News feed: safe links, identity, deduplication, publication time, filtering and unsupported channels passed.');
+
+const aggregated=newsSnapshot({provider:"chinese_aggregate",status:"ready",articles:[{...row("标题包含分析也仍是快讯","https://example.com/flash","2026-10-30T00:00:00Z"),kind:"flash",source_id:"odaily"},{...row("深度文章","https://example.com/article","2026-10-30T00:00:00Z"),kind:"article",source_id:"panews"}]});
+assert.deepEqual(aggregated.articles.map(item=>item.kind),["flash","article"]);assert.equal(aggregated.articles[0].sourceId,"odaily");

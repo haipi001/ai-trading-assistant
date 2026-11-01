@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import { marketHeadline } from '../src/market-headline.js';
+const candle={open:100,close:110},ticker={price:120,change:-2};
+assert.equal(marketHeadline({candle,ticker}).price,120);assert.equal(marketHeadline({candle,ticker}).change,-2);
+assert.equal(marketHeadline({local:true,candle,ticker}).price,110);
+assert.equal(marketHeadline({replayActive:true,replayBar:{open:50,close:55},candle,ticker}).price,55);
+assert.equal(marketHeadline({replayActive:true,candle,ticker}).price,null);
+assert.equal(marketHeadline({candle}).price,110);assert.match(marketHeadline({candle}).source,/本根/);
+for(const value of [NaN,Infinity,0,-1])assert.equal(marketHeadline({candle:{open:100,close:value}}).price,null);
+assert.equal(marketHeadline().price,null);
+console.log('Market headline: ticker/CSV/replay priority, missing quotes and no future ticker leakage passed');

@@ -1,0 +1,11 @@
+import React from 'react';
+const stamp=value=>value?new Date(typeof value==='number'?value*1000:value).toLocaleString('zh-CN',{hour12:false}):'未提供';
+const kinds={online:'在线图表数据',csv:'用户导入 CSV',replay:'历史复盘'};
+export function ResearchMarketControl({enabled,onChange,capture,count,onCountChange,disabled}){
+ return <section className="research-market-context"><label><input type="checkbox" aria-label="附带主图原始K线" checked={enabled} disabled={disabled} onChange={event=>onChange(event.target.checked)}/>附带主标的最近原始 K 线</label>{enabled&&(!capture?<p>当前没有可用原始数据。请切回普通图表、等待行情，或取消附带；演示数据不发送。</p>:<div><label>根数<select aria-label="附带K线数量" value={count} disabled={disabled} onChange={event=>onCountChange(Number(event.target.value))}>{[30,60,120,240].map(value=><option key={value} value={value}>{value}</option>)}</select></label><b>{capture.symbol}/{capture.quote_currency} · {capture.venue} · {capture.timeframe}</b><p>{kinds[capture.kind]} · 本次 {Math.min(count,capture.bars.length)} 根<br/>最后K线开始：{stamp(capture.bars.at(-1)?.time)}<br/>接收：{stamp(capture.observed_at)}{capture.kind==='replay'?` · 复盘截止 ${stamp(capture.replay_cutoff)}`:''}</p><small>仅原始 OHLCV，不含平均K线等变换、画线、指标和其它窗口。浏览器数据未经后端独立核实；快照时间不证明报价新鲜。</small></div>)}</section>;
+}
+export function ResearchMarketSources({result}){
+ const context=result?.provided_market;if(!context)return null;
+ const stats=context.statistics;
+ return <section className="research-market-sources"><h4>[M1] 本次行情资料 {result.cited_market_ids?.includes('M1')?'· 模型所列引用':''}</h4><b>{context.symbol}/{context.quote_currency} · {context.venue} · {context.timeframe}</b><p>{kinds[context.kind]} · {context.bars.length} 根原始 K 线<br/>{stamp(context.bars[0].time)} — {stamp(context.bars.at(-1).time)}（K线开始时间）<br/>接收：{stamp(context.observed_at)} · 打包：{stamp(context.captured_at)}{context.kind==='replay'?` · 复盘截止 ${stamp(context.replay_cutoff)}`:''}</p><dl><dt>末根收盘值</dt><dd>{stats.last_close}</dd><dt>样本区间涨跌</dt><dd>{stats.sample_change_pct.toFixed(3)}%</dd><dt>区间最低 / 最高</dt><dd>{stats.sample_low} / {stats.sample_high}</dd><dt>样本成交量</dt><dd>{stats.sample_volume===null?'未提供':`${stats.sample_volume}（来源原始单位）`}</dd></dl><p>客户端提供，后端仅校验结构、身份与回放范围，未独立获取或验证。{context.kind==='online'&&context.stale?'接收时间陈旧/未知，或末根K线所属周期已过去。':''}不包含完整图表或账户数据。</p><small>行情资料快照：{result.market_context_snapshot_id}</small></section>;
+}

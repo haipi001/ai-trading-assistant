@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {applyBitgetBook,parseDepthMessage} from '../src/bitget-live-book.js';
+const frame={arg:{instType:'spot',topic:'books50',symbol:'SOLUSDT'},action:'snapshot',data:[{seq:'1304314508780744705',pseq:'0',ts:'1793260800000',a:[['101','2'],['102','3']],b:[['100','1'],['99','2']]}]};
+const initial=applyBitgetBook(null,frame,'SOL');assert.equal(initial.depth.asks[1].total,5);
+const delta=(seq,pseq,a=[],b=[])=>({...frame,action:'update',data:[{...frame.data[0],seq,pseq,a,b}]});
+const next=applyBitgetBook(initial,delta('1304314508780744707','1304314508780744704',[['101','0'],['100.5','4']]),'SOL');
+assert.equal(next.depth.asks[0].price,100.5);assert.equal(initial.depth.asks[0].price,101);
+assert.throws(()=>applyBitgetBook(next,delta('1304314508780744709','1304314508780744706'),'SOL'));
+assert.throws(()=>applyBitgetBook(next,delta('1304314508780744709','0'),'SOL'));
+assert.throws(()=>applyBitgetBook(null,delta('2','1'),'SOL'));
+assert.throws(()=>applyBitgetBook(initial,delta('1304314508780744708','1304314508780744705',[['99','1']]),'SOL'));
+assert.throws(()=>applyBitgetBook(initial,{...frame,arg:{...frame.arg,instType:'usdt-futures'}},'SOL'));
+assert.equal(parseDepthMessage('{"seq":1304314508780744705,"pseq":1304314508780744704}').seq,'1304314508780744705');
+assert.throws(()=>applyBitgetBook(null,{...frame,data:[{...frame.data[0],seq:1304314508780744705}]},'SOL'));
+console.log('Bitget books50: exact sequences, first-delta range, subsequent continuity, reset/gap rejection, deletion, immutable state and crossed-book guard passed');

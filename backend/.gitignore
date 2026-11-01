@@ -1,0 +1,6 @@
+
+# Local exchange/LLM secret store and atomic write artifacts
+.user_secrets.env
+.user_secrets.env.lock
+.secret-write-*
+__pycache__/

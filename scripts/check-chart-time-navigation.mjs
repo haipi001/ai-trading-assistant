@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {locateChartTime,selectChartDates} from '../src/chart-time-navigation.js';
+const start=Date.UTC(2026,9,1)/1000,bars=Array.from({length:96},(_,i)=>({time:start+i*3600}));
+assert.equal(locateChartTime(bars,'2026-10-02T12:00').index,36);
+assert.equal(locateChartTime(bars,'2026-10-02T12:20').index,36);
+assert.throws(()=>locateChartTime(bars,'2025-01-01T00:00'));
+const range=selectChartDates(bars,{start:'2026-10-02',end:'2026-10-02'});assert.equal(range.count,24);assert.equal(range.logical.from,24);assert.equal(range.logical.to,47);
+assert.throws(()=>selectChartDates(bars,{start:'2026-10-03',end:'2026-10-01'}));
+assert.throws(()=>selectChartDates(bars,{start:'2025-01-01',end:'2025-01-02'}));
+console.log('Time navigation: exact/nearest UTC bar, inclusive day ranges, empty/out-of-range/reversed rejection passed');

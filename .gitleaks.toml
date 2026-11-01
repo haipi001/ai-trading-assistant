@@ -1,0 +1,11 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Explicit synthetic fixture strings; not service credentials"
+regexTarget = "match"
+regexes = [
+  '''fixture-news-key-123''',
+  '''fixture-rotated-key-456''',
+  '''safety-null-hallucination-001''',
+]

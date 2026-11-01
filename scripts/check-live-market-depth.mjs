@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {decodeBinanceDepthEvent,observePublicDepth} from '../src/live-market-depth.js';
+const event={stream:'btcusdt@depth20',data:{lastUpdateId:10,asks:[['101','2']],bids:[['100','3']]}};
+assert.equal(decodeBinanceDepthEvent(event,'BTC').sequence,10);
+assert.throws(()=>decodeBinanceDepthEvent(event,'ETH'));
+assert.throws(()=>decodeBinanceDepthEvent({...event,data:{...event.data,lastUpdateId:NaN}},'BTC'));
+let socket,pollReceive,listener,received=[],stoppedPoll=false,closed=0;const timers=new Map();let id=0;
+const page={visibilityState:'visible',addEventListener:(name,fn)=>listener=fn,removeEventListener:()=>listener=null};
+const stop=observePublicDepth('BTC','币安',value=>received.push(value),{page,now:()=>1793145600000,schedule:(fn,ms)=>{timers.set(++id,{fn,ms});return id;},cancel:id=>timers.delete(id),poll:(load,receive)=>{pollReceive=receive;return()=>stoppedPoll=true;},openSocket:url=>{assert.match(url,/btcusdt@depth20$/);socket={close:()=>closed++};return socket;}});
+pollReceive({status:'connected',source:'REST',asks:[],bids:[]});socket.onmessage({data:JSON.stringify(event)});assert.equal(received.at(-1).live,true);assert.equal(received.at(-1).asks[0].total,2);
+socket.onmessage({data:JSON.stringify({...event,data:{...event.data,lastUpdateId:9}})});assert.equal(received.at(-1).sequence,10);
+pollReceive({status:'connected',source:'REST',asks:[],bids:[]});assert.equal(received.at(-1).sequence,10);
+socket.onclose();assert.equal(received.at(-1).live,false);assert.equal(closed,1);
+page.visibilityState='hidden';listener();assert.equal(timers.size,0);stop();assert.equal(stoppedPoll,true);assert.equal(listener,null);
+console.log('Live depth: stream identity, sequence ordering, full snapshots, REST isolation and lifecycle passed');

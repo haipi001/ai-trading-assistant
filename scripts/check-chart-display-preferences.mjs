@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {chartDisplayPreferences,applyChartDisplayPreferences} from '../src/chart-display-preferences.js';
+const prefs=chartDisplayPreferences({candle:'K线图 (HLC)',realtimePrice:false,countdown:true,grid:false});
+assert.equal(prefs.chartType,'K线图(HLC)');
+const before=['MA','价格线','网格线','RSI'];
+assert.deepEqual(applyChartDisplayPreferences(before,prefs),['MA','RSI','倒计时']);
+assert.deepEqual(before,['MA','价格线','网格线','RSI']);
+assert.equal(chartDisplayPreferences({candle:'收盘价线'}).chartType,'折线图');
+assert.throws(()=>chartDisplayPreferences({candle:'unsupported'}));
+console.log('Display preferences: source style mapping, actual display switches and indicator preservation passed');

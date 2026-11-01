@@ -3,6 +3,30 @@ import process from "node:process";
 import { parse } from "@babel/parser";
 
 const sourceFiles = [
+  "../src/research-market-ui.jsx",
+  "../src/news-notices.jsx",
+  "../src/research-news-context.jsx",
+  "../src/research-ai-chat.jsx",
+  "../src/news-feed-workspace.jsx",
+  "../src/news-feed-settings.jsx",
+  "../src/news-feed-model.js",
+  "../src/ai-integration-settings.jsx",
+  "../src/large-trades-panel.jsx",
+  "../src/market-fund-flow-workspace.jsx",
+  "../src/market-derivatives-workspace.jsx",
+  "../src/market-watch-workspace.jsx",
+  "../src/market-depth-workspace.jsx",
+  "../src/public-trades.jsx",
+  "../src/public-orderbook.jsx",
+  "../src/market-csv-control.jsx",
+  "../src/chart-replay-panel.jsx",
+  "../src/chart-axis-control.jsx",
+  "../src/chart-drawing-manager.jsx",
+  "../src/chart-drawing-layer.jsx",
+  "../src/market-indicators.js",
+  "../src/indicator-library.jsx",
+  "../src/script-workspace.jsx",
+  "../src/chart-analysis-workspace.jsx",
   "../src/main.jsx",
   "../src/market-workbench.jsx",
   "../src/feature-overlays.jsx",
@@ -10,6 +34,9 @@ const sourceFiles = [
   "../src/trading-chart.jsx",
   "../src/strategy-intelligence.jsx",
   "../src/chart-command-centers.jsx",
+  "../src/exchange-probe-panel.jsx",
+  "../src/saved-exchange-connections.jsx",
+  "../src/chart-grid-dividers.jsx",
 ];
 const sources = sourceFiles.map((file) =>
   fs.readFileSync(new URL(file, import.meta.url), "utf8"),
@@ -71,9 +98,10 @@ function walk(node) {
     const handler = node.attributes.find(
       (attr) => attr.type === "JSXAttribute" && attr.name?.name === "onClick",
     );
-    if (!handler) {
+    const permanentlyDisabled = node.attributes.some(attr => attr.type === "JSXAttribute" && attr.name?.name === "disabled" && (attr.value === null || attr.value?.expression?.value === true));
+    if (!handler && !permanentlyDisabled) {
       failures.push(`Button without onClick at line ${node.loc.start.line}`);
-    } else {
+    } else if (handler) {
       handlers += 1;
       const expression = handler.value?.expression;
       if (
@@ -426,7 +454,7 @@ for (const replayContract of [
   "模拟买入",
   "模拟卖出",
   "复盘训练结果",
-  "不会启用实盘交易",
+  "不提交实盘委托",
 ]) {
   if (!source.includes(replayContract))
     failures.push(`Missing K-line replay contract: ${replayContract}`);
@@ -435,9 +463,9 @@ for (const replayContract of [
 for (const completionContract of [
   "AI指标助手",
   "AI生成代码已写入指标编辑器",
-  "AI 解读分享卡片已生成",
-  "关键支撑与阻力已添加到本地图表",
-  "风险受控模拟订单草稿",
+  "setAiResearchIntent",
+  "准备 AI 解读",
+  "在研究对话中预览",
   "strategy-batchbar",
   "批量暂停",
   "批量恢复",
@@ -486,7 +514,7 @@ for (const completeMarketControlContract of [
   'studies.includes("主力大单")',
   'studies.includes("主力挂单统计")',
   'studies.includes("指标胜率")',
-  'replayMode ? all.slice',
+  'replayMode ? replayVisibleBars',
   'model.onApplyDate?.(date)',
   'venue={marketPlatform}',
   'quoteOverride={quote}',
@@ -502,20 +530,20 @@ for (const completeMarketControlContract of [
   '在此价格添加预警',
   '限价买入',
   '限价卖出',
-  '从此开始K线复盘',
-  '重置图表视图',
-  '清除全部绘图',
+  '打开K线复盘',
+  '重置全部图表视图',
+  '清除未锁定绘图',
   'showDepthBars',
   'redUp: settings.redUp',
-  'function indicatorSnapshot',
-  'function emaValues',
+  'function calculateOscillators',
+  'function ema(',
 ]) {
   if (!source.includes(completeMarketControlContract))
     failures.push(`Missing complete market control contract: ${completeMarketControlContract}`);
 }
 
 for (const chartLayoutContract of [
-  'useStoredState("ai-trading-assistant-chart-tabs"',
+  'useChartLayoutTabs([',
   'aria-label="新增图表标签页"',
   '至少保留一个图表标签页',
   '当前图表标签页已保存',
@@ -541,7 +569,7 @@ for (const drawingContract of [
   'setDrawingHistory([...drawingHistory, drawings])',
   '磁吸模式已',
   '图表画线已',
-  '已删除 ${drawings.length} 个图表对象',
+  '已清除${drawings.length-next.length}个未锁定对象',
 ]) {
   if (!source.includes(drawingContract))
     failures.push(`Missing real chart drawing contract: ${drawingContract}`);
@@ -588,13 +616,18 @@ for (const arbitrageContract of [
 }
 
 for (const marketChannelContract of [
-  'useState("累计深度")',
+  'MarketDepthWorkspace',
+  'MarketWatchWorkspace',
+  'MarketDerivativesWorkspace',
+  'MarketFundFlowWorkspace',
   '["累计深度", "增量深度"]',
   '["0.01%", "0.1%", "0.5%", "1%"]',
-  'tab === "资金流" ? ["净流入", "大单", "主力"]',
-  'tab === "合约数据" && platform !== "全部平台"',
-  'coins.filter((x)=>watch.includes(x[0]))',
-  'openOverlay("addWatch","管理自选")',
+  '深度页面交易所',
+  '深度页面交易对',
+  '自选页面交易所',
+  '自选按${label}排序',
+  '合约数据交易所',
+  '资金流周期',
   'AI 深度解读',
   'AI 资金流解读',
 ]) {
@@ -626,7 +659,7 @@ for (const rightRailContract of [
   '综合技术评分',
   '最新成交',
   '交易所净流入',
-  '自选相关',
+  '当前标的',
 ]) {
   if (!source.includes(rightRailContract))
     failures.push(`Missing original market right-rail contract: ${rightRailContract}`);
@@ -700,9 +733,9 @@ for (const localOrderLedgerContract of [
 }
 
 for (const channelSpecificContract of [
-  "香港 Web3 嘉年华报名开启",
-  "2026 Q2 数字资产市场报告",
-  "美国现货 BTC ETF 单日净流入 4.2 亿美元",
+  "/news-feed/refresh",
+  "资讯来源",
+  "newsSnapshot",
   "链上永续交易员，仓位与成交实时追踪",
   "预测市场高手，观点与仓位一起验证",
 ]) {
@@ -722,7 +755,7 @@ for (const globalWorkflowContract of [
   '资金费率排行',
   '最近24小时',
   '"K线设置", "下单设置", "预警", "快讯弹窗", "策略通知", "市场异动", "消息中心", "Webhook"',
-  'useStoredState("ai-trading-assistant-system-settings"',
+  'systemSettings:{...settings}',
   'useStoredState("ai-trading-assistant-notifications"',
   '查看关联内容',
   '"消息通知": [',

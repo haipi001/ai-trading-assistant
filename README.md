@@ -62,10 +62,10 @@ React 19 + Vite 6
 ├── AI 智搜与功能面板
 ├── 策略笔记和标签关系图
 ├── 本地模拟订单与策略状态
-└── 可选 FastAPI 数据接口
+└── FastAPI 数据接口（backend/）
 ```
 
-GitHub Pages 只托管静态前端。FastAPI 源码、Postgres/Redis 配置和部署 Blueprint 位于独立私有仓库，源代码不会随前端公开。
+GitHub Pages 只托管静态前端。FastAPI 源码、数据库迁移、测试与部署 Blueprint 统一位于本仓库 `backend/`。
 
 ## 本地启动
 
@@ -79,7 +79,7 @@ npm run dev
 如需连接兼容后端：
 
 ```bash
-VITE_API_BASE_URL=http://localhost:8000 npm run dev
+VITE_API_BASE_URL=http://localhost:8001 npm run dev
 ```
 
 ## 验证
@@ -100,3 +100,27 @@ npm run build
 ## 项目状态
 
 当前版本是可交互的前端产品原型，不代表已经接入真实行情、账户、交易所或生产后端。接入真实服务前，需要单独部署 API、数据库与缓存，并配置 HTTPS、CORS、认证、密钥管理、监控和数据保留策略。
+
+## 前后端统一仓库（2026-11-01）
+
+前端源码保留在根目录 `src/`，后端源码在 `backend/app/`，测试在 `backend/tests/`。
+
+```bash
+python3 -m venv backend/.venv
+backend/.venv/bin/pip install -e './backend[dev]'
+sh scripts/start-trading-backend.sh
+# 另一个终端
+npm ci
+npm run dev -- --port 3002
+```
+
+生产服务先执行数据库迁移；Render 使用 `backend/render.yaml`，服务根目录为 `backend/`。
+GitHub Pages 发布流程仍只发布前端，后端需独立运行。
+
+验证：`npm run test:interactions`、`npm run test:models`、`npm run build`；
+后端在 `backend/` 执行 `python -m pytest`。
+
+此次后端快照包含原后端 `49f021b` 的远端行情修复以及当前本地开发增量。
+前端原有 Git 历史保留；旧后端仓库和本地目录保留，作为历史来源，不再作为本仓库的依赖。
+本地凭据、数据库、构建产物和 AiCoin 恢复产物不包含在提交中。
+当前功能和验收边界见 `VERSION.md`，不能将前后端合仓视为实盘或全部功能验收完成。

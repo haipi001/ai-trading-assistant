@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {updatePaneAppearance,validatePaneAppearance} from '../src/chart-pane-appearance.js';
+const initial=Array.from({length:18},()=>({chartType:'蜡烛图',background:'#ffffff'}));
+const next={chartType:'美国线',background:'#e8eef5'};
+const independent=updatePaneAppearance(initial,1,next,false);
+assert.deepEqual(independent[0],initial[0]);assert.deepEqual(independent[1],next);assert.deepEqual(initial[1],initial[0]);
+assert.ok(updatePaneAppearance(initial,1,next,true).every(x=>x.chartType==='美国线'&&x.background==='#e8eef5'));
+assert.throws(()=>validatePaneAppearance({...next,background:'url(test)'}));
+assert.throws(()=>validatePaneAppearance({...next,chartType:'bad'}));
+console.log('Pane appearance: independent edit, full sync, immutable original and invalid color/type rejection passed');

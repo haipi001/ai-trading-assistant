@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {decodeMarketDepth,loadMarketDepth} from '../src/market-depth.js';
+const body={ts:'1793145600000',asks:[['12','3'],['11','2']],bids:[['9','4'],['10','1']]};
+const book=decodeMarketDepth(body,'binance');assert.equal(book.asks[0].price,11);assert.equal(book.asks[1].total,5);assert.equal(book.bids[0].price,10);assert.equal(book.bids[1].total,5);
+assert.deepEqual(decodeMarketDepth({code:'0',data:[body]},'okx'),{...book,snapshotTime:1793145600000});
+assert.throws(()=>decodeMarketDepth({code:'0',data:[{...body,ts:'bad'}]},'okx'));
+for(const invalid of [{...body,asks:[['10','1']]},{...body,asks:[['11','1'],['11','2']]},{...body,bids:[['9','NaN']]},{...body,bids:[['9','-1']]}])assert.throws(()=>decodeMarketDepth(invalid,'binance'));
+assert.throws(()=>decodeMarketDepth({code:'1',data:[body]},'okx'));
+let url,init;const result=await loadMarketDepth('BTC','欧易OKX',null,async(u,i)=>{url=u;init=i;return {ok:true,json:async()=>({code:'0',data:[body]})};});assert.equal(result.status,'connected');assert.match(url,/instId=BTC-USDT&sz=20/);assert.equal(init.credentials,'omit');assert.equal(init.redirect,'error');
+assert.equal((await loadMarketDepth('BTC','unsupported')).status,'unsupported');
+assert.equal((await loadMarketDepth('BTC','币安',null,async()=>({ok:false,status:429}))).status,'error');
+console.log('Depth snapshots: sorting, cumulative base quantities, duplicate/crossed/invalid rejection and provider isolation passed');
+const bitget=decodeMarketDepth({code:'00000',data:body},'bitget');assert.equal(bitget.snapshotTime,1793145600000);assert.equal(bitget.asks[1].total,5);
+assert.throws(()=>decodeMarketDepth({code:'00000',data:{...body,ts:'bad'}},'bitget'));
+assert.equal((await loadMarketDepth('BTC','Bitget',null,async(url)=>{assert.match(url,/orderbook\?symbol=BTCUSDT&type=step0&limit=20/);return {ok:true,json:async()=>({code:'00000',data:body})};})).status,'connected');

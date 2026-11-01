@@ -1,0 +1,60 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ai_trading_os}
+      POSTGRES_USER: ${POSTGRES_USER:-ai_trading_os}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ai_trading_os}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ai_trading_os} -d ${POSTGRES_DB:-ai_trading_os}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ../backend
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      LIVE_TRADING_ENABLED: "false"
+      AUTOMATION_LEVEL: A0_READ_ONLY
+      DATABASE_URL: postgresql+psycopg://ai_trading_os:ai_trading_os@postgres:5432/ai_trading_os
+      REDIS_URL: redis://redis:6379/0
+      BACKEND_CORS_ORIGINS: http://localhost:3000
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ../frontend
+    environment:
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:

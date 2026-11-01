@@ -98,9 +98,4 @@ export function CapitalTracker({ mode, say, setSavedStrategies }) {
   </section>;
 }
 
-export function FloatingAIChat({ open, onClose, page, symbol, say }) {
-  const [messages,setMessages]=useLocalState("ai-trading-assistant-ai-dialog",[{id:1,role:"ai",text:"我是交易工作台 AI。可以整理当前行情、分析策略笔记，或把想法转成模拟策略。"}]);
-  const [input,setInput]=useState(""); const ask=(text=input)=>{if(!text.trim())return;const answer=`已结合 ${symbol}/USDT 与当前${page==="strategy"?"策略":"行情"}工作区分析：建议先定义触发条件、失效位和最大风险，再做本地模拟验证。`;setMessages([...messages,{id:Date.now(),role:"user",text},{id:Date.now()+1,role:"ai",text:answer}]);setInput("");};
-  if(!open)return null;
-  return <aside className="floating-ai"><header><div className="ai-avatar"><I.Sparkle/></div><span><b>AI 交易助手</b><small><i/>正在读取当前工作区</small></span><button aria-label="关闭AI对话" onClick={onClose}><I.X/></button></header><div className="ai-context"><span>{symbol}/USDT</span><span>{page==="strategy"?"策略工作区":"全局工作区"}</span><em>本地模拟</em></div><div className="ai-messages">{messages.slice(-6).map(m=><p key={m.id} className={m.role}>{m.text}</p>)}</div><div className="ai-prompts">{["总结当前机会","检查策略风险","整理成交易笔记"].map(x=><button key={x} onClick={()=>ask(x)}>{x}</button>)}</div><footer><textarea aria-label="向AI交易助手提问" value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();ask();}}} placeholder="输入问题，Enter 发送…"/><button aria-label="发送AI消息" onClick={()=>{ask();say("AI 已回复");}}><I.ArrowUp/></button></footer></aside>;
-}
+export {FloatingAIChat} from './research-ai-chat.jsx';

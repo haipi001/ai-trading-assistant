@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {applyOkxBook} from '../src/okx-live-book.js';
+const snapshot={arg:{channel:'books',instId:'BTC-USDT'},action:'snapshot',data:[{asks:[['101','2'],['102','3']],bids:[['100','4']],ts:'1793145600000',prevSeqId:-1,seqId:10,checksum:0}]};
+const first=applyOkxBook(null,snapshot,'BTC');assert.equal(first.depth.asks[1].total,5);
+const delta={...snapshot,action:'update',data:[{asks:[['101','0'],['103','1']],bids:[['100','5']],ts:'1793145600001',prevSeqId:10,seqId:11,checksum:0}]};
+const second=applyOkxBook(first,delta,'BTC');assert.equal(second.depth.asks[0].price,102);assert.equal(second.depth.bids[0].quantity,5);assert.equal(first.asks.has(101),true);
+assert.throws(()=>applyOkxBook(null,delta,'BTC'));assert.throws(()=>applyOkxBook(first,{...delta,data:[{...delta.data[0],prevSeqId:9}]},'BTC'));
+assert.throws(()=>applyOkxBook(first,delta,'ETH'));
+const reset=applyOkxBook(second,{...delta,data:[{...delta.data[0],asks:[],bids:[],prevSeqId:11,seqId:3}]},'BTC');assert.equal(reset.sequence,3);
+const keepalive=applyOkxBook(reset,{...delta,data:[{...delta.data[0],asks:[],bids:[],prevSeqId:3,seqId:3}]},'BTC');assert.equal(keepalive.depth.asks[0].price,102);
+assert.throws(()=>applyOkxBook(first,{...delta,data:[{...delta.data[0],asks:[['99','1']]}]},'BTC'));
+console.log('OKX books: snapshot/delta, zero deletion, immutable levels, continuity gaps, resets and keepalive passed');

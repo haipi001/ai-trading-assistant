@@ -1,0 +1,83 @@
+name: ${COMPOSE_PROJECT_NAME:?COMPOSE_PROJECT_NAME is required}
+
+services:
+  migrate:
+    image: ${BACKEND_IMAGE:?BACKEND_IMAGE is required}
+    restart: "no"
+    command: ["alembic", "upgrade", "head"]
+    environment: &backend_environment
+      ENVIRONMENT: ${ENVIRONMENT:?ENVIRONMENT is required}
+      DEPLOYMENT_TARGET: ${DEPLOYMENT_TARGET:?DEPLOYMENT_TARGET is required}
+      SERVICE_NAME: ${SERVICE_NAME:?SERVICE_NAME is required}
+      RELEASE_ID: ${RELEASE_ID:?RELEASE_ID is required}
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:?BACKEND_CORS_ORIGINS is required}
+      EXTERNAL_LLM_CALLS_ENABLED: ${EXTERNAL_LLM_CALLS_ENABLED:-false}
+      OPENAI_API_KEY_REF: ${OPENAI_API_KEY_REF:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      DEEPSEEK_API_KEY_REF: ${DEEPSEEK_API_KEY_REF:-}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-chat}
+      DEEPSEEK_ANTHROPIC_BASE_URL: ${DEEPSEEK_ANTHROPIC_BASE_URL:-https://api.deepseek.com/anthropic}
+      LLM_PROVIDER_ALLOWLIST_RAW: ${LLM_PROVIDER_ALLOWLIST_RAW:-openai:gpt-4.1-mini}
+      AI_PRICING_VERSION: ${AI_PRICING_VERSION:-}
+      OPENAI_INPUT_COST_PER_MILLION_USD: ${OPENAI_INPUT_COST_PER_MILLION_USD:-}
+      OPENAI_OUTPUT_COST_PER_MILLION_USD: ${OPENAI_OUTPUT_COST_PER_MILLION_USD:-}
+      DEEPSEEK_INPUT_COST_PER_MILLION_USD: ${DEEPSEEK_INPUT_COST_PER_MILLION_USD:-}
+      DEEPSEEK_OUTPUT_COST_PER_MILLION_USD: ${DEEPSEEK_OUTPUT_COST_PER_MILLION_USD:-}
+      MANAGED_AUTH_REQUIRED: "true"
+      OIDC_ISSUER: ${OIDC_ISSUER:?OIDC_ISSUER is required}
+      OIDC_USERINFO_URL: ${OIDC_USERINFO_URL:?OIDC_USERINFO_URL is required}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:?OIDC_CLIENT_ID is required}
+      OIDC_ROLE_CLAIM: ${OIDC_ROLE_CLAIM:-role}
+      AUTH_SESSION_SECRET_REF: ${AUTH_SESSION_SECRET_REF:?AUTH_SESSION_SECRET_REF is required}
+      LEGACY_TENANT_USER_ID: ${LEGACY_TENANT_USER_ID:?LEGACY_TENANT_USER_ID is required}
+      API_RATE_LIMIT_ENABLED: "true"
+      SAFE_REQUEST_LOGGING_ENABLED: "true"
+      OBSERVABILITY_METRICS_ENABLED: "true"
+      STAGING_FAULT_INJECTION_ENABLED: ${STAGING_FAULT_INJECTION_ENABLED:-false}
+      ERROR_REPORTING_ENABLED: ${ERROR_REPORTING_ENABLED:?ERROR_REPORTING_ENABLED is required}
+      EXTERNAL_NOTIFICATION_DELIVERY_ENABLED: "true"
+      NOTIFICATION_WEBHOOK_ALLOWED_HOSTS: ${NOTIFICATION_WEBHOOK_ALLOWED_HOSTS:?NOTIFICATION_WEBHOOK_ALLOWED_HOSTS is required}
+      LIVE_TRADING_ENABLED: "false"
+      LIVE_EXECUTION_ENABLED: "false"
+      LIVE_EXECUTION_DRY_RUN_ONLY: "true"
+      LIVE_EXECUTION_ADAPTER_MODE: disabled
+      AUTOMATION_LEVEL: A0_READ_ONLY
+
+  backend:
+    image: ${BACKEND_IMAGE:?BACKEND_IMAGE is required}
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment: *backend_environment
+    ports:
+      - "${BACKEND_BIND_ADDRESS:-127.0.0.1}:${BACKEND_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 30s
+
+  frontend:
+    image: ${FRONTEND_IMAGE:?FRONTEND_IMAGE is required}
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ports:
+      - "${FRONTEND_BIND_ADDRESS:-127.0.0.1}:${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      backend:
+        condition: service_healthy

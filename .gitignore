@@ -2,3 +2,21 @@ node_modules/
 dist/
 .DS_Store
 *.log
+reference/aicoin*/
+
+# Local runtime, secrets and generated packages
+.env
+.env.*
+!.env.example
+.user_secrets.env*
+.secret-write-*
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.db
+*.sqlite*
+*.log
+.openai/*.tar.gz
+private-evidence/
+test-results/

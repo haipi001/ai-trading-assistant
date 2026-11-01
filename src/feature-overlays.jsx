@@ -1,3 +1,5 @@
+import {ResearchNewsSources} from './research-news-context.jsx';
+import { utcDatePresets } from "./chart-date-utils.js";
 import React, { useMemo, useState } from "react";
 import * as I from "@phosphor-icons/react";
 import { UtilityToolPanel } from "./utility-tools.jsx";
@@ -56,11 +58,11 @@ export function FeatureOverlayPanel({ model, close, say, go }) {
   const [source, setSource] = useState("现货账户");
   const [target, setTarget] = useState("合约账户");
   const [asset, setAsset] = useState(model.title?.split(" ")[0] || "USDT");
-  const [date, setDate] = useState("2026-07-22T22:30");
-  const [start, setStart] = useState("2026-07-01");
-  const [end, setEnd] = useState("2026-07-22");
+  const datePresets=useMemo(()=>utcDatePresets(),[]);
+  const [date, setDate] = useState(()=>model.initialDate||new Date().toISOString().slice(0,16));
+  const [start, setStart] = useState(datePresets.近30天[0]);
+  const [end, setEnd] = useState(datePresets.今天[1]);
   const [form, setForm] = useState({ title: "", category: "行情分析", content: "" });
-  const [aiAction, setAiAction] = useState("");
   const [snapshotRows, setSnapshotRows] = useState(model.snapshots || []);
   const options = useMemo(
     () => attachmentOptions[model.title] || attachmentOptions["添加图表快照"],
@@ -71,12 +73,7 @@ export function FeatureOverlayPanel({ model, close, say, go }) {
     close();
   };
   const applyDatePreset = (preset) => {
-    const ranges = {
-      今天: ["2026-07-22", "2026-07-22"],
-      近7天: ["2026-07-16", "2026-07-22"],
-      近30天: ["2026-06-23", "2026-07-22"],
-      今年: ["2026-01-01", "2026-07-22"],
-    };
+    const ranges = datePresets;
     const [nextStart, nextEnd] = ranges[preset];
     setStart(nextStart);
     setEnd(nextEnd);
@@ -104,31 +101,13 @@ export function FeatureOverlayPanel({ model, close, say, go }) {
     );
   }
 
-  if (model.type === "aiChart" || model.type === "aceResult") {
-    return (
-      <div className="feature-panel ai-feature-panel">
-        <div className="feature-tabs">
-          {["综合结论", "趋势", "主力", "风险"].map((name) => (
-            <button key={name} className={tab === name ? "on" : ""} onClick={() => setTab(name)}>{name}</button>
-          ))}
-        </div>
-        <div className="ai-conclusion">
-          <span><I.Sparkle /></span>
-          <div><small>AI 实时结论 · 可信度 78%</small><h3>{tab === "风险" ? "波动正在放大，注意仓位" : "短线中性偏强，等待突破确认"}</h3></div>
-          <b>62</b>
-        </div>
-        <p className="feature-copy">{model.description || "当前买盘承接增强，但主动成交尚未形成连续放量。建议观察关键价位，不将单一信号作为交易依据。"}</p>
-        <MetricCards items={[["关键支撑", "65,553", "green"], ["关键阻力", "66,120", "red"], ["主力挂单差", "+$12.4M", "green"]]} />
-        <div className="evidence-list">
-          {["MA20 仍位于 MA60 下方", "买方深度较 30 分钟前增加 18%", "资金费率 0.0081%，暂无拥挤"].map((x) => <p key={x}><I.CheckCircle />{x}</p>)}
-        </div>
-        <div className="ai-action-grid">
-          {[["画线",I.LineSegment],["创建预警",I.BellRinging],["模拟下单",I.Receipt],["一键分享",I.ShareNetwork]].map(([name,Icon])=><button className={aiAction===name?"on":""} key={name} onClick={()=>{setAiAction(name);say(name==="画线"?"关键支撑与阻力已添加到本地图表":name==="创建预警"?"已创建 65,553 支撑位本地预警":name==="模拟下单"?"已生成 BTC/USDT 风险受控模拟订单草稿":"AI 解读分享卡片已生成")}}><Icon/><span><b>{name}</b><small>{name==="画线"?"支撑与阻力":name==="创建预警"?"关键价位提醒":name==="模拟下单"?"带止损的草稿":"复制分析卡片"}</small></span>{aiAction===name&&<I.Check/>}</button>)}
-        </div>
-        {aiAction&&<div className="ai-action-result"><I.CheckCircle/><span><b>{aiAction}已准备</b><small>所有动作均为本地演示，不会触发真实交易。</small></span><button onClick={()=>setAiAction("")}>撤销</button></div>}
-        <footer className="feature-actions"><button onClick={() => { close(); go("market"); }}>打开完整行情</button><button onClick={() => finish("AI 解读已复制")}>复制结论</button><button className="overlay-primary" onClick={() => finish("已基于当前解读创建策略草稿")}>生成策略草稿</button></footer>
-      </div>
-    );
+  if (model.type === "aceResult") {
+    const result=model.researchResult;
+    return <div className="feature-panel real-research-result"><div className="research-result-meta">{result?.status==="ok"?`${result.provider} / ${result.model} · ${result.request_id}`:"未获得有效模型回复"}</div><p className="feature-copy">{model.description}</p><ResearchNewsSources result={result}/><p className="research-result-meta">{result?.provided_news?"本次附带后端缓存资讯，来源和时间见上方清单。":"本次没有提供资讯材料。"}没有实时行情或账户证据；模型回复不会创建策略或订单。</p><footer className="feature-actions"><button onClick={close}>关闭</button><button onClick={()=>{close();go("market");}}>打开行情核对数据</button></footer></div>;
+  }
+
+  if (model.type === "aiChart") {
+    return <div className="feature-panel"><p className="feature-copy">图表研究已接入配置的AI服务。打开行情中的“AI 解读”，预览问题与主图数据后发送。</p><footer className="feature-actions"><button onClick={()=>{close();go("market");}}>打开行情</button></footer></div>;
   }
 
   if (model.type === "searchResults") {
@@ -163,13 +142,13 @@ export function FeatureOverlayPanel({ model, close, say, go }) {
     const range = model.type === "dateRange";
     return (
       <div className="feature-panel date-feature-panel">
-        <div className="preset-row">{["今天", "近7天", "近30天", "今年"].map((x) => <button key={x} className={start === ({今天:"2026-07-22",近7天:"2026-07-16",近30天:"2026-06-23",今年:"2026-01-01"})[x] ? "on" : ""} onClick={() => applyDatePreset(x)}>{x}</button>)}</div>
-        {range ? <div className="date-inputs"><label>开始日期<input type="date" value={start} onChange={(e) => setStart(e.target.value)} /></label><span>至</span><label>结束日期<input type="date" value={end} onChange={(e) => setEnd(e.target.value)} /></label></div> : <label className="single-date">定位日期与时间<input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} /></label>}
+        <div className="preset-row">{["今天", "近7天", "近30天", "今年"].map((x) => <button key={x} className={start === datePresets[x][0] ? "on" : ""} onClick={() => applyDatePreset(x)}>{x}</button>)}</div>
+        {range ? <div className="date-inputs"><label>开始日期<input type="date" value={start} onInput={event=>setStart(event.currentTarget.value)} onChange={(e) => setStart(e.target.value)} /></label><span>至</span><label>结束日期<input type="date" value={end} onInput={event=>setEnd(event.currentTarget.value)} onChange={(e) => setEnd(e.target.value)} /></label></div> : <label className="single-date">定位日期与时间<input type="datetime-local" value={date} onInput={(e)=>setDate(e.currentTarget.value)} onChange={(e) => setDate(e.target.value)} /></label>}
         <div className="date-preview"><I.CalendarDots /><span><b>{range ? `${start} — ${end}` : date.replace("T", " ")}</b><small>应用后将更新 K 线可见范围</small></span></div>
         <footer className="feature-actions"><button onClick={close}>取消</button><button className="overlay-primary" onClick={() => {
-          if (range) model.onApplyRange?.({ start, end });
-          else model.onApplyDate?.(date);
-          finish(range ? `K线范围已切换为 ${start} 至 ${end}` : `已定位到 ${date.replace("T", " ")}`);
+          const applied=range?model.onApplyRange?.({start,end}):model.onApplyDate?.(date);
+          if(applied===false)return;
+          finish(typeof applied==="string"?applied:range ? `K线范围已切换为 ${start} 至 ${end}` : `已定位到 ${date.replace("T", " ")}`);
         }}>应用</button></footer>
       </div>
     );

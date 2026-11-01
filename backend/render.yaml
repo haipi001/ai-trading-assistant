@@ -1,0 +1,58 @@
+services:
+  - type: web
+    name: ai-trading-assistant-api
+    runtime: docker
+    rootDir: backend
+    plan: free
+    region: singapore
+    healthCheckPath: /health/ready
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEPLOYMENT_TARGET
+        value: render
+      - key: RELEASE_ID
+        value: render-main
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ai-trading-assistant-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: ai-trading-assistant-cache
+          property: connectionString
+      - key: BACKEND_CORS_ORIGINS
+        value: https://haipi001.github.io,http://localhost:3002,http://127.0.0.1:3002
+      - key: LIVE_TRADING_ENABLED
+        value: false
+      - key: LIVE_EXECUTION_ENABLED
+        value: false
+      - key: LIVE_EXECUTION_DRY_RUN_ONLY
+        value: true
+      - key: AUTOMATION_LEVEL
+        value: A0_READ_ONLY
+      - key: MANAGED_AUTH_REQUIRED
+        value: false
+      - key: RUNTIME_SCHEDULER_ENABLED
+        value: true
+      - key: API_RATE_LIMIT_ENABLED
+        value: true
+      - key: AUTH_SESSION_SECRET_REF
+        value: env://AUTH_SESSION_SECRET
+      - key: AUTH_SESSION_SECRET
+        generateValue: true
+
+  - type: keyvalue
+    name: ai-trading-assistant-cache
+    plan: free
+    region: singapore
+    ipAllowList: []
+
+databases:
+  - name: ai-trading-assistant-db
+    plan: free
+    region: singapore
+    databaseName: ai_trading_assistant
+    user: ai_trading_assistant
+    ipAllowList: []

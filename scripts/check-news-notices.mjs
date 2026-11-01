@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {createNewsNoticeTracker,newsNoticeSettings,newsNoticeMatch} from '../src/news-notice-model.js';
+const now=Date.now(),settings=newsNoticeSettings(null);
+const row=(id,minutes,title='交易所暂停提现')=>({id,title,description:'中文来源报道',publishedAt:new Date(now-minutes*60000).toISOString()});
+assert.equal(newsNoticeMatch(row('a',1),settings),'暂停提现');assert.equal(newsNoticeMatch(row('b',1,'普通行情'),settings),null);
+const track=createNewsNoticeTracker(),snap=articles=>({provider:'panews',articles});
+assert.deepEqual(track(snap([row('a',1),row('old',60),row('future',-5)]),settings,now).map(x=>x.id),['a']);
+assert.equal(track(snap([row('a',1)]),settings,now).length,0);
+assert.deepEqual(track(snap([row('new',2),row('a',1)]),settings,now).map(x=>x.id),['new']);
+assert.equal(track(snap([row('off',1)]),{...settings,enabled:false},now).length,0);
+assert.equal(track(snap([row('off',1)]),settings,now).length,0);
+assert.equal(track(snap([row('none',1)]),{enabled:true,keywords:''},now).length,0);
+console.log('News notices: Chinese keyword matching, duplicate suppression, future/stale exclusion and disabled baseline passed');

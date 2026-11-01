@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {decodeBitgetFundFlow,loadPublicFundFlow} from '../src/market-fund-flow.js';
+const body={code:'00000',requestTime:1793260800000,data:{whaleBuyVolume:'10',whaleSellVolume:'12',dolphinBuyVolume:'3',dolphinSellVolume:'1',fishBuyVolume:'2',fishSellVolume:'1'}};
+const data=decodeBitgetFundFlow(body);assert.equal(data.groups[0].net,-2);assert.equal(data.buy,15);assert.equal(data.sell,14);assert.equal(data.net,1);
+assert.throws(()=>decodeBitgetFundFlow({...body,data:{...body.data,fishSellVolume:'-1'}}));
+assert.throws(()=>decodeBitgetFundFlow({...body,data:{...body.data,whaleBuyVolume:''}}));
+assert.throws(()=>decodeBitgetFundFlow({...body,code:'40000'}));
+assert.equal((await loadPublicFundFlow('ETH','币安','1h')).status,'unsupported');
+const result=await loadPublicFundFlow('ETH','Bitget','1h',undefined,async(url,options)=>{assert.equal(url,'https://api.bitget.com/api/v3/market/spot-fund-flow?symbol=ETHUSDT&period=1h');assert.equal(options.credentials,'omit');return {ok:true,json:async()=>body};});assert.equal(result.status,'connected');
+console.log('Fund flow: signed net from nonnegative groups, totals, missing/negative rejection and exact public symbol/period request passed');

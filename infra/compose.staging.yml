@@ -1,0 +1,9 @@
+services:
+  migrate:
+    environment:
+      ENVIRONMENT: staging
+      DEPLOYMENT_TARGET: managed-staging
+  backend:
+    environment:
+      ENVIRONMENT: staging
+      DEPLOYMENT_TARGET: managed-staging

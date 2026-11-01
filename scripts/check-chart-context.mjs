@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {chartContextAt} from '../src/chart-context.js';
+const input={x:40,y:70,width:400,height:200,symbol:'ETH',marketMode:'web3',decimals:4,demo:true};
+let actualY;const hit=chartContextAt(input,y=>{actualY=y;return 3172.1234;});
+assert.equal(actualY,70);assert.equal(hit.price,3172.1234);assert.equal(hit.symbol,'ETH');assert.equal(hit.instrument,'ETH/USDT');assert.equal(hit.demo,true);
+for(const point of [{x:-1},{x:400},{y:200},{y:NaN}]) assert.equal(chartContextAt({...input,...point},()=>{throw new Error('outside plot should not convert')}),null);
+for(const price of [null,NaN,Infinity,0,-1])assert.equal(chartContextAt(input,()=>price),null);
+assert.equal(chartContextAt({...input,symbol:'AAPL',marketMode:'stocks'},()=>200).instrument,'AAPL');
+assert.equal(chartContextAt({...input,decimals:99},()=>1).decimals,8);
+assert.equal(chartContextAt({...input,decimals:2},()=>3125.594277).price,3125.59);
+console.log('Chart context: actual coordinate conversion, pane identity, plot boundaries and invalid price rejection passed');

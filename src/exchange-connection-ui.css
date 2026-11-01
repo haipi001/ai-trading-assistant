@@ -1,0 +1,52 @@
+section.exchange-probe-panel{box-sizing:border-box;width:min(1120px,calc(100% - 64px));max-width:1120px;margin:36px auto;padding:0;display:grid;grid-template-columns:minmax(320px,1.15fr) minmax(260px,.85fr);gap:28px 40px;color:#25303d;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif}
+.exchange-probe-panel>header{grid-column:1/-1;padding-bottom:22px;border-bottom:1px solid #dfe5eb;gap:20px}
+.exchange-probe-panel>header h1{font-size:24px;font-weight:650;letter-spacing:-.6px;margin:0;line-height:1.35}
+section.exchange-probe-panel>form{grid-column:1;grid-row:2;max-width:none;margin:0;background:#fff;border:1px solid #e2e7ed;border-radius:10px;padding:28px;gap:20px;align-self:start}
+.exchange-probe-panel>form label{font-size:13px;font-weight:550;gap:8px;line-height:1.5;color:#465365}
+.exchange-probe-panel>form input:not([type=checkbox]),.exchange-probe-panel>form select{box-sizing:border-box;width:100%;min-width:0;height:42px;padding:9px 12px;background:#fff;color:#25303d;border:1px solid #d4dce6;border-radius:6px;font:inherit;transition:border-color .16s,box-shadow .16s}
+.exchange-probe-panel>form input[type=password]{font-family:ui-monospace,SFMono-Regular,monospace}
+.exchange-probe-panel>form label.exchange-save-option{display:flex;align-items:flex-start;gap:10px;font-size:12px;font-weight:400;background:#f5f7fa;border-radius:6px;padding:12px;line-height:1.6}
+.exchange-probe-panel>form .exchange-save-option input{width:16px;height:16px;margin:2px 0 0;flex:0 0 auto;accent-color:#2670c7}
+.exchange-probe-panel button{font:inherit;font-size:12px;font-weight:550;min-height:34px;padding:8px 14px;border:1px solid #d7dfe8;background:#fff;color:#3b485b;border-radius:6px;cursor:pointer;transition:background .16s,border-color .16s,transform .12s}
+.exchange-probe-panel button:hover:not(:disabled){background:#f0f4f9;border-color:#aebfd2}
+.exchange-probe-panel button:active:not(:disabled){transform:translateY(1px)}
+.exchange-probe-panel>form button[type=submit]{background:#2869b1;color:#fff;border-color:#2869b1;min-height:42px;font-size:13px}
+.exchange-probe-panel>form button[type=submit]:hover:not(:disabled){background:#205a99}
+.exchange-probe-panel :is(input,select,button):focus-visible{outline:2px solid #367cca;outline-offset:3px}
+.exchange-probe-panel :is(input,select,button):disabled{opacity:.55;cursor:wait}
+.exchange-probe-panel>.exchange-guidance{grid-column:2;grid-row:2;padding:10px 0;align-self:start;font-size:13px;line-height:1.75;color:#687689;max-width:38em}
+.exchange-guidance .exchange-access-label{display:inline-block;font-size:11px;font-weight:600;color:#336853;background:#e9f2ed;padding:3px 8px;border-radius:4px}
+.exchange-guidance h2{font-size:17px;font-weight:600;color:#29394c;margin:16px 0 8px}
+.exchange-guidance p{margin:0 0 22px}
+.exchange-guidance dl{margin:0}.exchange-guidance dl>div{padding:16px 0;border-top:1px solid #e1e6ec}.exchange-guidance dt{font-weight:600;color:#455468;margin-bottom:5px}.exchange-guidance dd{margin:0}
+.exchange-probe-panel>.saved-exchange-connections,.exchange-probe-panel>.exchange-balance-snapshot{grid-column:1/-1;margin:0;padding:24px 0;border-bottom:0;border-top:1px solid #dfe5eb;min-width:0}
+.exchange-probe-panel .saved-exchange-connections h2{font-size:17px;font-weight:600;margin:0}.exchange-probe-panel .saved-exchange-connections>p{color:#7a8796;font-size:13px;padding:24px 0}
+.exchange-probe-panel table{font-size:12px;font-variant-numeric:tabular-nums}.exchange-probe-panel th{font-size:11px;color:#728095;font-weight:500;background:#f0f3f7}.exchange-probe-panel td{overflow-wrap:anywhere}
+.exchange-probe-panel>[role=alert]{grid-column:1/-1;padding:14px 16px;background:#fff2f1;border:1px solid #edd3d1;border-radius:6px;font-size:13px;line-height:1.6;margin:0}
+@media(max-width:1000px){section.exchange-probe-panel{width:calc(100% - 36px);margin:24px auto;grid-template-columns:minmax(0,1fr);gap:22px}.exchange-probe-panel>.exchange-guidance{grid-column:1;grid-row:auto;max-width:none}.exchange-probe-panel>form{grid-row:auto;padding:22px}.exchange-probe-panel>header h1{font-size:21px}.exchange-probe-panel>header{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){.exchange-probe-panel *{transition:none!important}}
+.saved-exchange-connections .connection-list-filters{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;margin:20px 0;padding:14px 16px;background:#f3f6fa;border-radius:7px}
+.saved-exchange-connections .connection-list-filters label{display:grid;gap:6px;font-size:11px;font-weight:500;color:#68798f}
+.saved-exchange-connections .connection-list-filters label:first-child{flex:1 1 240px}
+.saved-exchange-connections .connection-list-filters input,.saved-exchange-connections .connection-list-filters select{box-sizing:border-box;width:100%;height:36px;min-width:140px;border:1px solid #d4dfe9;background:#fff;border-radius:5px;padding:7px 10px;font:inherit;font-size:12px;color:#394b60}
+.saved-exchange-connections .connection-list-filters small{font-size:11px;color:#7c8a9d;padding-bottom:10px;font-variant-numeric:tabular-nums}
+.saved-exchange-connections .connection-list-pagination{display:flex;gap:16px;align-items:center;justify-content:flex-end;margin-top:18px;font-size:12px;color:#697c93}
+.saved-exchange-connections :is(input,select,button):focus-visible{outline:2px solid #367cca;outline-offset:2px}
+.saved-exchange-connections>[aria-label="确认移除交易所凭证"]{padding:16px 18px;background:#fff7ed;border:1px solid #eedec7;border-radius:6px;margin-top:18px;font-size:13px;line-height:1.7}
+@media(max-width:800px){.saved-exchange-connections .connection-list-filters label{flex:1 1 160px}.saved-exchange-connections .connection-list-filters small{width:100%;padding:0}}
+.exchange-balance-snapshot .balance-list-toolbar{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;margin:20px 0 14px}
+.exchange-balance-snapshot .balance-list-toolbar label{display:grid;gap:7px;font-size:12px;color:#586d85}
+.exchange-balance-snapshot .balance-list-toolbar input{box-sizing:border-box;width:240px;max-width:100%;height:36px;border:1px solid #d6e0eb;border-radius:5px;background:#fff;padding:8px 11px;font:inherit}
+.exchange-balance-snapshot .balance-list-toolbar small{font-size:11px;color:#8290a2;line-height:1.6}
+.exchange-balance-snapshot .balance-table-scroll{max-width:100%;overflow-x:auto;border:1px solid #e1e7ee;border-radius:7px}
+.exchange-balance-snapshot .balance-table-scroll table{min-width:650px;white-space:nowrap;font-size:12px;font-variant-numeric:tabular-nums}
+.exchange-balance-snapshot .balance-table-scroll th:not(:first-child),.exchange-balance-snapshot .balance-table-scroll td:not(:first-child){text-align:right}
+.exchange-balance-snapshot .balance-table-scroll th{background:#f3f6fa;color:#76879d;font-weight:500}
+.exchange-balance-snapshot .balance-table-scroll td{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.exchange-balance-snapshot .balance-table-scroll tbody tr:last-child td{border-bottom:0}
+.exchange-balance-snapshot input:focus-visible{outline:2px solid #367cca;outline-offset:2px}
+.connection-rename-form{display:flex;align-items:end;flex-wrap:wrap;gap:10px;padding:14px;margin:10px 0;background:#f6f9f8;border:1px solid #dce6e1;border-radius:6px}
+.connection-rename-form label{display:flex;flex-direction:column;gap:6px;min-width:200px;flex:1}
+.connection-rename-form input{padding:8px;border:1px solid #cbd6d0;border-radius:4px;font:inherit}
+.connection-rename-form small{flex-basis:100%;color:#68756f;order:4}
+.connection-rename-form button{padding:8px 12px;border:1px solid #cbd6d0;border-radius:4px;background:#fff;cursor:pointer}

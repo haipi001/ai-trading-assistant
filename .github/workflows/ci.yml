@@ -1,0 +1,41 @@
+name: Frontend and backend CI
+on:
+  push:
+    branches: [main, "codex/**"]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: python -m venv backend/.venv
+      - run: backend/.venv/bin/pip install -e './backend[dev]'
+      - run: npm ci
+      - run: cd backend && .venv/bin/python -m pytest -q
+      - run: ./scripts/migration_guard.sh
+      - run: npm run test:interactions && npm run test:models && npm run build
+      - run: python scripts/secret_scan.py
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: pip install -e './backend[dev]' pip-audit bandit
+      - run: pip-audit
+      - run: bandit -r backend/app -lll
+      - run: npm ci && npm audit --omit=dev --audit-level=high

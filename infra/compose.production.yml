@@ -1,0 +1,11 @@
+services:
+  migrate:
+    environment:
+      ENVIRONMENT: production
+      DEPLOYMENT_TARGET: managed-production
+      STAGING_FAULT_INJECTION_ENABLED: "false"
+  backend:
+    environment:
+      ENVIRONMENT: production
+      DEPLOYMENT_TARGET: managed-production
+      STAGING_FAULT_INJECTION_ENABLED: "false"

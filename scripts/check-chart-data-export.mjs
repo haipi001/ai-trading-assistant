@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {chartDataCsv} from '../src/chart-data-export.js';
+import {parseMarketCsv} from '../src/market-csv.js';
+const candles=[{time:1792800000,open:10,high:12,low:9,close:11,volume:5}];
+const options={candles,symbol:'SOL',venue:'币安',period:'1时',source:'fixture,"test"',kind:'local_csv',replay:true};
+const text=chartDataCsv(options);
+assert.equal(parseMarketCsv(text).candles[0].close,11);
+assert.ok(text.includes('"fixture,""test"""'));
+assert.ok(text.endsWith(',local_csv,true'));
+assert.equal(parseMarketCsv(chartDataCsv({...options,volumeAvailable:false})).volumeAvailable,false);
+assert.ok(chartDataCsv({...options,source:'=CMD()'}).includes("'=CMD()"));
+assert.throws(()=>chartDataCsv({...options,candles:[]}));
+console.log('Chart data export: roundtrip, volume omission, source quoting, spreadsheet escaping, empty snapshot passed');

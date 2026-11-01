@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {marketResearchCapture,selectMarketCapture} from '../src/research-market-context.js';
+const bars=Array.from({length:80},(_,i)=>({time:1700000040+i*60,open:10,high:12,low:9,close:11,volume:1}));
+const input={symbol:'ETH',venue:'币安',period:'1分',feed:{status:'connected',source:'Binance public',candles:bars,observedAt:'2026-10-30T00:00:00Z'},now:1793318400000};
+const value=marketResearchCapture(input);assert.equal(value.symbol,'ETH');assert.equal(value.timeframe,'1m');assert.equal(value.kind,'online');assert.equal(selectMarketCapture(value,60).bars.length,60);
+assert.equal(marketResearchCapture({...input,feed:{...input.feed,status:'offline'}}),null);
+assert.equal(marketResearchCapture({...input,feed:{...input.feed,source:'demo seed'}}),null);
+assert.equal(marketResearchCapture({...input,replay:{demo:true}}),null);
+const replay=marketResearchCapture({...input,feed:{...input.feed,status:'offline'},replay:{bars,demo:false,source:'Frozen public',cutoff:bars[10].time+60}});
+assert.equal(replay.kind,'replay');assert.equal(replay.bars.length,11);assert.equal(replay.bars.at(-1).time,bars[10].time);
+const csv=marketResearchCapture({...input,feed:{...input.feed,status:'local',volumeAvailable:false}});assert.equal(csv.kind,'csv');assert.equal(csv.volume_available,false);
+const selected=selectMarketCapture(value,30);selected.bars[0].close=99;assert.equal(value.bars.at(-30).close,11);
+console.log('Market research: identity, bounded raw series, replay cutoff, demo exclusion, CSV volume and immutable selection passed.');

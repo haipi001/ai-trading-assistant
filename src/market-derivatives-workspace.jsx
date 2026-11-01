@@ -1,0 +1,12 @@
+import React,{useState,useEffect} from 'react';
+import {loadPublicDerivatives} from './market-derivatives.js';
+import {observeMarketSnapshot} from './market-refresh.js';
+import './market-watch-workspace.css';
+const format=value=>value==null?'—':value.toLocaleString('en-US',{maximumFractionDigits:6});
+const time=value=>value==null?'—':new Date(value).toISOString();
+export function MarketDerivativesWorkspace({symbol,venue,marketMode,onVenueChange,onSymbolChange,symbolOptions}){
+ const [result,setResult]=useState(null),key=`${marketMode}:${venue}:${symbol}`;
+ useEffect(()=>{setResult(null);if(marketMode==='stocks')return;return observeMarketSnapshot(signal=>loadPublicDerivatives(symbol,venue,signal),value=>setResult({...value,key}));},[key]);
+ const data=result?.key===key?result:null,valid=data?.status==='connected';
+ return <div className="list-page market-data-workspace"><div className="channel-title"><h1>{symbol} 合约数据</h1><div><select aria-label="合约数据交易所" value={venue} onChange={event=>onVenueChange(event.target.value)}>{[...new Set([venue,'币安','欧易OKX','Bitget'])].map(value=><option key={value}>{value}</option>)}</select><select aria-label="合约数据标的" value={symbol} onChange={event=>onSymbolChange(event.target.value)}>{[...new Set([symbol,...symbolOptions])].map(value=><option key={value}>{value}</option>)}</select></div></div><p className="market-data-status" data-state={marketMode==='stocks'?'unsupported':data?.status||'loading'} role="status">{marketMode==='stocks'?'股票合约公开数据尚未接入':data?.source||'正在读取永续公开数据…'}</p><p>USDT永续 · 资金费率按当前结算周期展示，不年化；持仓量为未平仓合约，不是成交额。不同接口时间可能不同。</p><div className="market-data-table-wrap"><table className="market-watch-table"><thead><tr><th>合约</th><th>{valid?data.rateLabel||"当前资金费率":"资金费率"}</th><th>本期结算时间(UTC)</th><th>持仓(张)</th><th>持仓({symbol})</th><th>持仓价值(USD)</th></tr></thead><tbody><tr><td>{valid?data.instId:`${symbol} USDT永续`}</td><td>{valid?`${(data.rate*100).toFixed(6)}%`:'—'}</td><td>{valid?time(data.fundingTime):'—'}</td><td>{valid?format(data.contracts):'—'}</td><td>{valid?format(data.baseQuantity):'—'}</td><td>{valid?format(data.usdValue):'—'}</td></tr></tbody></table></div><p>资金费率{valid&&data.fundingTimestampKind?data.fundingTimestampKind:"更新时间"}：{valid?time(data.fundingUpdatedAt):'—'} · 持仓更新时间：{valid?time(data.interestUpdatedAt):'—'}</p><p>{valid&&data.intervalHours?`结算周期：${data.intervalHours}小时。 `:""}{valid&&data.interestBasis?`持仓口径：${data.interestBasis}；不同平台口径可能不同。 `:""}未提供的张数和USD价值显示空值。</p><p>多空比、爆仓金额与合约成交额尚未接入。此页面不创建交易授权或提交订单。</p></div>;
+}

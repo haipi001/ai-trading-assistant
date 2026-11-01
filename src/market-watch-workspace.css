@@ -1,0 +1,38 @@
+.market-watch-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff}
+.market-watch-table th,.market-watch-table td{text-align:right;padding:14px 16px;border-bottom:1px solid var(--line,#e7e9ed);font-variant-numeric:tabular-nums}
+.market-watch-table th{background:#f5f6f8;color:#69717e;font-weight:500}
+.market-watch-table th:first-child,.market-watch-table td:first-child{text-align:left;font-weight:600}
+.market-watch-table button{border:1px solid var(--line,#e7e9ed);background:#fff;border-radius:4px;padding:6px 9px;font:inherit;color:inherit;cursor:pointer}
+.market-watch-table tbody tr:hover{background:#fafbfc}
+.market-watch-table th button{border:0;background:transparent;padding:0}
+/* Shared data workspaces retain the desktop navigation and compact trading density. */
+.list-page.market-data-workspace{box-sizing:border-box;height:auto;min-height:100%;padding:30px clamp(22px,3vw,56px) 44px;color:#29394b;background:#fff;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif}
+.market-data-workspace .channel-title{gap:20px;align-items:center;flex-wrap:wrap;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #e4e9ef}
+.market-data-workspace .channel-title h1{font-size:22px;font-weight:650;letter-spacing:-.5px;margin:0;line-height:1.4}
+.market-data-workspace .channel-title h1 small{font-size:12px;margin-left:8px;color:#77869a}
+.market-data-workspace .channel-title>div{gap:8px;flex-wrap:wrap;align-items:center}
+.market-data-workspace select,.market-data-workspace .channel-title button,.market-flow-filters button{height:36px;box-sizing:border-box;padding:7px 12px;border:1px solid #d7dfe9;border-radius:6px;background:#fff;color:#425269;font:inherit;font-size:12px;cursor:pointer}
+.market-data-workspace .channel-title button{background:#f2f5f9}
+.market-data-workspace>p{max-width:105ch;font-size:12px;line-height:1.75;color:#758195;margin:14px 0 18px;text-wrap:pretty}
+.market-data-workspace p.market-data-status{max-width:none;background:#f3f6fa;border:1px solid #e6ebf2;border-radius:6px;padding:11px 14px;color:#53677e;font-size:12px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.market-data-table-wrap{overflow-x:auto;border:1px solid #e2e8ef;border-radius:8px;margin:20px 0;background:#fff;scrollbar-width:thin}
+.market-data-table-wrap .market-watch-table{min-width:680px}
+.market-data-table-wrap .market-watch-table th{white-space:nowrap;background:#f6f8fb;height:46px;box-sizing:border-box;padding:12px 18px}
+.market-data-table-wrap .market-watch-table td{padding:16px 18px;font-family:inherit;font-variant-numeric:tabular-nums;white-space:nowrap;color:#34445a;font-size:12px}
+.market-data-table-wrap .market-watch-table tbody tr:last-child td{border-bottom:0}
+.market-data-workspace .market-watch-table button{font-size:12px;border-radius:5px;color:#376da7}
+.market-data-workspace .market-watch-table th button{color:#6c7c90}
+.market-data-workspace :is(button,select):focus-visible{outline:2px solid #367cca;outline-offset:3px}
+.market-data-workspace :is(button,select):disabled{opacity:.5;cursor:default}
+.market-data-workspace button:hover:not(:disabled){background:#edf3fa}
+.market-data-workspace>.flow-summary{padding:0;margin:22px 0;gap:12px}
+.market-data-workspace>.flow-summary article{border:0;border-radius:7px;background:#f3f6fa;padding:18px 20px;gap:10px}
+.market-data-workspace>.flow-summary article small{font-size:12px;color:#748398}
+.market-data-workspace>.flow-summary article b{font-size:22px;font-weight:600;letter-spacing:-.5px;font-variant-numeric:tabular-nums;color:#304965}
+.market-data-workspace>.flow-summary>button{border-radius:6px;background:#2869b1;font-size:12px;min-height:40px}
+.market-flow-filters{display:flex;gap:6px;flex-wrap:wrap;margin-top:24px}
+.market-flow-filters button[aria-pressed=true]{background:#eaf1f9;border-color:#94afd0;color:#295d98;font-weight:600}
+@media(max-width:1000px){.list-page.market-data-workspace{padding:22px 18px 32px}.market-data-workspace .channel-title{gap:14px}.market-data-workspace .channel-title>div{width:100%}.market-data-workspace>.flow-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.market-data-workspace>.flow-summary>button{padding:12px}.market-data-workspace>.flow-summary article b{font-size:18px}}
+.list-page.market-data-workspace{max-width:1600px;margin:0 auto}
+.market-data-workspace .market-data-status[data-state=error]{color:#a24d50;background:#fff3f2;border-color:#efd9d7}
+.market-data-workspace .market-data-status[data-state=unsupported]{color:#856c42;background:#faf6ed;border-color:#eae0cd}

@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {parseMarketCsv} from '../src/market-csv.js';
+const csv='time,open,high,low,close,volume\n2026-10-01T00:00:00Z,100,110,90,105,12\n2026-10-01T01:00:00Z,105,115,100,111,0';
+const parsed=parseMarketCsv(csv);
+assert.equal(parsed.candles.length,2);
+assert.equal(parsed.volumeAvailable,true);
+assert.equal(parsed.candles[0].volume,12);
+assert.equal(parseMarketCsv('time,open,high,low,close\n2026-10-01,100,110,90,105').volumeAvailable,false);
+assert.throws(()=>parseMarketCsv('time,close\n2026-10-01,100'));
+assert.throws(()=>parseMarketCsv(csv.replace(',12',',-12')));
+assert.throws(()=>parseMarketCsv(csv.replace('100,110,90,105','100,99,90,105')));
+assert.throws(()=>parseMarketCsv(csv.replace('2026-10-01T01:00:00Z','2026-10-01T00:00:00Z')));
+console.log('Market CSV checks passed');

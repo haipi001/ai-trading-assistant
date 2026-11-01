@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {decodeMarketTrades,loadMarketTrades} from '../src/market-trades.js';
+const row={id:1,price:'100',qty:'0.01',time:1793145600000,isBuyerMaker:true};
+assert.equal(decodeMarketTrades([row],'binance','BTC')[0].side,'卖出');
+assert.equal(decodeMarketTrades([{...row,isBuyerMaker:false}],'binance','BTC')[0].side,'买入');
+assert.equal(decodeMarketTrades([row,{...row,id:2,time:row.time+1}],'binance','BTC')[0].id,'2');
+const okx={instId:'BTC-USDT',tradeId:'12345678901234567890',px:'101',sz:'2',ts:String(row.time),side:'buy'};
+assert.equal(decodeMarketTrades({code:'0',data:[okx]},'okx','BTC')[0].id,okx.tradeId);
+assert.throws(()=>decodeMarketTrades({code:'0',data:[okx]},'okx','ETH'));
+for(const invalid of [{...row,isBuyerMaker:'false'},{...row,price:'NaN'},{...row,qty:'0'},{...row,id:Number.MAX_SAFE_INTEGER+1}])assert.throws(()=>decodeMarketTrades([invalid],'binance','BTC'));
+assert.throws(()=>decodeMarketTrades([row,row],'binance','BTC'));
+let init,url;const result=await loadMarketTrades('BTC','币安',null,async(u,i)=>{url=u;init=i;return {ok:true,json:async()=>[row]};});assert.equal(result.status,'connected');assert.match(url,/symbol=BTCUSDT&limit=20/);assert.equal(init.credentials,'omit');assert.equal(init.redirect,'error');
+assert.equal((await loadMarketTrades('BTC','Hyperliquid')).status,'unsupported');
+console.log('Public trades: taker direction, chronological order, safe IDs, identity and invalid record rejection passed');
+const bitgetTrade={symbol:'BTCUSDT',tradeId:'12345678901234567890',price:'100',size:'0.1',side:'sell',ts:'1793145600000'};
+assert.equal(decodeMarketTrades({code:'00000',data:[bitgetTrade]},'bitget','BTC')[0].side,'卖出');
+assert.throws(()=>decodeMarketTrades({code:'00000',data:[bitgetTrade]},'bitget','ETH'));
+assert.equal((await loadMarketTrades('BTC','Bitget',null,async(url)=>{assert.match(url,/fills\?symbol=BTCUSDT&limit=20/);return {ok:true,json:async()=>({code:'00000',data:[bitgetTrade]})};})).status,'connected');

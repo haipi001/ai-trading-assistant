@@ -1,0 +1,5 @@
+account_name,account_type,asset_symbol,asset_name,asset_type,quantity,average_cost,current_price,market_value,currency,notes
+Demo Brokerage,brokerage,AAPL,Apple Inc.,stock,12,180,225,2700,USD,long-term core holding
+Demo Brokerage,brokerage,NVDA,NVIDIA Corp.,stock,5,780,910,4550,USD,AI infrastructure exposure
+Demo Wallet,wallet,BTC,Bitcoin,crypto,0.35,42000,66000,23100,USD,cold wallet read-only balance
+Demo Brokerage,brokerage,USD Cash,USD Cash,cash,2500,1,1,2500,USD,available cash balance

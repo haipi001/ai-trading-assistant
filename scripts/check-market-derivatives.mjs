@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';
+import {decodeOkxDerivatives,loadPublicDerivatives} from '../src/market-derivatives.js';
+const common={instId:'ETH-USDT-SWAP',instType:'SWAP',ts:'1793260800000'},funding={code:'0',data:[{...common,fundingRate:'-0.0001',fundingTime:'1793289600000'}]},interest={code:'0',data:[{...common,oi:'100',oiCcy:'10',oiUsd:'23000'}]};
+const data=decodeOkxDerivatives(funding,interest,'ETH');assert.equal(data.rate,-.0001);assert.equal(data.baseQuantity,10);assert.equal(data.contracts,100);assert.equal(data.usdValue,23000);
+assert.throws(()=>decodeOkxDerivatives(funding,interest,'BTC'));
+assert.throws(()=>decodeOkxDerivatives(funding,{...interest,data:[{...interest.data[0],instType:'FUTURES'}]},'ETH'));
+assert.throws(()=>decodeOkxDerivatives({...funding,data:[{...funding.data[0],fundingRate:''}]},interest,'ETH'));
+assert.throws(()=>decodeOkxDerivatives(funding,{...interest,data:[{...interest.data[0],oi:'-1'}]},'ETH'));
+let calls=0;const result=await loadPublicDerivatives('ETH','欧易OKX',undefined,async(url,config)=>{calls++;assert.match(url,/^https:\/\/www.okx.com\/api\/v5\/public\//);assert.equal(config.credentials,'omit');return {ok:true,json:async()=>url.includes('funding-rate')?funding:interest};});assert.equal(result.status,'connected');assert.equal(calls,2);
+assert.equal((await loadPublicDerivatives('ETH','Hyperliquid')).status,'unsupported');
+console.log('Public derivatives: exact USDT SWAP identity, signed funding, independent timestamps, OI units and secretless endpoints passed');
+const {decodeBitgetDerivatives}=await import('../src/market-derivatives.js');
+const bf={code:'00000',requestTime:1793260800000,data:[{symbol:'ETHUSDT',fundingRate:'-0.0002',fundingRateInterval:'4',nextUpdate:'1793275200000'}]},bi={code:'00000',data:{list:[{symbol:'ETHUSDT',openInterest:'123.4'}],ts:'1793260800000'}};
+const bitget=decodeBitgetDerivatives(bf,bi,'ETH');assert.equal(bitget.intervalHours,4);assert.equal(bitget.baseQuantity,123.4);assert.equal(bitget.contracts,null);assert.equal(bitget.usdValue,null);assert.equal(bitget.fundingTimestampKind,'请求时间');
+assert.throws(()=>decodeBitgetDerivatives(bf,bi,'BTC'));
+assert.throws(()=>decodeBitgetDerivatives({...bf,data:[{...bf.data[0],fundingRateInterval:'0'}]},bi,'ETH'));
+const bgResult=await loadPublicDerivatives('ETH','Bitget',undefined,async(url,config)=>{assert.match(url,/^https:\/\/api.bitget.com\/api\/v3\/market\//);assert.match(url,/category=USDT-FUTURES/);return {ok:true,json:async()=>url.includes('current-fund-rate')?bf:bi};});assert.equal(bgResult.status,'connected');
+console.log('Bitget derivatives: exact USDT identity, base OI sum, interval, request time and absent values passed');
+
+const {decodeBinanceDerivatives}=await import('../src/market-derivatives.js');
+const binFunding={symbol:'ETHUSDT',lastFundingRate:'-0.0001',time:1793260800000,nextFundingTime:1793289600000},binOi={symbol:'ETHUSDT',openInterest:'345.6',time:1793260800000},info={symbols:[{symbol:'ETHUSDT',contractType:'PERPETUAL',status:'TRADING',baseAsset:'ETH',quoteAsset:'USDT',marginAsset:'USDT'}]};
+assert.equal(decodeBinanceDerivatives(binFunding,binOi,info,'ETH').baseQuantity,345.6);
+assert.throws(()=>decodeBinanceDerivatives(binFunding,binOi,{symbols:[{...info.symbols[0],contractType:'CURRENT_QUARTER'}]},'ETH'));
+assert.throws(()=>decodeBinanceDerivatives(binFunding,binOi,{symbols:[{...info.symbols[0],marginAsset:'USDC'}]},'ETH'));
+assert.throws(()=>decodeBinanceDerivatives(binFunding,{...binOi,symbol:'BTCUSDT'},info,'ETH'));
+assert.throws(()=>decodeBinanceDerivatives(binFunding,binOi,{symbols:[info.symbols[0],info.symbols[0]]},'ETH'));
+assert.equal((await loadPublicDerivatives('ETH','币安',undefined,async url=>({ok:true,json:async()=>url.includes('exchangeInfo')?info:url.includes('openInterest')?binOi:binFunding}))).status,'connected');
+console.log('Binance derivatives: perpetual/base/quote/margin/status identity, recent rate semantics and base OI passed');
