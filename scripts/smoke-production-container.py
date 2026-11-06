@@ -25,6 +25,8 @@ prefix = 'terminal-smoke-' + secrets.token_hex(4)
 image = 'terminal-backend:production-smoke'
 containers = []
 network_created = False
+redactions = []
+CONTROLLED_USERINFO_SERVER = "import json,os\nfrom http.server import BaseHTTPRequestHandler,ThreadingHTTPServer\nclaims=json.loads(os.environ['SMOKE_OIDC_CLAIMS'])\nclass Handler(BaseHTTPRequestHandler):\n def log_message(self,*args):pass\n def do_GET(self):\n  if self.path=='/health':status,value=200,{'status':'ok'}\n  else:\n   token=self.headers.get('Authorization','').removeprefix('Bearer ')\n   value=claims.get(token) if self.path=='/userinfo' else None\n   status=200 if value else 401\n   value=value or {'error':'unauthorized'}\n  payload=json.dumps(value).encode()\n  self.send_response(status);self.send_header('Content-Type','application/json');self.end_headers();self.wfile.write(payload)\nThreadingHTTPServer(('0.0.0.0',8080),Handler).serve_forever()\n"
 proof = {'scope': 'actual Docker production-mode smoke, not Render acceptance',
          'release': subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),
          'live_execution': False, 'status': 'incomplete', 'checks': {}}
@@ -72,6 +74,8 @@ try:
     with tempfile.TemporaryDirectory(prefix=prefix) as temporary:
         password = secrets.token_hex(24)
         session_secret = secrets.token_hex(32)
+        access_tokens = [secrets.token_hex(32),secrets.token_hex(32)]
+        redactions.extend([password,session_secret,*access_tokens])
         env = Path(temporary)/'database.env'
         env.write_text('POSTGRES_USER=terminal_smoke\nPOSTGRES_DB=terminal_smoke\nPOSTGRES_PASSWORD='+password+'\n')
         env.chmod(0o600)
@@ -79,6 +83,20 @@ try:
         start(db,'--network-alias','db','--env-file',str(env),'postgres:16-alpine')
         start(redis,'--network-alias','redis','redis:7-alpine')
         wait_for(lambda: subprocess.run(['docker','exec',db,'pg_isready','-U','terminal_smoke'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0)
+        identity_env=Path(temporary)/'identity.env'
+        identity_env.write_text('SMOKE_OIDC_CLAIMS='+json.dumps({token:{
+            'sub':'controlled-user-'+str(index),'name':'Controlled smoke user',
+            'iss':'http://oidc:8080','aud':'smoke-client','role':'viewer'
+        } for index,token in enumerate(access_tokens)})+'\n')
+        identity_env.chmod(0o600)
+        oidc=prefix+'-oidc'
+        start(oidc,'--network-alias','oidc','--env-file',str(identity_env),
+              '--entrypoint','python',image,'-u','-c',CONTROLLED_USERINFO_SERVER)
+        wait_for(lambda: subprocess.run(['docker','exec',oidc,'python','-c',
+            "import urllib.request;urllib.request.urlopen('http://localhost:8080/health',timeout=2)"],
+            stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0)
+        proof['identity_source']='isolated controlled userinfo service; not a live OIDC provider'
+
         env.write_text('\n'.join([
             'ENVIRONMENT=production','DEPLOYMENT_TARGET=local-container-smoke',
             'RELEASE_ID='+proof['release'],'LEGACY_TENANT_USER_ID=smoke-owner',
@@ -89,6 +107,8 @@ try:
             'EXTERNAL_LLM_CALLS_ENABLED=false','LIVE_TRADING_ENABLED=false',
             'LIVE_EXECUTION_ENABLED=false','AUTOMATION_LEVEL=A0_READ_ONLY',
             'BACKEND_CORS_ORIGINS=https://haipi001.github.io',
+            'OIDC_ISSUER=http://oidc:8080','OIDC_USERINFO_URL=http://oidc:8080/userinfo',
+            'OIDC_CLIENT_ID=smoke-client',
         ])+'\n')
         start(api,'--env-file',str(env),'-p','127.0.0.1::8000',image)
         port=docker('port',api,'8000/tcp').split(':')[-1]
@@ -116,6 +136,45 @@ try:
             'Origin':'https://haipi001.github.io','Access-Control-Request-Method':'GET'})
         assert preflight[0]==200 and preflight[1].get('access-control-allow-origin')=='https://haipi001.github.io'
         proof['checks']['public_frontend_cors']='passed'
+        sessions=[]
+        for index,token in enumerate(access_tokens):
+            login=request('/production/auth/login',method='POST',headers={'Content-Type':'application/json'},
+                          data=json.dumps({'access_token':token}).encode())
+            assert login[0]==200 and login[2]['user']['user_id']=='controlled-user-'+str(index)
+            assert login[2]['user']['role']=='viewer'
+            sessions.append(login[2]['session_token'])
+            redactions.append(sessions[-1])
+        headers=[{'Authorization':'Bearer '+token,'Content-Type':'application/json'} for token in sessions]
+        for index,header in enumerate(headers):
+            identity=request('/api/v2/workspaces/session/options',headers=header)
+            assert identity[0]==200 and identity[2]['user_id']=='controlled-user-'+str(index)
+            assert identity[2]['execution_authorized'] is False
+        proof['checks']['controlled_userinfo_login_and_authenticated_identity']='passed'
+        workspace='/api/v2/workspaces/controlled-shared-name'
+        assert request(workspace,headers=headers[0])[0]==404
+        def preference(symbol):
+            return json.dumps({'expected_version':0,'context':{
+                'page':'market','asset_class':'stock','symbol':symbol,'venue':'NASDAQ','mode':None}}).encode()
+        first=request(workspace,method='PUT',headers=headers[0],data=preference('AAPL'))
+        assert first[0]==200 and first[2]['version']==1
+        assert request(workspace,headers={**headers[1],'X-AI-Trading-User':'controlled-user-0','X-AI-Trading-Role':'owner'})[0]==404
+        second=request(workspace,method='PUT',headers=headers[1],data=preference('NVDA'))
+        assert second[0]==200 and second[2]['version']==1
+        for header,symbol in zip(headers,['AAPL','NVDA']):
+            saved=request(workspace,headers=header)
+            assert saved[0]==200 and saved[2]['context']['symbol']==symbol
+            assert saved[2]['execution_authorized'] is False
+        assert request(workspace,method='PUT',headers=headers[0],data=preference('MSFT'))[0]==409
+        proof['checks']['authenticated_workspace_persistence_isolation_and_cas']='passed'
+        logout=request('/production/auth/logout',method='POST',headers=headers[0],
+                       data=json.dumps({'session_token':sessions[0]}).encode())
+        assert logout[0]==200 and logout[2]['status']=='revoked'
+        assert request('/api/v2/workspaces/session/options',headers=headers[0])[0]==401
+        assert request('/api/v2/workspaces/session/options',headers=headers[1])[0]==200
+        tampered=sessions[1][:-1]+('0' if sessions[1][-1]!='0' else '1')
+        assert request('/api/v2/workspaces/session/options',headers={'Authorization':'Bearer '+tampered})[0]==401
+        proof['checks']['logout_revocation_and_tampered_session_rejected']='passed'
+
         flags=json.loads(docker('exec',api,'python','-c',
             'import json;from app.core.config import get_settings;s=get_settings();print(json.dumps([s.live_trading_enabled,s.live_execution_enabled,s.external_llm_calls_enabled,s.managed_auth_required]))'))
         assert flags==[False,False,False,True]
@@ -143,7 +202,7 @@ finally:
     if api_container:
         logs=subprocess.run(['docker','logs','--tail','200',api_container],text=True,capture_output=True)
         safe_logs=logs.stdout+logs.stderr
-        for value in [locals().get('password'),locals().get('session_secret')]:
+        for value in redactions:
             if value:
                 safe_logs=safe_logs.replace(value,'[redacted]')
         destination.with_suffix('.log').write_text(safe_logs)

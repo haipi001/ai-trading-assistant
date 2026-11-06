@@ -23,3 +23,7 @@
 新CI production-container任务使用干净checkout构建实际镜像，production模式连接隔离PostgreSQL16/Redis7，验证non-root、真实迁移及alembic check、无会话/伪造身份拒绝、公开站点CORS、Live/外部模型关闭、数据库故障503/恢复、零订单。脚本记录Git SHA、后端源码摘要、镜像ID，并在失败时保留经临时凭据精确脱敏的应用日志，再清理容器网络。该任务尚待首次云端实际结果；不能据脚本存在宣称通过。
 
 CI eb7c4fd实际新镜像已通过非root、PostgreSQL完整迁移与ready、容器内alembic check、匿名/伪造用户401。随后验收驱动在CORS OPTIONS标准纯文本OK响应上抛JSONDecodeError，失败是驱动无条件JSON解析造成，不能算整套通过。已按响应Content-Type解析：JSON仍严格校验，纯文本按UTF8读取，不放宽CORS状态/来源断言。下一次CI继续验证完整流程。
+
+0330b0b实际完整容器CI已通过：九项检查全部passed，源码摘要和镜像ID冻结于PRODUCTION_CONTAINER_0330B0B_2026_11_06.json。该版本已同步main，证明镜像运行路径，不是Render或真实身份提供商验收。
+
+继续补正向认证：在同一隔离Docker网络中使用明确标注的受控userinfo服务，不patch后端认证代码。以两个viewer测试身份实际HTTP登录，检查服务器签发会话、工作区各自持久化、伪造用户头不串租户、过时版本409、退出后令牌401、另一会话仍有效及篡改令牌拒绝。访问令牌和会话令牌仅临时内存/0600临时文件，日志额外精确脱敏并自动清理。尚待新CI实测；不代表真实OIDC/TLS提供商、真实账户或产品全流程验收。
