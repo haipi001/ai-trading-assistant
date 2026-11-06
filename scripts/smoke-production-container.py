@@ -18,13 +18,14 @@ import urllib.request
 parser = argparse.ArgumentParser()
 parser.add_argument('--output', required=True)
 parser.add_argument('--skip-build', action='store_true')
+parser.add_argument('--require-clean', action='store_true')
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[1]
 prefix = 'terminal-smoke-' + secrets.token_hex(4)
 image = 'terminal-backend:production-smoke'
 containers = []
 network_created = False
-proof = {'scope': 'local actual Docker production-mode smoke, not Render acceptance',
+proof = {'scope': 'actual Docker production-mode smoke, not Render acceptance',
          'release': subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),
          'live_execution': False, 'status': 'incomplete', 'checks': {}}
 
@@ -36,6 +37,9 @@ for path in source_files:
     fingerprint.update(str(path.relative_to(root)).encode()+b'\0'+path.read_bytes()+b'\0')
 proof['backend_source_sha256'] = fingerprint.hexdigest()
 proof['worktree_dirty'] = bool(subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True))
+proof['runner'] = 'github-actions' if os.environ.get('GITHUB_ACTIONS') == 'true' else 'local'
+if args.require_clean and proof['worktree_dirty']:
+    raise SystemExit('A clean checkout is required for this acceptance run')
 
 def docker(*arguments):
     return subprocess.check_output(['docker', *arguments], text=True).strip()
@@ -67,6 +71,7 @@ try:
     network_created = True
     with tempfile.TemporaryDirectory(prefix=prefix) as temporary:
         password = secrets.token_hex(24)
+        session_secret = secrets.token_hex(32)
         env = Path(temporary)/'database.env'
         env.write_text('POSTGRES_USER=terminal_smoke\nPOSTGRES_DB=terminal_smoke\nPOSTGRES_PASSWORD='+password+'\n')
         env.chmod(0o600)
@@ -79,7 +84,7 @@ try:
             'RELEASE_ID='+proof['release'],'LEGACY_TENANT_USER_ID=smoke-owner',
             'DATABASE_URL=postgresql+psycopg://terminal_smoke:'+password+'@db:5432/terminal_smoke',
             'REDIS_URL=redis://redis:6379/0','MANAGED_AUTH_REQUIRED=true',
-            'AUTH_SESSION_SECRET_REF=env://AUTH_SESSION_SECRET','AUTH_SESSION_SECRET='+secrets.token_hex(32),
+            'AUTH_SESSION_SECRET_REF=env://AUTH_SESSION_SECRET','AUTH_SESSION_SECRET='+session_secret,
             'API_RATE_LIMIT_ENABLED=true','RUNTIME_SCHEDULER_ENABLED=false',
             'EXTERNAL_LLM_CALLS_ENABLED=false','LIVE_TRADING_ENABLED=false',
             'LIVE_EXECUTION_ENABLED=false','AUTOMATION_LEVEL=A0_READ_ONLY',
@@ -125,12 +130,24 @@ try:
         assert counts=='0|0'
         proof['checks']['no_orders_or_executions']='passed'
         proof['status']='passed'
+except BaseException as error:
+    proof['status'] = 'failed'
+    proof['error_type'] = type(error).__name__
+    raise
 finally:
+    destination=Path(args.output)
+    destination.parent.mkdir(parents=True,exist_ok=True)
+    api_container = next((name for name in containers if name.endswith('-api')), None)
+    if api_container:
+        logs=subprocess.run(['docker','logs','--tail','200',api_container],text=True,capture_output=True)
+        safe_logs=logs.stdout+logs.stderr
+        for value in [locals().get('password'),locals().get('session_secret')]:
+            if value:
+                safe_logs=safe_logs.replace(value,'[redacted]')
+        destination.with_suffix('.log').write_text(safe_logs)
     for name in reversed(containers):
         subprocess.run(['docker','rm','-f',name],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     if network_created:
         subprocess.run(['docker','network','rm',prefix],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-    destination=Path(args.output)
-    destination.parent.mkdir(parents=True,exist_ok=True)
     destination.write_text(json.dumps(proof,indent=2)+'\n')
 print(json.dumps(proof))

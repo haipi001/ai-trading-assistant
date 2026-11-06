@@ -59,6 +59,24 @@ jobs:
           python -m alembic downgrade -1
           python -m alembic upgrade head
           python -m alembic check
+  production-container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Exercise actual production-mode image with PostgreSQL and Redis
+        run: python scripts/smoke-production-container.py --require-clean --output /tmp/production-container-smoke.json
+      - name: Preserve redacted smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-container-smoke
+          path: |
+            /tmp/production-container-smoke.json
+            /tmp/production-container-smoke.log
   security-audit:
     runs-on: ubuntu-latest
     steps:

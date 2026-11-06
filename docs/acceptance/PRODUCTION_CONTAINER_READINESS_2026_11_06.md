@@ -17,3 +17,7 @@
 当前主容器构建在新增0027之前已开始；其镜像及内存脚本仍属此前基线，后续必须用修复后的源重新构建再验收，不能将两份不同版本证据合并宣称同一生产镜像通过。
 
 补充真实PostgreSQL负向验证：在0026状态删除唯一索引，升级0027被明确拒绝，旧唯一约束仍保留；恢复唯一索引后升级和模型一致性检查通过。证据POSTGRES_IDENTITY_GUARD_2026_11_06.json。21项租户隔离、工作区和Paper复盘回归通过。CI新增隔离PostgreSQL16迁移任务，避免今后仅依赖SQLite迁移检查；该新增CI任务尚未在云端运行。
+
+本机基线构建会话83543最终exit1：files.pythonhosted.org包下载ReadTimeout，尚未启动应用；旧证据checks为空，不计通过。实际原进程已停止后才准备新构建，未因观察超时重启。Dockerfile增加PIP_DEFAULT_TIMEOUT=120/PIP_RETRIES=5，仅提高下载容错，不跳过TLS或依赖检查。
+
+新CI production-container任务使用干净checkout构建实际镜像，production模式连接隔离PostgreSQL16/Redis7，验证non-root、真实迁移及alembic check、无会话/伪造身份拒绝、公开站点CORS、Live/外部模型关闭、数据库故障503/恢复、零订单。脚本记录Git SHA、后端源码摘要、镜像ID，并在失败时保留经临时凭据精确脱敏的应用日志，再清理容器网络。该任务尚待首次云端实际结果；不能据脚本存在宣称通过。
