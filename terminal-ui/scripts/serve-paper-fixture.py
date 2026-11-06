@@ -75,18 +75,18 @@ with TestClient(app) as client:
         snapshot=create_quality_snapshot(client,['AAPL'])
         report=create_report(client,snapshot)
         print('Controlled research report evaluated: '+report['id']+'; source snapshot '+snapshot,flush=True)
-        crypto=client.post('/assets',json={'symbol':'BTC','name':'Controlled BTC/USD spot','asset_type':'crypto','market':'CRYPTO','venue':'BINANCE','currency':'USD','tradable':True,'manual_enabled':True,'auto_enabled':False,'risk_level':'high'})
-        assert crypto.status_code==201,crypto.text
+        crypto=[row for row in client.get('/assets').json() if (row['symbol'],row['asset_type'],row['market'],row['venue'],row['currency'])==('BTC','crypto','GLOBAL','CEX','USD')]
+        assert len(crypto)==1,'Mock import must supply exactly one BTC/USD identity'
         from app.models import InvestmentConstitution
         with sessions() as db:
             saved=db.get(InvestmentConstitution,constitution['id'])
-            saved.allowed_markets=['US','CRYPTO']
+            saved.allowed_markets=['US','GLOBAL']
             db.commit()
         budget=client.post('/risk-budgets',json={'user_id':'user-1','constitution_id':constitution['id'],'account_id':cex.json()['id'],'asset_class':'crypto','max_allocation_pct':0.2,'max_loss_pct':0.08,'max_order_notional':1000,'max_leverage':1,'rebalance_threshold_pct':0.05})
         assert budget.status_code==201,budget.text
         connection=client.post('/data-sources/connections',json={'name':'Controlled CEX research source','provider':'mock_market_data','source_type':'market_data','mode':'read_only'})
         assert connection.status_code==201,connection.text
-        imported=client.post('/data-sources/connections/'+connection.json()['id']+'/import-quotes',json={'symbols':['BTC'],'asset_type':'crypto','market':'CRYPTO','venue':'BINANCE','currency':'USD'})
+        imported=client.post('/data-sources/connections/'+connection.json()['id']+'/import-quotes',json={'symbols':['BTC'],'asset_type':'crypto','market':'GLOBAL','venue':'CEX','currency':'USD'})
         assert imported.status_code==201,imported.text
         entry=imported.json()['catalog_entry']['id']
         for stage in ['reviewed','trusted']:

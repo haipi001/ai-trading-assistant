@@ -1,0 +1,33 @@
+{
+  "scope": "controlled CEX BTC/USD HTTP flow, no external data or live account; browser acceptance pending",
+  "report_id": "e608a432-7229-4229-8923-04e301f2893c",
+  "snapshot_id": "7ff883da-9421-4f2e-bbbc-8e2eccf0c75b",
+  "account_id": "0f650576-b52c-4ef6-9c84-2cade0872d99",
+  "asset_id": "8dfc0822-48de-4eb0-9e75-4fb753c717d0",
+  "gates": [
+    {
+      "type": "RESEARCH_GATE",
+      "status": "PASSED"
+    },
+    {
+      "type": "THESIS_GATE",
+      "status": "PASSED"
+    },
+    {
+      "type": "RISK_GATE",
+      "status": "PASSED"
+    },
+    {
+      "type": "BEHAVIOR_GATE",
+      "status": "PASSED"
+    },
+    {
+      "type": "EXECUTION_GATE",
+      "status": "PASSED"
+    }
+  ],
+  "execution_id": "1040d18a-4307-40dc-b1c8-1bad6137ab95",
+  "execution_status": "filled",
+  "review_status": "pending",
+  "journal_matches": true
+}
