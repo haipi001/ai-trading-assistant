@@ -1,0 +1,7 @@
+{
+  "scope": "actual PostgreSQL16 negative migration guard",
+  "status": "passed",
+  "missing_unique_index_rejected": true,
+  "legacy_unique_constraint_preserved": true,
+  "restore_index_then_upgrade_and_parity": "passed"
+}

@@ -1,0 +1,10 @@
+{
+  "scope": "actual disposable PostgreSQL16 migration and uniqueness validation",
+  "status": "passed",
+  "checks": {
+    "upgrade head": "passed",
+    "check": "passed",
+    "downgrade -1": "passed",
+    "duplicate_user_identity_rejected_by_unique_index": "passed"
+  }
+}
