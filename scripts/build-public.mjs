@@ -9,7 +9,7 @@ const temporary=await mkdtemp(join(tmpdir(),'terminal-public-'));
 try{
  execFileSync('npm',['run','build'],{stdio:'inherit'});
  await cp('dist',join(temporary,'legacy'),{recursive:true});
- execFileSync('npm',['run','build:terminal'],{stdio:'inherit',env:{...process.env,VITE_API_BASE_URL:api,TERMINAL_FEATURE_OUTDIR:'terminal-ui/features'}});
+ execFileSync('npm',['run','build:terminal'],{stdio:'inherit',env:{...process.env,VITE_API_BASE_URL:api,TERMINAL_FEATURE_OUTDIR:'terminal-ui/features',TERMINAL_SOURCE_DIR:'../terminal-ui/'}});
  await rm('dist',{recursive:true,force:true});
  await cp('terminal-ui','dist',{recursive:true,filter:path=>!['tests','scripts','evidence'].includes(path.split('/').at(-1))&&!/\.(md|py|command)$/.test(path)});
  await cp(join(temporary,'legacy'),'dist/legacy',{recursive:true});

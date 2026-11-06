@@ -13,3 +13,5 @@ terminal-ui 为公开站点根入口，旧 React 工作台保留在 legacy/。�
 CEX模拟验收环境修复：复用mock导入的唯一BTC/GLOBAL/CEX/USD身份，独立CEX Paper账户与风险预算；不伪装成Binance行情。通过真实数据目录晋级及报告评估生成研究材料，五门禁->独立审批->Paper成交->日志/待复盘HTTP验证通过，证据CEX_RESEARCH_PAPER_HTTP_2026_11_06.json。受控来源，不代表外部行情、真实账户或页面闭环验收。
 
 首次云端CI发现健康接口shape测试依赖真实默认数据库，CI无该数据库时937passed/1failed。改为显式模拟四组数据库/Redis状态，分别断言ok/degraded及组件状态；未改生产健康行为、未忽略失败检查。重新执行CI发布。
+
+云端后端941项通过后，公开构建暴露主题生成器仍依赖仓库外相邻terminal-ui路径。本地因旧目录存在未暴露；现public构建显式指定仓库内terminal源路径，继续做无相邻目录的干净checkout构建校验，保留旧本机默认路径。

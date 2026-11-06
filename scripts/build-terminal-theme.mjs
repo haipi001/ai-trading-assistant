@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import postcss from 'postcss';
 import {terminalThemePlugin} from './terminal-theme.mjs';
 import {appearanceColors} from '../src/terminal-appearance.js';
-const base=new URL('../../terminal-ui/',import.meta.url);
+const base=new URL(process.env.TERMINAL_SOURCE_DIR||'../../terminal-ui/',import.meta.url);
 let tokens='/* Generated from src/terminal-appearance.js. Run npm run theme:terminal. */\n';
 for(const mode of ['dark','light'])for(const palette of ['AMBER','ICE','TOXIC']){
  const colors=appearanceColors(mode,palette);colors.bg=mode==='dark'?'#070c11':'#edf1f4';
