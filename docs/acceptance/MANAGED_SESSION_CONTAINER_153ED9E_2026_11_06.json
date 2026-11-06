@@ -1,0 +1,25 @@
+{
+  "scope": "actual Docker production-mode smoke, not Render acceptance",
+  "release": "153ed9eeef8525a16599a52f6ddd7a6be3a0bc93",
+  "live_execution": false,
+  "status": "passed",
+  "checks": {
+    "non_root_image": "passed",
+    "postgres_migrations_and_readiness": "passed",
+    "postgres_schema_matches_model": "passed",
+    "anonymous_and_spoofed_identity_rejected": "passed",
+    "public_frontend_cors": "passed",
+    "controlled_userinfo_login_and_authenticated_identity": "passed",
+    "authenticated_workspace_persistence_isolation_and_cas": "passed",
+    "logout_revocation_and_tampered_session_rejected": "passed",
+    "live_and_external_model_disabled": "passed",
+    "database_outage_readiness_fails_closed": "passed",
+    "database_recovery": "passed",
+    "no_orders_or_executions": "passed"
+  },
+  "backend_source_sha256": "9d183694b63309c0b3638e147a622c45917c000a618e3d14a25b31520d37f441",
+  "worktree_dirty": false,
+  "runner": "github-actions",
+  "image_id": "sha256:8be4a3311ac8b9f79782f93668a6277e8fe3cbfe6f669e4a0695671dd5c5ab7f",
+  "identity_source": "isolated controlled userinfo service; not a live OIDC provider"
+}

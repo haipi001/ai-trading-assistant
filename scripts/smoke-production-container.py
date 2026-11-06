@@ -114,7 +114,7 @@ try:
         port=docker('port',api,'8000/tcp').split(':')[-1]
         base='http://127.0.0.1:'+port
         def request(path, method='GET', headers=None, data=None):
-            req=urllib.request.Request(base+path,method=method,headers=headers or {},data=data)
+            req=urllib.request.Request(base+path,method=method,headers={'Origin':'https://haipi001.github.io',**(headers or {})},data=data)
             try:
                 with urllib.request.urlopen(req,timeout=4) as response:
                     raw=response.read()
@@ -126,12 +126,18 @@ try:
         ready=wait_for(lambda: (value if (value:=request('/health/ready'))[0]==200 else None))
         assert ready[2]['components']['database']['status']=='ok'
         assert ready[2]['components']['redis']['status']=='ok'
+        assert ready[2]['components']['authentication']=={'required':True,'status':'configuration_present'}
+        proof['checks']['required_auth_configuration_present']='passed'
         proof['checks']['postgres_migrations_and_readiness']='passed'
         docker('exec',api,'alembic','check')
         proof['checks']['postgres_schema_matches_model']='passed'
         for headers in [{},{'X-AI-Trading-Role':'owner','X-AI-Trading-User':'smoke-owner'}]:
-            assert request('/api/v2/workspaces/session/options',headers=headers)[0]==401
+            denied=request('/api/v2/workspaces/session/options',headers=headers)
+            assert denied[0]==401
+            assert denied[1].get('access-control-allow-origin')=='https://haipi001.github.io'
+            assert denied[1].get('access-control-allow-credentials')=='true'
         proof['checks']['anonymous_and_spoofed_identity_rejected']='passed'
+        proof['checks']['authentication_errors_readable_by_hosted_frontend']='passed'
         preflight=request('/api/v2/workspaces/session/options',method='OPTIONS',headers={
             'Origin':'https://haipi001.github.io','Access-Control-Request-Method':'GET'})
         assert preflight[0]==200 and preflight[1].get('access-control-allow-origin')=='https://haipi001.github.io'
@@ -169,7 +175,8 @@ try:
         logout=request('/production/auth/logout',method='POST',headers=headers[0],
                        data=json.dumps({'session_token':sessions[0]}).encode())
         assert logout[0]==200 and logout[2]['status']=='revoked'
-        assert request('/api/v2/workspaces/session/options',headers=headers[0])[0]==401
+        revoked=request('/api/v2/workspaces/session/options',headers=headers[0])
+        assert revoked[0]==401 and revoked[1].get('access-control-allow-origin')=='https://haipi001.github.io'
         assert request('/api/v2/workspaces/session/options',headers=headers[1])[0]==200
         tampered=sessions[1][:-1]+('0' if sessions[1][-1]!='0' else '1')
         assert request('/api/v2/workspaces/session/options',headers={'Authorization':'Bearer '+tampered})[0]==401

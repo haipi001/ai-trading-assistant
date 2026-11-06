@@ -27,3 +27,9 @@ CI eb7c4fd实际新镜像已通过非root、PostgreSQL完整迁移与ready、容
 0330b0b实际完整容器CI已通过：九项检查全部passed，源码摘要和镜像ID冻结于PRODUCTION_CONTAINER_0330B0B_2026_11_06.json。该版本已同步main，证明镜像运行路径，不是Render或真实身份提供商验收。
 
 继续补正向认证：在同一隔离Docker网络中使用明确标注的受控userinfo服务，不patch后端认证代码。以两个viewer测试身份实际HTTP登录，检查服务器签发会话、工作区各自持久化、伪造用户头不串租户、过时版本409、退出后令牌401、另一会话仍有效及篡改令牌拒绝。访问令牌和会话令牌仅临时内存/0600临时文件，日志额外精确脱敏并自动清理。尚待新CI实测；不代表真实OIDC/TLS提供商、真实账户或产品全流程验收。
+
+153ed9e云端实际容器正向认证检查已通过，冻结证据MANAGED_SESSION_CONTAINER_153ED9E_2026_11_06.json。实际HTTP受控userinfo登录、两个viewer工作区隔离/持久化/CAS、退出撤销和篡改令牌拒绝均通过；不代表真实OIDC提供商或实际用户验收。
+
+随后复现认证中间件提前返回401绕过CORS的问题：公开站点浏览器无法读到会话失效响应。新增回归先失败，再将CORS放在认证外层；401仍拒绝，允许的公开站点可读取状态，未允许来源仍没有allow-origin。容器检查增加Origin及认证错误CORS断言，包括撤销后401。
+
+托管环境/managed_auth环境缺少issuer、userinfo URL、client ID或签名secret引用时，ready改为503，public status显示configuration_required且不泄露配置值；配置齐全只标configuration_present，不代表提供商/密钥实际验证。Render YAML列明必填OIDC配置，需真实管理员填写，严禁将受控userinfo地址用于生产。健康/认证/工作区相关68测试通过；完整新容器及全量CI尚待此次修复后实测。

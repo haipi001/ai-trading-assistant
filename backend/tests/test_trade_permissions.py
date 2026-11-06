@@ -97,3 +97,14 @@ def test_managed_stop_record_uses_actual_session_actor_when_omitted(client, mana
     response = client.post('/kill-switch/engage', json={'reason':'operator stop'}, headers={'Authorization':'Bearer test-session'})
     assert response.status_code == 201
     assert response.json()['engaged_by'] == 'tenant-trade-test'
+
+
+def test_managed_auth_denial_retains_public_frontend_cors(client, managed_actor):
+    origin = 'https://haipi001.github.io'
+    response = client.get('/api/v2/workspaces/session/options', headers={'Origin': origin})
+    assert response.status_code == 401
+    assert response.headers.get('access-control-allow-origin') == origin
+    assert response.headers.get('access-control-allow-credentials') == 'true'
+    denied = client.get('/api/v2/workspaces/session/options', headers={'Origin':'https://untrusted.invalid'})
+    assert denied.status_code == 401
+    assert 'access-control-allow-origin' not in denied.headers

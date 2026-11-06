@@ -34,6 +34,13 @@ services:
         value: A0_READ_ONLY
       - key: MANAGED_AUTH_REQUIRED
         value: true
+      # Supply the actual trusted identity provider in Render before service readiness.
+      - key: OIDC_ISSUER
+        sync: false
+      - key: OIDC_USERINFO_URL
+        sync: false
+      - key: OIDC_CLIENT_ID
+        sync: false
       - key: RUNTIME_SCHEDULER_ENABLED
         value: true
       - key: API_RATE_LIMIT_ENABLED

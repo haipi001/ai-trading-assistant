@@ -86,6 +86,9 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    # CORS must wrap authentication rejections so the hosted frontend can read
+    # 401/403/429 and clear stale sessions instead of seeing an opaque failure.
+    app.add_middleware(ManagedAuthMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.backend_cors_origins,
@@ -93,7 +96,6 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    app.add_middleware(ManagedAuthMiddleware)
     if settings.safe_request_logging_enabled:
         logging.getLogger("uvicorn.access").disabled = True
         app.add_middleware(SafeRequestLoggingMiddleware)
