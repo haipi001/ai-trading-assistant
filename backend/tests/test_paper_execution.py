@@ -42,11 +42,11 @@ def create_approved_draft(
     return draft
 
 
-def create_strategy_playbook(client: TestClient) -> dict:
+def create_strategy_playbook(client: TestClient, *, user_id: str = "default-user") -> dict:
     response = client.post(
         "/strategy-playbooks",
         json={
-            "user_id": "default-user",
+            "user_id": user_id,
             "name": "Paper review discipline",
             "strategy_type": "swing",
             "applicable_markets": ["US"],

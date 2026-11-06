@@ -45,7 +45,7 @@ def test_stage_5_11_readiness_blocks_unprepared_order_intent(client: TestClient)
 def test_stage_5_11_readiness_surfaces_ready_order_draft_without_execution(client: TestClient) -> None:
     asset = create_asset(client)
     account = create_account(client)
-    playbook = create_strategy_playbook(client)
+    playbook = create_strategy_playbook(client, user_id="human-user")
     thesis = create_thesis(client, asset["id"], playbook["id"])
     intent_response = client.post(
         "/orders/intents",
