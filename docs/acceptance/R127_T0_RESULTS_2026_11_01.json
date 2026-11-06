@@ -1,0 +1,28 @@
+{
+  "date": "2026-11-01",
+  "base_commit": "9e774c232992bda309fdd22099114b5303a74f10",
+  "worktree": "uncommitted T0 changes",
+  "backend": {
+    "command": "DATABASE_URL=sqlite+pysqlite:///:memory: <existing-python3.13-venv>/bin/python -m pytest -q",
+    "passed": 690,
+    "warnings": 1,
+    "seconds": 57.96,
+    "exit_code": 0
+  },
+  "decision_gate_tests": {
+    "passed": 20,
+    "warnings": 1
+  },
+  "frontend_models": {
+    "scripts": 50,
+    "failed": 0
+  },
+  "static_controls": 845,
+  "source_files_scanned": 86,
+  "build": "passed; large chunk warning",
+  "migration_guard": "passed SQLite using explicit ALEMBIC_BIN",
+  "clean_python312_install": "failed network timeout/SSL EOF",
+  "remote_ci": "not run",
+  "browser": "five anchor pages navigation observed; no screenshot-diff or full business E2E",
+  "live_enabled": false
+}

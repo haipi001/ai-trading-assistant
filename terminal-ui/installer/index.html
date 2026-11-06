@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bloomberg Terminal Web Installer 2.02 — UI 还原</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root{
+    --green:#00A223; --green-d:#00881d; --green-l:#2fbe4b;
+    --ink:#1a1a1a; --body:#2f2f2f; --sub:#6b6b6b;
+    --line:#d9d9d9; --btn:#fafafa; --btnline:#9a9a9a;
+  }
+  html,body{height:100%;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    background:radial-gradient(1200px 700px at 50% -10%, #ffffff 0%, #eceef1 45%, #dfe2e6 100%);
+    color:var(--ink); display:flex; flex-direction:column; align-items:center;
+    padding:30px 20px 46px; min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- 预览控制条（不属于安装器 UI） ---------- */
+  .lab{width:720px; display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;}
+  .lab .tag{font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:#8b9096; font-weight:600;}
+  .chips{display:flex; gap:6px; margin-left:auto; flex-wrap:wrap;}
+  .chip{font-size:11.5px; padding:4px 10px; border-radius:20px; background:#fff; border:1px solid #d5d8dc;
+        color:#555; cursor:pointer; transition:.15s; user-select:none;}
+  .chip:hover{border-color:var(--green); color:var(--green);}
+  .chip.on{background:var(--green); border-color:var(--green); color:#fff;}
+
+  /* ---------- 安装器窗口 ---------- */
+  .win{width:720px; height:500px; background:#f6f6f6; border-radius:5px; overflow:hidden;
+       box-shadow:0 1px 0 #fff inset, 0 18px 44px rgba(20,30,40,.22), 0 2px 6px rgba(20,30,40,.14);
+       display:flex; flex-direction:column; position:relative;}
+
+  .titlebar{height:32px; flex:0 0 32px; background:#f7f7f7; border-bottom:1px solid #e3e3e3;
+            display:flex; align-items:center; padding:0 4px 0 10px; gap:8px; user-select:none;}
+  .titlebar img{width:16px; height:16px;}
+  .titlebar .tt{font-size:12.5px; color:#333; letter-spacing:.1px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .wbtn{width:38px; height:24px; border:none; background:transparent; color:#7a7a7a; font-size:12px;
+        cursor:default; border-radius:2px; line-height:1;}
+  .wbtn:hover{background:#e8e8e8; color:#333;}
+  .wbtn.x:hover{background:#e81123; color:#fff;}
+
+  .mainarea{flex:1; display:flex; min-height:0;}
+
+  /* 左品牌栏 */
+  .side{width:200px; flex:0 0 200px; background:var(--green); position:relative; overflow:hidden;
+        display:flex; flex-direction:column; align-items:center; padding-top:96px; transition:margin-left .28s ease;}
+  .side::after{content:""; position:absolute; right:0; top:0; bottom:0; width:1px; background:rgba(0,0,0,.08);}
+  .side .logo{width:88px; height:88px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.18));}
+  .side .name{font-size:21px; font-weight:700; color:#fff; margin-top:26px; letter-spacing:.2px;}
+  .side .sub{margin-top:8px; font-size:9px; letter-spacing:3.4px; color:#c8f2d3;}
+  .side .ver{margin-top:6px; font-size:9.5px; color:#b6ecc4; letter-spacing:.6px;}
+  .side .copy{position:absolute; bottom:16px; width:100%; text-align:center; font-size:8.5px; color:rgba(255,255,255,.62); letter-spacing:.3px;}
+  body.noside .side{margin-left:-200px;}
+  body.noside .side .logo,
+  body.noside .side .name,
+  body.noside .side .sub,
+  body.noside .side .ver,
+  body.noside .side .copy{opacity:0;}
+
+  /* 内容区 */
+  .content{flex:1; display:flex; flex-direction:column; min-width:0; background:#fff;}
+  .pages{flex:1; position:relative; overflow:hidden;}
+  .page{position:absolute; inset:0; padding:30px 30px 0 28px; opacity:0; visibility:hidden;
+        transform:translateX(8px); transition:opacity .18s ease, transform .18s ease;}
+  .page.on{opacity:1; visibility:visible; transform:none;}
+
+  h1{font-size:16.5px; font-weight:700; color:#111; line-height:1.3; letter-spacing:-.1px;}
+  .desc{font-size:11.8px; color:var(--sub); margin-top:7px; line-height:1.5;}
+  .bd{font-size:12px; color:var(--body); line-height:1.72; margin-top:18px;}
+  .bd p + p{margin-top:10px;}
+
+  /* 控件 */
+  .edit{height:25px; border:1px solid #7a7a7a; background:#fff; border-radius:0;
+        padding:0 7px; font-size:11.8px; color:#1a1a1a; font-family:inherit; width:100%; outline:none;}
+  .edit:focus{border-color:var(--green); box-shadow:0 0 0 1px var(--green);}
+  .edit.placeholder{color:#9a9a9a;}
+  .row{display:flex; gap:8px; align-items:center;}
+  .btn2{height:25px; min-width:68px; border:1px solid var(--btnline); background:linear-gradient(#fdfdfd,#f0f0f0);
+        font-size:11.5px; color:#222; border-radius:2px; cursor:pointer; font-family:inherit; padding:0 12px;}
+  .btn2:hover{background:linear-gradient(#fff,#f6f6f6); border-color:#7d7d7d;}
+  .btn2:active{background:#e9e9e9;}
+
+  .fld{margin-top:14px; font-size:11.8px;}
+  .fld label{display:block; color:#3a3a3a; margin-bottom:4px;}
+  .grid2{display:grid; grid-template-columns:1fr 92px; gap:10px;}
+  .hint{font-size:10.5px; color:#8a8a8a; margin-top:6px; line-height:1.5;}
+
+  .chk{display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--body); margin-top:16px; cursor:pointer; line-height:1.5;}
+  .chk input{margin-top:2px; accent-color:var(--green); width:13px; height:13px;}
+
+  /* 许可页 */
+  .license{margin-top:14px; height:150px; border:1px solid #b5b5b5; background:#fff; overflow:auto;
+           padding:10px 12px; font-size:11.2px; line-height:1.65; color:#333;}
+  .license h4{font-size:11.5px; margin:8px 0 4px; color:#111;}
+  .license p{margin-bottom:7px;}
+  .radios{margin-top:14px; display:flex; flex-direction:column; gap:8px; font-size:12px; color:var(--body);}
+  .radios label{display:flex; align-items:center; gap:7px; cursor:pointer;}
+  .radios input{accent-color:var(--green); width:13px; height:13px;}
+
+  /* 选目录页 */
+  .foldericon{width:26px; height:26px; margin-right:10px; flex:0 0 26px;}
+  .space{margin-top:10px; font-size:11.2px; color:#4d4d4d;}
+  .space.warn{color:#b3261e;}
+
+  /* Ready 页 */
+  .memo{margin-top:13px; height:156px; border:1px solid #c8c8c8; background:#fdfdfd; overflow:auto;
+        padding:9px 11px; font-size:10.9px; line-height:1.62; color:#2c2c2c; white-space:pre-wrap;}
+  .memo b{color:#111;}
+
+  /* 安装页 */
+  .progwrap{margin-top:20px;}
+  .prog{height:19px; border:1px solid #a8a8a8; background:#fff; padding:2px; position:relative; overflow:hidden;}
+  .prog .bar{height:100%; width:0%; background:linear-gradient(#3fc35c,var(--green) 55%,#009020);
+             transition:width .35s ease; box-shadow:inset 0 1px 0 rgba(255,255,255,.35);}
+  .prog .bar.done{background:linear-gradient(#57cd72,var(--green) 55%,#009020);}
+  .stat{margin-top:12px; font-size:11.3px; color:#3a3a3a;}
+  .fname{margin-top:5px; font-size:10.8px; color:#7a7a7a; font-family:ui-monospace,Menlo,Consolas,monospace;
+         white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+  /* 完成页 */
+  .done-badge{width:34px; height:34px; border-radius:50%; background:var(--green); display:flex; align-items:center;
+              justify-content:center; color:#fff; font-size:18px; margin-bottom:14px; box-shadow:0 2px 6px rgba(0,162,35,.35);}
+
+  /* 按钮条 */
+  .footer{height:58px; flex:0 0 58px; border-top:1px solid var(--line); background:#f6f6f6;
+          display:flex; align-items:center; justify-content:flex-end; gap:10px; padding:0 20px;}
+  .btn{height:28px; min-width:106px; border-radius:3px; font-size:11.8px; font-family:inherit;
+       cursor:pointer; padding:0 16px; border:1px solid var(--btnline);
+       background:linear-gradient(#ffffff,#f2f2f2); color:#1c1c1c; transition:.12s;}
+  .btn:hover{background:linear-gradient(#ffffff,#f8f8f8); border-color:#757575;}
+  .btn:active{background:#e6e6e6; transform:translateY(1px);}
+  .btn.primary{background:linear-gradient(#12ad34,var(--green) 55%,#00901e); border-color:#008818; color:#fff; font-weight:600;}
+  .btn.primary:hover{background:linear-gradient(#17bd3c,#00a825 55%,#009320);}
+  .btn.primary:active{background:#008a1e; transform:translateY(1px);}
+  .btn:disabled{opacity:.45; cursor:default; transform:none;
+                background:linear-gradient(#fbfbfb,#f1f1f1); color:#8a8a8a; border-color:#c2c2c2;}
+  .btn.primary:disabled{background:#a9d8b5; border-color:#a9d8b5; color:#f2f2f2;}
+
+  /* 取消确认模态 */
+  .modal{position:absolute; inset:0; background:rgba(20,25,30,.28); display:none; align-items:center;
+         justify-content:center; z-index:20;}
+  .modal.on{display:flex;}
+  .dlg{width:352px; background:#f7f7f7; border:1px solid #b9b9b9; border-radius:4px;
+       box-shadow:0 16px 40px rgba(0,0,0,.3); overflow:hidden;}
+  .dlg .hd{height:30px; background:#f2f2f2; border-bottom:1px solid #e0e0e0; display:flex; align-items:center;
+           padding:0 10px; font-size:12px; font-weight:600; color:#222;}
+  .dlg .bdy{padding:16px 16px 6px; font-size:12px; line-height:1.6; color:#2a2a2a; display:flex; gap:12px;}
+  .dlg .ic{width:22px; height:22px; flex:0 0 22px; border-radius:50%; background:#e8a33d; color:#fff;
+           font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center;}
+  .dlg .ft{display:flex; justify-content:flex-end; gap:9px; padding:16px;}
+  .dlg .ft .btn{min-width:82px; height:26px; font-size:11.5px;}
+
+  /* 底部说明 */
+  .note{width:720px; margin-top:16px; font-size:11px; color:#7a8088; line-height:1.75;}
+  .note b{color:#4c535b; font-weight:600;}
+  .note kbd{font-family:ui-monospace,Menlo,monospace; font-size:10.5px; background:#fff; border:1px solid #d7dade;
+            border-bottom-width:2px; border-radius:3px; padding:1px 5px; color:#444;}
+</style>
+</head>
+<body>
+
+<div class="lab">
+  <span class="tag">UI Restoration Preview</span>
+  <div class="chips">
+    <div class="chip on" data-go="0">1 Welcome</div>
+    <div class="chip" data-go="1">2 License</div>
+    <div class="chip" data-go="2">3 Destination</div>
+    <div class="chip" data-go="3">4 Proxy</div>
+    <div class="chip" data-go="4">5 Ready</div>
+    <div class="chip" data-go="5">6 Installing</div>
+    <div class="chip" data-go="6">7 Finished</div>
+    <div class="chip" data-toggle="side">品牌栏</div>
+  </div>
+</div>
+
+<div class="win">
+  <div class="titlebar">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAD+ElEQVRYCeVXzUtUURQ/8+E0qIEpk6CVH9NYuqihFlFQgaJZtAhcuIhUUKFtuyDaZS3qPyhRpxa1EqKCtI1ZQZsw+qAvM8hS0RlU0obUef1+7/nmzZv35kOtlQd+zjvnnq9777n3XEU2OznWtQBOWPX6zaZtoyIxsygbLvsE+hDQIW44LQCCQAAoAkhh4DMwAswCy9KChLKgzAmE1JnmwNcRoBNoAJiEC+BakDj3FYDBB4FuYBhYypRI+gS04BVwdBU4A3iBbCgKpX7gEjCWLonUCYQqMeY4Bge3AC5Dal0M2pACGfehQ0R5Ki1fyVvI3qk28+PQvgcUW6zWJpiCejMwZLcS1gSMZR+A0e61xUqp/QUjrB3LduhFlGjJgusC/E6suisN9OzT6XAMetxC1hF9m0j3oQm12deCeRhwFnqv77ss+Z48k0GcwY6+D3+QlzOv5FxVs7idPBRWUhRFhsafSdfE7ShMGqFh2gqe60Qi3w54S9xFcrL6hHjcnsRx07fvp0/l6/fWidNht5iG+rWJO94VUXiMnwPL+kiyFc93PQcdDiwOkZawvBl1Vn1pflgHjBEnIwHtK4gRk0Jc89980Hcwfn2BMRLoqWSIAGC/mRzdONF3QHrVWKo3IwFtKXm3G7KNB0z2QN+IYWzt/wyWHNyWN04BjgsqKgItNhbnYiwqU/NTkufJtTWkcGYhLDPRiIQXIuJKcQrgVaYWpoW/IPpG51zlwJjXotdfB9kjwMMLpMZdjJsjdUnMxxYloixKmasI2oYr2MeJoaZjczIe+0XZEnBK2kaf6G8HYwWYm8hrYA7w4czKm+VJykzEMOXOAjmYWy3jfybEteIUv7dMRn5/lNGVSMLcTGY6M4uPET04hUYCmgoV2APOaqz1b623Rm4cviJ7iquk/+19mVyYlPOHOmUs/E0uDF+Uweg7q5Eh4VuBMeKUnABvqJtAE2Db+8u9O2TXtp2yBTdk8/4mzFhRb8Ht+T4pzNkmwpeAPXGkG+rxW5Bq1o0L+XMgDwFsoZZxD05pY94BOV3aIKVbS9QEvs+Py4MfA/J4cQTejQKDvU4U3gVa0ZJZB3GyBJA+P8NWQCNjO2a3JMXsg6pjq3+0dqygHbea34rWe0BTGINhB8DHREpi4CyC0wd9WYLTsTUBSvmiVfCM0raB2duuK1XTEG1o26z6SvFKtk+AXlvVN9wQvtjBuH+pywuDSURdPudoO7TqK0lFY601kKym1QQL8yjQDrBds6vxhtInwFuE1c07hLXDk/QC67aUvOeQmyhzArq69lrisWXwIMDOmfiPySfwvMhmEXg5U2DoqZR9AroFfznvHvW0GNJ1/mtmONisX38BCVT/naAlGVsAAAAASUVORK5CYII=" alt="">
+    <div class="tt">Bloomberg Terminal Web Installer Setup</div>
+    <button class="wbtn" tabindex="-1">&#8212;</button>
+    <button class="wbtn" tabindex="-1">&#9723;</button>
+    <button class="wbtn x" tabindex="-1">&#10005;</button>
+  </div>
+
+  <div class="mainarea">
+    <div class="side">
+      <img class="logo" src="data:image/png;base64,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" alt="Bloomberg">
+      <div class="name">Bloomberg</div>
+      <div class="sub">TERMINAL</div>
+      <div class="ver">Web Installer 2.02</div>
+      <div class="copy">&copy; 2026 Bloomberg L.P.</div>
+    </div>
+
+    <div class="content">
+      <div class="pages">
+
+        <!-- 1 Welcome -->
+        <section class="page on">
+          <h1>Welcome to the Bloomberg Terminal<br>Web Installer Setup Wizard</h1>
+          <p class="desc">This wizard will guide you through the installation of Bloomberg Terminal Web Installer.</p>
+          <div class="bd">
+            <p>It is recommended that you close all other applications before continuing.</p>
+            <p>Click Next to continue, or Cancel to exit Setup.</p>
+          </div>
+        </section>
+
+        <!-- 2 License -->
+        <section class="page">
+          <h1>License Agreement</h1>
+          <p class="desc">Please read the following important information before continuing.</p>
+          <div class="license">
+            <p><b>BLOOMBERG TERMINAL &mdash; WEB INSTALLER</b></p>
+            <p>Please read this agreement carefully. By installing, copying or otherwise using this software you
+               agree to be bound by the terms of the Bloomberg Customer Agreement and any applicable service
+               schedules.</p>
+            <h4>1. License grant</h4>
+            <p>Bloomberg L.P. grants you a non-exclusive, non-transferable license to install and use this
+               installer solely to install the Bloomberg Terminal on a computer you are authorised to use.</p>
+            <h4>2. Restrictions</h4>
+            <p>You may not reverse engineer, decompile, disassemble, rent, lease, lend or sublicense the software,
+               except to the extent such restriction is prohibited by applicable law.</p>
+            <h4>3. Data &amp; connectivity</h4>
+            <p>The installer may contact Bloomberg servers to determine the correct package for this computer and
+               to retrieve product updates. Proxy settings supplied on the following pages are stored locally.</p>
+            <p style="color:#8a8a8a; margin-top:10px;">&mdash; 正文由安装器在运行期从 <code>is_license.txt</code> 加载，
+               此处为结构占位文本 &mdash;</p>
+          </div>
+          <div class="radios">
+            <label><input type="radio" name="lic" value="yes"> I &amp;accept the agreement</label>
+            <label><input type="radio" name="lic" value="no" checked> I &amp;do not accept the agreement</label>
+          </div>
+        </section>
+
+        <!-- 3 Destination -->
+        <section class="page">
+          <h1>Select Destination Location</h1>
+          <p class="desc">Where should Bloomberg Terminal Web Installer be installed?</p>
+          <div class="bd" style="margin-top:14px;">
+            <div class="row" style="align-items:flex-start;">
+              <svg class="foldericon" viewBox="0 0 24 24" fill="none">
+                <path d="M2 6.5A1.5 1.5 0 0 1 3.5 5h5l2 2.5h9A1.5 1.5 0 0 1 21 9v9.5A1.5 1.5 0 0 1 19.5 20h-16A1.5 1.5 0 0 1 2 18.5v-12z"
+                      fill="#f6c445" stroke="#c99a1e" stroke-width="1.1"/>
+                <path d="M2 9.5h19" stroke="#c99a1e" stroke-width="1.1"/>
+              </svg>
+              <div style="flex:1;">
+                <div style="font-size:12px; color:#2f2f2f;">Setup will install Bloomberg Terminal Web Installer into the following folder.</div>
+                <div style="font-size:11.5px; color:#7a7a7a; margin-top:4px;">To continue, click Next. If you would like to select a different folder, click Browse.</div>
+              </div>
+            </div>
+            <div class="row" style="margin-top:14px;">
+              <input class="edit" value="C:\Users\lizekai\AppData\Local\Bloomberg\Terminal" spellcheck="false">
+              <button class="btn2" style="min-width:82px;">Browse&hellip;</button>
+            </div>
+            <div class="space">At least <b>1.35 GB</b> of free disk space is required.</div>
+          </div>
+        </section>
+
+        <!-- 4 Proxy -->
+        <section class="page">
+          <h1>Proxy Configuration</h1>
+          <p class="desc">Connect through a Proxy server</p>
+          <div class="fld" style="margin-top:16px;">
+            <label>Primary Proxy</label>
+            <div class="grid2">
+              <input class="edit" placeholder="proxy.company.com" spellcheck="false">
+              <input class="edit" placeholder="8080" spellcheck="false">
+            </div>
+          </div>
+          <div class="fld">
+            <label>Secondary Proxy</label>
+            <div class="grid2">
+              <input class="edit" placeholder="backup.company.com" spellcheck="false">
+              <input class="edit" placeholder="8080" spellcheck="false">
+            </div>
+          </div>
+          <div class="fld">
+            <label>SOCKS Proxy</label>
+            <input class="edit" placeholder="socks5://host:1080" spellcheck="false">
+          </div>
+          <label class="chk"><input type="checkbox"> Use authentication for this proxy (&sol;PROXY_AUTH&equals;)</label>
+          <div class="hint">Settings are written to HKCU\Software\Bloomberg L.P.\Connection Settings\Profile_0</div>
+        </section>
+
+        <!-- 5 Ready -->
+        <section class="page">
+          <h1>Ready to Install</h1>
+          <p class="desc">Setup is now ready to begin installing Bloomberg Terminal Web Installer on your computer.</p>
+          <div class="memo"><b>Setup type:</b> Full installation   <b>Mode:</b> Interactive UI (Administrator)
+<b>Destination:</b> C:\Users\lizekai\AppData\Local\Bloomberg\Terminal
+<b>Proxy:</b> Primary proxy configured
+<b>Detected:</b> Bloomberg Terminal (not installed)
+<b>Detected:</b> Office Add-ins (32-bit Office)
+
+<b>Actions to be performed:</b>
+  - Download Terminal package (1.35 GB)
+  - Configure connection profile
+  - Register launcher and uninstaller</div>
+          <div class="hint">Click Install to begin the installation.</div>
+        </section>
+
+        <!-- 6 Installing -->
+        <section class="page">
+          <h1>Installing</h1>
+          <p class="desc">Setup is installing Bloomberg Terminal Web Installer.</p>
+          <div class="progwrap">
+            <div class="prog"><div class="bar" id="bar"></div></div>
+            <div class="stat" id="stat">Downloading package: 0 / 1,350 MB</div>
+            <div class="fname" id="fname">Preparing&hellip;</div>
+            <div class="stat" style="color:#7a7a7a; font-size:10.8px; margin-top:10px;" id="elapsed">Elapsed time: 00:00</div>
+          </div>
+        </section>
+
+        <!-- 7 Finished -->
+        <section class="page">
+          <div class="done-badge">&#10003;</div>
+          <h1>Completing the Bloomberg Terminal<br>Web Installer Setup Wizard</h1>
+          <p class="desc">Setup has finished installing Bloomberg Terminal Web Installer on your computer.</p>
+          <div class="bd">
+            <p>Click Finish to exit Setup.</p>
+          </div>
+          <label class="chk"><input type="checkbox" checked> Launch Bloomberg Terminal</label>
+        </section>
+
+      </div>
+
+      <div class="footer">
+        <button class="btn" id="back">Back</button>
+        <button class="btn primary" id="next">Next &gt;</button>
+        <button class="btn" id="cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="dlg">
+      <div class="hd">Bloomberg Terminal Web Installer Setup</div>
+      <div class="bdy">
+        <div class="ic">!</div>
+        <div>Exit Setup?<br><span style="color:#4a4a4a;">Setup is not complete. If you exit now, the program will not be installed.</span></div>
+      </div>
+      <div class="ft">
+        <button class="btn" id="exitYes">Yes</button>
+        <button class="btn primary" id="exitNo">No</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note">
+  <b>还原依据：</b>Inno Setup 6.6.1 (Unicode) 安装器的 Pascal Script 控件树（TWizardForm / TNewButton / TNewProgressBar / TRichEditViewer / TBitmapImage）与真实字符串常量；
+  页面顺序、控件名、文案取自脚本字节码。<b>推定部分：</b>按钮位图（next/back/cancel/install/finish 四态 BMP）与平台色值仍封在 LZMA 压缩块中，此处以图标实测品牌绿 <b>#00A223</b> 近似；
+  许可正文为 <code>is_license.txt</code> 运行期加载，本页为结构占位。<br>
+  <b>操作：</b><kbd>&larr;</kbd> <kbd>&rarr;</kbd> 翻页 · <kbd>Esc</kbd> 关闭对话框 · 顶部「品牌栏」可切换到无侧栏的 Inno 标准布局 · 许可页选择「I accept」后 Next 才可用。
+</div>
+
+<script>
+(function(){
+  var pages = Array.prototype.slice.call(document.querySelectorAll('.page'));
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
+  var back = document.getElementById('back');
+  var next = document.getElementById('next');
+  var cancel = document.getElementById('cancel');
+  var modal = document.getElementById('modal');
+  var bar = document.getElementById('bar');
+  var stat = document.getElementById('stat');
+  var fname = document.getElementById('fname');
+  var elapsed = document.getElementById('elapsed');
+  var cur = 0, timer = null, secs = 0, accepted = false;
+
+  var FILES = [
+    'BloombergTerminal_setup.msi',
+    'blpapi_3.22.4.1_x86.msi',
+    'bbcomm_connector.dll',
+    'OfficeAddin_32bit.msi',
+    'connection_profile.xml',
+    'BloombergTerminalLauncher.exe'
+  ];
+
+  function syncChips(){
+    chips.forEach(function(c){
+      if (c.dataset.go) c.classList.toggle('on', +c.dataset.go === cur);
+    });
+  }
+
+  function render(){
+    pages.forEach(function(p, i){ p.classList.toggle('on', i === cur); });
+    back.disabled = (cur === 0 || cur >= 5);
+    if (cur === 1){ next.disabled = !accepted; }
+    else if (cur === 5){ next.disabled = true; }
+    else { next.disabled = false; }
+
+    next.textContent = cur === 4 ? 'Install >' : (cur === 6 ? 'Finish' : 'Next >');
+    back.style.visibility = (cur >= 5) ? 'hidden' : 'visible';
+    next.style.display = 'inline-block';
+    if (cur === 5){ next.style.display = 'none'; }
+    syncChips();
+    if (cur === 5) startInstall(); else stopInstall();
+  }
+
+  function go(n){
+    if (n < 0 || n > 6) return;
+    if (n === 1 && !accepted){ /* 可自由回看，但前进受控 */ }
+    cur = n; render();
+  }
+
+  function startInstall(){
+    if (timer) return;
+    secs = 0; setProg(0);
+    timer = setInterval(function(){
+      secs++;
+      var p = Math.min(100, (secs / 12) * 100);
+      setProg(p);
+    }, 260);
+  }
+  function stopInstall(){
+    if (timer){ clearInterval(timer); timer = null; }
+  }
+  function setProg(p){
+    bar.style.width = p + '%';
+    if (p >= 100) bar.classList.add('done');
+    var mb = Math.round(1350 * p / 100);
+    stat.textContent = p >= 100
+      ? 'Finishing installation\u2026'
+      : 'Downloading package: ' + mb.toLocaleString('en-US') + ' / 1,350 MB';
+    fname.textContent = p >= 100
+      ? 'Finalising: registering launcher\u2026'
+      : (p === 0 ? 'Preparing\u2026' : FILES[Math.min(FILES.length - 1, Math.floor(p / 17))]);
+    var t = Math.floor(secs * 0.26 * 8);
+    elapsed.textContent = 'Elapsed time: ' + String(Math.floor(t / 60)).padStart(2,'0') + ':' + String(t % 60).padStart(2,'0');
+  }
+
+  next.addEventListener('click', function(){
+    if (cur === 6){ return; }
+    go(cur + 1);
+  });
+  back.addEventListener('click', function(){ go(cur - 1); });
+  cancel.addEventListener('click', function(){ modal.classList.add('on'); });
+  document.getElementById('exitNo').addEventListener('click', function(){ modal.classList.remove('on'); });
+  document.getElementById('exitYes').addEventListener('click', function(){
+    modal.classList.remove('on');
+    stopInstall();
+    setProg(0);
+    go(0);
+  });
+  modal.addEventListener('click', function(e){ if (e.target === modal) modal.classList.remove('on'); });
+
+  document.querySelectorAll('input[name="lic"]').forEach(function(r){
+    r.addEventListener('change', function(){
+      accepted = (r.value === 'yes');
+      render();
+    });
+  });
+
+  chips.forEach(function(c){
+    if (c.dataset.go) c.addEventListener('click', function(){ go(+c.dataset.go); });
+    if (c.dataset.toggle === 'side') c.addEventListener('click', function(){
+      document.body.classList.toggle('noside');
+      c.classList.toggle('on', document.body.classList.contains('noside'));
+    });
+  });
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape'){ modal.classList.remove('on'); return; }
+    if (e.key === 'ArrowRight' && !next.disabled) { go(cur + 1); }
+    if (e.key === 'ArrowLeft' && cur > 0) { go(cur - 1); }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

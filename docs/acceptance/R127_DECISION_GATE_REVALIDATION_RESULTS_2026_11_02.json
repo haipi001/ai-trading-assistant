@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-02",
+  "goal_status": "active",
+  "backend_tests": {
+    "passed": 840,
+    "warnings": 1,
+    "seconds": 67.03,
+    "exit_code": 0,
+    "log": "/tmp/r127-all-gate-final.log"
+  },
+  "new_cases": 36,
+  "initial_related_regression": {
+    "passed": 64,
+    "warnings": 1,
+    "seconds": 11.31
+  },
+  "first_full_regression": {
+    "passed": 826,
+    "failed": 11,
+    "seconds": 98.49,
+    "log": "/tmp/r127-all-gate-full.log",
+    "resolution": "demo NVDA samples now use asset-scoped NVDA policy; no policy guard exemption"
+  },
+  "repair_targeted": {
+    "passed": 36,
+    "warnings": 1,
+    "seconds": 8.42
+  },
+  "commands": [
+    "DATABASE_URL=sqlite+pysqlite:///:memory: /Users/lizekai/Documents/交易系统/ai-trading-os/backend/.venv/bin/python -m pytest -q backend/tests",
+    "python scripts/secret_scan.py",
+    "git diff --check"
+  ],
+  "source_sha256": {
+    "backend/app/services/decision_gates.py": "cd3a45305eb6c2f443594235b580ccbb39c2408ba429062010d6cdddcf23f6ad",
+    "backend/app/services/risk.py": "3ab0106f900fde971bb1f71eb3253def1321dce37b1be475be20e3141a75db55",
+    "backend/app/services/paper_execution.py": "a60bea7ea248fc2842637c1bab03c3760aa5d6a2a99aa20c7b5a477c142a97a4",
+    "backend/app/services/demo_seed.py": "58565ce61c1e9d72a470cd5f9d9ae7d8a91221739eca54630c2ef403dd3aea9e",
+    "backend/tests/test_decision_gate_revalidation.py": "25e5e09d429ba274ad9c4c80ddef784a0b5bb037dd2d9a5e9fbc69360d86b033"
+  },
+  "secret_scan": "passed",
+  "diff_check": "passed",
+  "frontend_source_changed": false,
+  "browser_e2e_rerun": false,
+  "live": false,
+  "external_llm": false,
+  "remaining": [
+    "Concurrent check/fill race and idempotency",
+    "Fields not covered by existing evaluators and full behavioral factual inputs",
+    "Full immutable policy/playbook version authorization",
+    "Asset/source/venue identity mapping",
+    "Live execution and production validation",
+    "Full 113-task requirement audit"
+  ]
+}

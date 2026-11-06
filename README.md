@@ -2,11 +2,17 @@
 
 > 面向个人投资者的 AI 原生市场工作台：把行情、研究、策略记忆、模拟执行与复盘放进同一个界面。
 
-[在线体验](https://haipi001.github.io/ai-trading-assistant/) · [部署状态](https://github.com/haipi001/ai-trading-assistant/actions/workflows/deploy-pages.yml)
+[所有人可访问的网站](https://haipi001.github.io/ai-trading-assistant/) · [部署状态](https://github.com/haipi001/ai-trading-assistant/actions/workflows/deploy-pages.yml)
 
 ![Frontend](https://img.shields.io/badge/frontend-React%2019-176b5b)
 ![Build](https://img.shields.io/badge/build-Vite%206-a34d19)
 ![Deploy](https://img.shields.io/badge/deploy-GitHub%20Pages-222)
+
+当前开发总计划：[r127 整体实施规划（2026-11-01）](docs/planning/R127_OVERALL_PLAN_2026_11_01.md)，包含阶段门禁、首四迭代、完整工程包和任务追踪表。
+
+公开后端地址配置使用 GitHub Actions 仓库变量 `VITE_API_BASE_URL`，不会将访问者引向 localhost；后端不可用或需要登录时，页面明确显示连接或权限状态。
+
+> 网站为开发预览：新终端统一股票 / CEX / Web3 上下文与黑白主题；业务功能依赖后端可用性及登录权限。Live 保持关闭，旧版保留在 `legacy/`。
 
 ## 产品是什么
 

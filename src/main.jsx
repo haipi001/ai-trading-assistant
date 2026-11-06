@@ -1,3 +1,14 @@
+import {TerminalOnchainWorkspace} from './terminal-onchain.jsx';
+import {requestEmbeddedAppearance} from './terminal-appearance.js';
+import {chartPeriod,terminalPeriod,terminalSelection} from './terminal-selection.js';
+import {AceAgentDock} from './ace-status.jsx';
+import {aceReviewPlan} from './ace-status.js';
+import {PaperOrderTicket} from './paper-order-ticket.jsx';
+import {WorkspaceSyncSettings} from './workspace-sync-settings.jsx';
+import {workspaceRestorePlan} from './workspace-sync.js';
+import {getBackendSession,subscribeBackendSession} from './backend-session.js';
+import {nextWorkspaceContext} from './workspace-context.js';
+import {BackendSessionSettings} from './backend-session-settings.jsx';
 import {ImportantNewsNotices,NewsNoticeSettings} from './news-notices.jsx';
 import {marketResearchCapture} from './research-market-context.js';
 import {ResearchNewsContext} from './research-news-context.jsx';
@@ -215,7 +226,7 @@ function useStoredState(key, initialValue) {
   return [state, setState];
 }
 
-function App() {
+export function App({ embedded = false, terminalTarget = null, terminalContext = null } = {}) {
   const initialWorkspace = useMemo(readLastWorkspace, []);
   const canvasRef = useRef(null);
   const [page, setPage] = useState(initialWorkspace.page),
@@ -245,6 +256,7 @@ function App() {
     showDepthBars: true,
   });
   const [quickTradePrefill, setQuickTradePrefill] = useState(null);
+  const [paperReviewRequest, setPaperReviewRequest] = useState(null);
   const [savedStrategies, setSavedStrategies] = useStoredState(
     "ai-trading-assistant-strategies",
     [],
@@ -273,6 +285,44 @@ function App() {
   const [overlay, setOverlay] = useState(null);
   const [aiFloatOpen, setAiFloatOpen] = useState(false);
   const [aiResearchIntent, setAiResearchIntent] = useState(null);
+  const [workspaceSession,setWorkspaceSession] = useState(getBackendSession);
+  useEffect(()=>subscribeBackendSession(()=>setWorkspaceSession(getBackendSession())),[]);
+  const workspaceContextRef = useRef(null);
+  const currentCapture = page === "market" && tab === "图表" && marketFooter?.symbol === marketSymbol && marketFooter.mode === marketMode ? marketFooter.research : null;
+  const workspaceContext = nextWorkspaceContext(workspaceContextRef.current, {
+    user_id:workspaceSession?.user_id||(embedded?terminalContext?.identityUserId:null),page, tab, asset_class:embedded && terminalContext?.market === "onchain" ? "onchain" : marketMode === "stocks" ? "stock" : "crypto_spot", symbol:marketSymbol,
+    mode:embedded && terminalContext?.executionMode==='PAPER'?'PAPER':null,
+    account_id:embedded ? terminalContext?.accountId : null,
+    wallet_id:embedded ? terminalContext?.walletId : null,chain_id:embedded ? terminalContext?.chainId : null,contract_address:embedded ? terminalContext?.contractAddress : null,
+    venue:embedded?terminalContext?.venue:page === "market" ? marketFooter?.venue : null,
+    timeframe:embedded?terminalContext?.timeframe:page === "market" ? marketFooter?.timeframe : null,
+    source:currentCapture?.kind || null,
+  });
+  workspaceContextRef.current = workspaceContext;
+
+  useEffect(() => {
+    if (!embedded || !terminalTarget || !META[terminalTarget.page]) return;
+    setPage(terminalTarget.page);
+    setTab(META[terminalTarget.page].tabs.includes(terminalTarget.tab) ? terminalTarget.tab : META[terminalTarget.page].tabs[0]);
+    setStrategyCategory(Number.isInteger(terminalTarget.strategyCategory) ? terminalTarget.strategyCategory : 1);
+  }, [embedded,terminalTarget?.page,terminalTarget?.tab,terminalTarget?.strategyCategory]);
+  useEffect(() => {
+    if (!embedded || !terminalContext) return;
+    setMarketMode(terminalContext.market === 'stocks' ? 'stocks' : 'web3');
+    if (terminalContext.instrumentId) setMarketSymbol(terminalContext.instrumentId.split('/')[0]);
+    setQuickTradePrefill(null);setPaperReviewRequest(null);setMarketOrderOpen(false);
+    setMarketCommand({type:'restoreWorkspaceContext',venue:terminalContext.venue || null,period:chartPeriod(terminalContext.timeframe),id:crypto.randomUUID()});
+  }, [embedded,terminalContext?.market,terminalContext?.instrumentId,terminalContext?.venue,terminalContext?.timeframe,terminalContext?.accountId,terminalContext?.walletId,terminalContext?.chainId,terminalContext?.contractAddress,terminalContext?.contextVersion,terminalContext?.executionMode,terminalContext?.authorizationVersion,terminalContext?.accountVerified,terminalContext?.paperEligible,terminalContext?.identityUserId]);
+  useEffect(() => {
+    const research = event => {
+      if (typeof event.detail?.question !== 'string') return;
+      setAiResearchIntent({id:crypto.randomUUID(),question:event.detail.question.slice(0,4000),onchainAttachment:embedded&&event.detail.onchainAttachment?structuredClone(event.detail.onchainAttachment):null,includeMarket:event.detail.includeMarket !== false && page === 'market' && tab === '图表'});
+      setOverlay(null);setAiFloatOpen(true);
+    };
+    if(embedded)window.addEventListener('terminal:research', research);
+    window.addEventListener('ai-trading-assistant-research-intent',research);
+    return () => {window.removeEventListener('terminal:research', research);window.removeEventListener('ai-trading-assistant-research-intent',research);};
+  }, [embedded,page,tab]);
   const [backendStatus, setBackendStatus] = useState({ connected: false, status: "checking" });
   useEffect(() => {
     const navigate = () => {
@@ -338,7 +388,27 @@ function App() {
     }
     setOverlay({ type, title, ...payload });
   };
+  const restoreWorkspace = packet => {
+    const target=workspaceRestorePlan(packet);
+    if(target.tab&&!META[target.page].tabs.includes(target.tab))throw Error("工作区频道不受支持，请保持当前工作区");
+    setPage(target.page);setTab(target.tab||META[target.page].tabs[0]);setMarketMode(target.marketMode);
+    if(target.symbol)setMarketSymbol(target.symbol);
+    setAiFloatOpen(target.agentOpen);
+    setMarketCommand(target.page==="market"?{type:"restoreWorkspaceContext",venue:target.venue,period:target.period,id:crypto.randomUUID()}:null);
+    setOverlay(null);say("已恢复工作区选择；没有恢复或授予交易权限");
+  };
+  const reviewAceOrder = notice => {
+    const target=aceReviewPlan(notice);
+    go('market');setTab('图表');setMarketMode(target.marketMode);setMarketSymbol(target.symbol);
+    setMarketCommand({type:'restoreWorkspaceContext',venue:target.venue,id:crypto.randomUUID()});
+    setPaperReviewRequest({...target,id:crypto.randomUUID()});
+    setMarketSideOpen(true);setMarketOrderOpen(true);setDrawer(null);setAiFloatOpen(false);
+    say('已打开原Paper票据读取草稿；没有批准或执行');
+  };
   const ctx = {
+    allowDemo:!embedded,
+    terminalEmbedded:embedded,
+    workspaceContext,onReviewOrder:reviewAceOrder,paperReviewRequest,
     page,
     tab,
     go,
@@ -363,7 +433,7 @@ function App() {
     marketCommand,
     marketSymbol,
     onMarketFooter:setMarketFooter,
-    setMarketSymbol,
+    setMarketSymbol:embedded ? value=>{const next=typeof value==='function'?value(marketSymbol):value;setMarketSymbol(next);terminalSelection({instrumentId:terminalContext?.market==='cex'?`${next}/USDT`:next});} : setMarketSymbol,
     marketMode,
     setMarketMode,
     prefs,
@@ -378,8 +448,8 @@ function App() {
     quickTradePrefill,
   };
   return (
-    <div className={`terminal ${prefs.redUp ? "red-up" : "green-up"}`}>
-      <GlobalTop
+    <div className={`terminal ${embedded ? "terminal-embedded" : ""} ${prefs.redUp ? "red-up" : "green-up"}`}>
+      {!embedded && <GlobalTop
         query={query}
         setQuery={setQuery}
         go={go}
@@ -387,8 +457,8 @@ function App() {
         currency={prefs.currency}
         openAI={() => setAiFloatOpen(true)}
         backendStatus={backendStatus}
-      />
-      <PrimaryNav page={page} go={go} openOverlay={openOverlay} />
+      />}
+      {!embedded && <PrimaryNav page={page} go={go} openOverlay={openOverlay} />}
       <div className={`pagebar ${page === "market" ? `with-symbol ${marketSideOpen ? "market-side-expanded" : "market-side-collapsed"}` : "channels-only"}`}>
         <div>
           {(page === "home" || page === "market") && <div className={`market-mode-switch ${marketMode}`} role="group" aria-label="市场类型切换"><button className={marketMode === "web3" ? "on" : ""} onClick={() => { setMarketMode("web3"); setMarketSymbol("BTC"); if (page === "home" && !HOME_TABS.web3.includes(tab)) setTab("AI智搜"); }}>WEB3</button><button className={marketMode === "stocks" ? "on" : ""} onClick={() => { setMarketMode("stocks"); setMarketSymbol("AAPL"); if (page === "home" && !HOME_TABS.stocks.includes(tab)) setTab("AI智搜"); }}>股票</button></div>}
@@ -412,6 +482,7 @@ function App() {
         />
       </div>
       <main className={`canvas ${page === "market" && marketSideOpen ? "market-drawer-open" : ""}`} ref={canvasRef}>
+        {embedded && terminalContext?.market === "onchain" && (page === "chain" || page === "assets" || page === "more" && tab === "钱包") && <TerminalOnchainWorkspace context={terminalContext}/> }
         {page === "home" ? (
           <Home {...ctx} />
         ) : page === "market" ? (
@@ -454,6 +525,7 @@ function App() {
       />
       {drawer && drawer !== "sidebarLayout" && page !== "market" && (
         <UtilityDrawer
+          workspaceContext={workspaceContext} onReviewOrder={reviewAceOrder} paperReviewRequest={paperReviewRequest}
           type={drawer}
           close={() => setDrawer(null)}
           go={go}
@@ -470,6 +542,7 @@ function App() {
       )}
       {overlay && (
         <ActionOverlay
+          workspaceContext={workspaceContext} workspaceAgentOpen={aiFloatOpen} onRestoreWorkspace={restoreWorkspace}
           model={overlay}
           close={() => setOverlay(null)}
           say={say}
@@ -486,7 +559,7 @@ function App() {
           setAuthorizedAccounts={setAuthorizedAccounts}
         />
       )}
-      <ImportantNewsNotices openSettings={()=>openOverlay("settings","重点资讯弹窗设置")}/><FloatingAIChat intent={aiResearchIntent} open={aiFloatOpen} onClose={() => setAiFloatOpen(false)} page={page} symbol={marketSymbol} say={say} marketCapture={page==="market"&&tab==="图表"&&marketFooter?.symbol===marketSymbol&&marketFooter.mode===marketMode?marketFooter.research:null} openSettings={()=>{setAiFloatOpen(false);openOverlay("settings","AI服务设置");}} />
+      <ImportantNewsNotices openSettings={()=>openOverlay("settings","重点资讯弹窗设置")}/><FloatingAIChat terminalContext={embedded?terminalContext:null} onReviewOrder={reviewAceOrder} workspaceContext={workspaceContext} intent={aiResearchIntent} open={aiFloatOpen} onClose={() => setAiFloatOpen(false)} page={page} symbol={embedded ? (terminalContext?.instrumentId || "") : marketSymbol} say={say} marketCapture={page==="market"&&tab==="图表"&&marketFooter?.symbol===marketSymbol&&marketFooter.mode===marketMode?marketFooter.research:null} openSettings={()=>{setAiFloatOpen(false);openOverlay("settings","AI服务设置");}} />
       <Ticker symbol={marketSymbol} mode={marketMode} snapshot={page==="market"?marketFooter:null} />
       {toast && <div className="toast">{toast}</div>}
     </div>
@@ -1251,6 +1324,8 @@ function Risk({ name, value, bad }) {
 }
 
 function Market({
+  allowDemo = true,
+  workspaceContext,onReviewOrder,paperReviewRequest,
   tab,
   go,
   watch,
@@ -1291,6 +1366,8 @@ function Market({
   const [magnetEnabled, setMagnetEnabled] = useState(false);
   const symbol = marketSymbol;
   const setSymbol = setMarketSymbol;
+  const selectPeriod=value=>{setPeriod(value);terminalSelection({timeframe:terminalPeriod(value)});};
+  const selectVenue=value=>{setMarketPlatform(value);terminalSelection({venue:value});};
   const startOrderResize = (event) => {
     event.preventDefault();
     const workspace = event.currentTarget.closest(".market-side-workspace");
@@ -1356,7 +1433,7 @@ function Market({
     setMarketCategory(isStocks ? "美股" : "平台");
     setPeriod(isStocks ? "1日" : "1时");
   }, [isStocks]);
-  const primaryCandles=useMemo(()=>backendMarket.candles.length?backendMarket.candles:demoMarketBars(Number(marketQuote.price),period,`${symbol}:${marketPlatform}`),[backendMarket.candles,marketQuote.price,period,symbol,marketPlatform]);
+  const primaryCandles=useMemo(()=>backendMarket.candles.length?backendMarket.candles:allowDemo?demoMarketBars(Number(marketQuote.price),period,`${symbol}:${marketPlatform}`):[],[backendMarket.candles,marketQuote.price,period,symbol,marketPlatform,allowDemo]);
   const [studies, setStudies] = useState(()=>applyChartDisplayPreferences(["MA", "Volume", "价格线", "倒计时", "买卖信号", "网格线"],prefs.chartDefaults));
   const [fullscreen, setFullscreen] = useState(false);
   const [snapshotAt, setSnapshotAt] = useState("");
@@ -1376,7 +1453,7 @@ function Market({
   const quote=replayBar?{...marketQuote,price:replayBar.close,open:replayBar.open,high:replayBar.high,low:replayBar.low,change:replayBar.open?`${(100*(replayBar.close/replayBar.open-1)).toFixed(2)}%`:"—"}:marketQuote;
   const headline = marketHeadline({replayActive:replayOpen,replayBar,local:!!primaryLocal,candle:liveCandle,ticker:isStocks?null:ticker?.quotes?.[symbol]});
   const researchCapture=useMemo(()=>tab==="图表"&&!analysisMode?marketResearchCapture({symbol,venue:marketPlatform,period,marketMode,feed:backendMarket,replay:replayOpen?(replayFrozen?.key===marketFeedKey?{bars:replayFrozen.bars,demo:replayFrozen.demo,cutoff:replayTime??(replayBar?replayCloseTime(replayBar,period):null),source:replayFrozen.source,volumeAvailable:replayFrozen.volumeAvailable,observedAt:replayFrozen.observedAt}:{demo:true}):null}):null,[tab,analysisMode,symbol,marketPlatform,period,marketMode,backendMarket.candles,backendMarket.status,backendMarket.source,backendMarket.observedAt,backendMarket.fetchedAt,replayOpen,replayFrozen,replayTime,replayBar,marketFeedKey]);
-  useLayoutEffect(()=>{onMarketFooter?.({symbol,mode:marketMode,venue:marketPlatform,price:headline.price,change:headline.change,source:headline.source,research:researchCapture});},[onMarketFooter,symbol,marketMode,marketPlatform,headline.price,headline.change,headline.source,researchCapture]);
+  useLayoutEffect(()=>{onMarketFooter?.({symbol,mode:marketMode,venue:marketPlatform,timeframe:periodDefinition(period).timeframe,price:headline.price,change:headline.change,source:headline.source,research:researchCapture});},[onMarketFooter,symbol,marketMode,marketPlatform,period,headline.price,headline.change,headline.source,researchCapture]);
   useEffect(()=>()=>onMarketFooter?.(null),[onMarketFooter]);
   const chooseReplayDate=date=>{try{replayStartIndex(replayFrozen?.key===marketFeedKey?replayFrozen.bars:primaryCandles,date);setReplayConfig(previous=>({...previous,startLabel:date}));return true;}catch(error){say(error.message);return false;}};
   useEffect(()=>{
@@ -1494,6 +1571,7 @@ function Market({
     if (!marketCommand?.id) return;
     if (marketCommand.type === "snapshot") createChartSnapshot("顶部工具栏");
     if (marketCommand.type === "saveLayout") saveActiveLayout();
+    if (marketCommand.type === "restoreWorkspaceContext") {if(marketCommand.venue)setMarketPlatform(marketCommand.venue);if(marketCommand.period)setPeriod(marketCommand.period);setAnalysisMode(null);}
     if (marketCommand.type === "navigateWorkbench") { setBottom(marketCommand.panel); setAnalysisMode(null); }
     if (marketCommand.type === "navigateChartAnalysis") setAnalysisMode(marketCommand.mode);
   }, [marketCommand?.id]);
@@ -1522,12 +1600,12 @@ function Market({
   };
   const layoutIsSaved = layout => {try{return layout.id!==activeLayout ? layout.saved : layout.state ? JSON.stringify(layout.state)===JSON.stringify(captureLayout()) : layout.saved && layout.symbol===symbol;}catch{return false;}};
 
-  if (tab !== "图表") return <MarketChannel tab={tab} openOverlay={openOverlay} watch={watch} setWatch={setWatch} symbol={symbol} venue={marketPlatform} marketMode={marketMode} onVenueChange={setMarketPlatform} onSymbolChange={setMarketSymbol} onOpenChart={value=>{setMarketSymbol(value);go("market");}} />;
+  if (tab !== "图表") return <MarketChannel tab={tab} openOverlay={openOverlay} watch={watch} setWatch={setWatch} symbol={symbol} venue={marketPlatform} marketMode={marketMode} onVenueChange={selectVenue} onSymbolChange={setMarketSymbol} onOpenChart={value=>{setMarketSymbol(value);go("market");}} />;
   return (
     <div className={`market ${watchOpen ? "watch-open" : "watch-collapsed"} ${marketSideOpen ? "side-open" : "side-collapsed"} ${marketOrderOpen ? "order-open" : ""}`}>
       <aside className="watchlist">
         <nav className="market-category-tabs">{(isStocks ? ["自选","美股","科技","大型股","高波动"] : ["自选","平台","指数","美股合约","板块"]).map((name)=><button className={marketCategory===name?"on":""} key={name} onClick={()=>setMarketCategory(name)}>{name}</button>)}</nav>
-        <nav className="market-platform-tabs">{(isStocks ? ["NASDAQ","NYSE","全部美股"] : ["币安","欧易OKX","Hyperliquid","Bitget"]).map((name)=><button className={marketPlatform===name?"on":""} key={name} onClick={()=>setMarketPlatform(name)}>{name}</button>)}</nav>
+        <nav className="market-platform-tabs">{(isStocks ? ["NASDAQ","NYSE","全部美股"] : ["币安","欧易OKX","Hyperliquid","Bitget"]).map((name)=><button className={marketPlatform===name?"on":""} key={name} onClick={()=>selectVenue(name)}>{name}</button>)}</nav>
         <header>
           <b>{marketCategory}行情</b><small>{marketPlatform}</small>
           <button
@@ -1577,7 +1655,7 @@ function Market({
             <i>{symbol.slice(0, 1)}</i>
             <span><b>{instrument}</b><small>{headline.price===null?"—":headline.price.toLocaleString("en-US",{maximumFractionDigits:8})}　{headline.change===null?"—":`${headline.change>=0?"+":""}${headline.change.toFixed(2)}%`} · {headline.source}</small></span>
           </button>
-          <div className={`market-data-status ${backendMarket.status}`} title={backendMarket.source}><i/><span>{backendMarket.status === "local"?backendMarket.source:backendMarket.status === "connected" ? `行情数据 · ${backendMarket.source}` : backendMarket.status === "loading" ? "正在读取市场数据" : `${backendMarket.source} · 演示回退`}</span></div>
+          <div className={`market-data-status ${backendMarket.status}`} title={backendMarket.source}><i/><span>{backendMarket.status === "local"?backendMarket.source:backendMarket.status === "connected" ? `行情数据 · ${backendMarket.source}` : backendMarket.status === "loading" ? "正在读取市场数据" : `${backendMarket.source} · ${allowDemo ? "演示回退" : "数据不可用"}`}</span></div>
           {layoutStorageError&&<div role="alert" className="chart-layout-storage-error">{layoutStorageError}<button onClick={reloadLayoutList}>重新读取布局列表</button></div>}<div className="chart-layout-tabs">
             {chartLayouts.map((layout) => (
               <span className={activeLayout === layout.id ? "on" : ""} key={layout.id}>
@@ -1608,7 +1686,7 @@ function Market({
         <div className="chart-tools">
           <label className="chart-venue-control" title="切换当前图表工作区所有窗口的数据平台">
             <span>平台</span>
-            <select aria-label="图表行情平台" value={marketPlatform} onChange={event=>setMarketPlatform(event.target.value)}>
+            <select aria-label="图表行情平台" value={marketPlatform} onChange={event=>selectVenue(event.target.value)}>
               {(isStocks?["NASDAQ","NYSE","全部美股"]:["币安","欧易OKX","Hyperliquid","Bitget"]).map(name=><option key={name}>{name}</option>)}
             </select>
           </label>
@@ -1645,7 +1723,7 @@ function Market({
             <button
               key={x}
               className={period === x ? "on" : ""}
-              onClick={() => setPeriod(x)}
+              onClick={() => selectPeriod(x)}
             >
               {x}
             </button>
@@ -1722,7 +1800,7 @@ function Market({
         {tool === "指标" && <IndicatorCenter studies={studies} setStudies={setStudies} close={()=>setTool(null)} say={say} openOverlay={openOverlay} onOpenScript={id => openScriptEditor(id)} onNewScript={() => openScriptEditor(null, true)} layouts={chartLayouts} onOpenLayout={layout => { selectChartLayout(layout); setTool(null); }} onSaveLayout={saveActiveLayout}/>}
         {analysisMode && <ChartAnalysisWorkspace initialMode={analysisMode} onModeChange={setAnalysisMode} symbol={symbol} onClose={() => { setAnalysisMode(null); if (resolveAicoinRoute(window.location.hash)?.chartMode) window.history.replaceState(null, "", window.location.pathname + window.location.search); }} />}
         {tool === "多窗" && <MultiWindowCenter current={paneCount} currentGeometry={paneGeometry} currentSync={paneSync} close={()=>setTool(null)} say={say} onApply={(count,sync,geometry)=>{setPaneGeometry(geometry);setPaneCount(count);setPaneSync(sync);if(sync.includes("其他"))setPaneAppearance(previous=>updatePaneAppearance(previous,0,{...previous[0],chartType},true));if(sync.includes("坐标轴"))setPaneAxes(updatePaneAxis(paneAxes,0,paneAxes[0],true));say(`已应用 ${count} 窗布局 · 同步 ${sync.length} 项`);}}/>}
-        {tool === "周期" && <CustomPeriodCenter current={period} close={()=>setTool(null)} say={say} onSelect={(value)=>{setPeriod(value);setPanePeriods(paneSync.includes("周期")?panePeriods.map(()=>value):panePeriods);}}/>}
+        {tool === "周期" && <CustomPeriodCenter current={period} close={()=>setTool(null)} say={say} onSelect={(value)=>{selectPeriod(value);setPanePeriods(paneSync.includes("周期")?panePeriods.map(()=>value):panePeriods);}}/>}
         {replayOpen && replayFrozen?.key===marketFeedKey && (
           <KlineReplayPanel
             key={replayFrozen.id}
@@ -1833,7 +1911,7 @@ function Market({
             <button className="clear" onClick={() => { setChartTraders([]); say("已清空K线交易员轨迹"); }}>清空</button>
           </div>
         )}
-        <TradingChartGrid paneAppearance={paneAppearance} onPaneAppearanceChange={(index,next)=>{setPaneAppearance(previous=>updatePaneAppearance(previous,index,next,paneSync.includes("其他")));if(index===0||paneSync.includes("其他"))setChartType(next.chartType);}} paneGeometry={paneGeometry} onPaneGeometryChange={setPaneGeometry}
+        <TradingChartGrid allowDemo={allowDemo} paneAppearance={paneAppearance} onPaneAppearanceChange={(index,next)=>{setPaneAppearance(previous=>updatePaneAppearance(previous,index,next,paneSync.includes("其他")));if(index===0||paneSync.includes("其他"))setChartType(next.chartType);}} paneGeometry={paneGeometry} onPaneGeometryChange={setPaneGeometry}
           layout={paneCount}
           period={period}
           symbol={symbol}
@@ -1879,11 +1957,11 @@ function Market({
           replayActive={replayOpen}
           dataKind={primaryLocal?"csv":"backend"}
           volumeAvailable={primaryLocal?.volumeAvailable??true}
-          dataIsDemo={replayOpen&&replayFrozen?.key===marketFeedKey?replayFrozen.demo:!backendMarket.candles.length}
+          dataIsDemo={allowDemo && (replayOpen&&replayFrozen?.key===marketFeedKey?replayFrozen.demo:!backendMarket.candles.length)}
           dataStatus={backendMarket.status}
           dataSource={replayOpen&&replayFrozen?.key===marketFeedKey?replayFrozen.source:backendMarket.source}
           onPanePeriodChange={(index,value)=>{
-            if(index===0 || paneSync.includes("周期")) setPeriod(value);
+            if(index===0 || paneSync.includes("周期")) selectPeriod(value);
             else setPanePeriods(panePeriods.map((item,paneIndex)=>paneIndex===index?value:item));
           }}
           onCreateAlert={(price,target=symbol)=>openOverlay("alertCenter", "预警中心", {symbol:isStocks?target:`${target}/USDT`,price:String(price)})}
@@ -1919,7 +1997,7 @@ function Market({
               <button
                 key={x}
                 className={period === x ? "on" : ""}
-                onClick={() => setPeriod(x)}
+                onClick={() => selectPeriod(x)}
               >
                 {x}
               </button>
@@ -1945,6 +2023,7 @@ function Market({
               <OrderBook openOverlay={openOverlay} watch={watch} setWatch={setWatch} symbol={symbol} instrument={instrument} marketMode={marketMode} venue={marketPlatform} quoteOverride={quote} showDepthBars={prefs?.showDepthBars !== false} />
             ) : (
               <UtilityDrawer
+          workspaceContext={workspaceContext} onReviewOrder={onReviewOrder} paperReviewRequest={paperReviewRequest}
                 embedded
                 type={marketSideTab}
                 close={() => setMarketSideOpen(false)}
@@ -1965,6 +2044,7 @@ function Market({
             <button className="market-order-resize-handle" aria-label="上下拖动调整下单面板高度" title="拖动调整下单面板高度，双击恢复默认" onClick={(event) => event.preventDefault()} onPointerDown={startOrderResize} onDoubleClick={() => setOrderSplit(58)}><span /></button>
             <div className="market-side-order">
               <UtilityDrawer
+          workspaceContext={workspaceContext} onReviewOrder={onReviewOrder} paperReviewRequest={paperReviewRequest}
                 embedded
                 type="trade"
                 close={() => setMarketOrderOpen(false)}
@@ -2638,6 +2718,7 @@ function ChainPage({ tab, say, openOverlay, go, followedTraders, setFollowedTrad
   );
   return (
     <div className="chain-full">
+      <p className="chain-demo-notice">交易员示例数据 · 未连接真实索引，收益与仓位不能作为研究证据。</p>
       <section className="chain-hero">
         <div>
           <small>{tab}</small>
@@ -3179,6 +3260,7 @@ function ProfessionalArbitragePanel({ openOverlay, say }) {
   );
 }
 function Strategy({
+  terminalEmbedded = false,
   tab,
   say,
   openOverlay,
@@ -3195,13 +3277,15 @@ function Strategy({
   const [arbFavorites, setArbFavorites] = useStoredState("ai-trading-assistant-arb-favorites", []);
   useEffect(() => {
     const importedRoute = resolveAicoinRoute(window.location.hash);
-    if (importedRoute?.page === "strategy") setCategory(importedRoute.strategyCategory ?? 1);
-    else setCategory(1);
+    if (!terminalEmbedded) {
+      if (importedRoute?.page === "strategy") setCategory(importedRoute.strategyCategory ?? 1);
+      else setCategory(1);
+    }
     setArbType(tab);
     setStrategySearch("");
     setArbPlatform("全部平台");
     setArbContract("全部合约");
-  }, [tab]);
+  }, [tab,terminalEmbedded]);
   const rows = [
     ["XRP", "XRP/USD 币安 ↔ 欧易OKX 永续", "10.95%", "0.0100%", "0.00%", "4823.24万", "5天", "7.97%"],
     ["PEPE", "PEPE/USDT 欧易OKX ↔ 币安 永续", "7.17%", "0.0087%", "0.00%", "1785.26万", "7天", "7.46%"],
@@ -4092,7 +4176,7 @@ function RightRail({ page, drawer, setDrawer, openOverlay, sidebarMode, setSideb
     </aside>
   );
 }
-function UtilityDrawer({ type, close, go, say, watch, setWatch, marketSymbol = "BTC", prefill, openOverlay, openDrawer, authorizedAccounts = [], sidebarMode = "professional", embedded = false }) {
+function UtilityDrawer({ workspaceContext,onReviewOrder,paperReviewRequest,type, close, go, say, watch, setWatch, marketSymbol = "BTC", prefill, openOverlay, openDrawer, authorizedAccounts = [], sidebarMode = "professional", embedded = false }) {
   if (type === "sidebarLayout") return null;
   const title = type === "layout" ? "组件列表" : type === "trade" ? "下单面板" : type === "info" ? "币种简况" : RT.find((x) => x[0] === type)?.[1];
   const [tradeSide, setTradeSide] = useState("买入");
@@ -4130,25 +4214,12 @@ function UtilityDrawer({ type, close, go, say, watch, setWatch, marketSymbol = "
     ["news", "消息"],
     ["analysis", "分析"],
   ];
-  const instrumentTitle = `${marketSymbol}/USDT`;
+  const instrumentTitle = workspaceContext?.asset_class === 'stock' || workspaceContext?.asset_class === 'etf' ? marketSymbol : workspaceContext?.asset_class === 'onchain' ? `${marketSymbol} · 链上只读` : `${marketSymbol}/USDT`;
   const isWatched = watch.includes(marketSymbol);
   return (
     <aside className={`${embedded ? "market-side-embedded" : "drawer"} ${type === "ai" ? "ai-drawer" : ""} ${sidebarMode === "professional" ? "professional-drawer" : "classic-drawer"}`}>
       <header>
         <span><small>{instrumentTitle}</small><b>{title}</b></span>
-        {type === "ai" ? (
-          <div className="agent-modes">
-            {["Agent", "Chat"].map((x) => (
-              <button
-                key={x}
-                className={agentMode === x ? "on" : ""}
-                onClick={() => setAgentMode(x)}
-              >
-                {x}
-              </button>
-            ))}
-          </div>
-        ) : null}
         <button aria-label="关闭工具面板" onClick={close}>
           <I.X />
         </button>
@@ -4169,12 +4240,25 @@ function UtilityDrawer({ type, close, go, say, watch, setWatch, marketSymbol = "
         </section>
       )}
       {type === "ai" ? (
-        <div className="agent-shell">
+        <><div className="ace-drawer-status"><AceAgentDock onReviewOrder={onReviewOrder}><div className="ace-drawer-chat-launch"><p>继续现有研究对话，发送前选择资料并明确确认。任务与订单状态可独立查看，无需调用模型。</p><button type="button" onClick={()=>{close();openOverlay('aiChart','Ace研究对话',{question:agentPrompt||'梳理当前研究需要哪些数据'});}}>进入研究对话</button></div></AceAgentDock></div><details className="ace-legacy-tools"><summary>本地演示策略工具（不代表正在运行的 AI）</summary>        {type === "ai" ? (
+          <div className="agent-modes">
+            {["Agent", "Chat"].map((x) => (
+              <button
+                key={x}
+                className={agentMode === x ? "on" : ""}
+                onClick={() => setAgentMode(x)}
+              >
+                {x}
+              </button>
+            ))}
+          </div>
+        ) : null}
+<div className="agent-shell">
           <div className="ai-orb">
             <I.Sparkle />
           </div>
           <h2>{agentMode === "Agent" ? "用一句话，让 AI 帮你交易" : "和 Ace 聊聊当前市场"}</h2>
-          <p>你的私有交易 Agent，描述你的买卖逻辑，AI 24 小时盯盘并生成执行草稿。无需编程，无需量化背景。</p>
+          <p>本地演示配置工具：不会启动24小时监控，不会生成服务端交易草稿或调用模型。</p>
           <button
             className="agent-create"
             onClick={() => { close(); go("strategy"); }}
@@ -4197,7 +4281,7 @@ function UtilityDrawer({ type, close, go, say, watch, setWatch, marketSymbol = "
               >
                 <b>{card[0]}</b>
                 <p>{card[1]}</p>
-                <span>AI预测未来胜率</span>
+                <span>演示数值（非经验证胜率）</span>
                 <strong>{card[2]}</strong>
                 <i className="agent-spark" />
                 <footer>{card.slice(3).map((x) => <em key={x}>{x}</em>)}</footer>
@@ -4215,9 +4299,9 @@ function UtilityDrawer({ type, close, go, say, watch, setWatch, marketSymbol = "
               onClick={() => {
                 if (!agentPrompt.trim()) return say("请先描述策略或分析问题");
                 setAgentResult(
-                  `已理解：${agentPrompt}。${marketSymbol} 短线保持震荡，${formatPrice(marketPrice * 0.994, quote.decimals)} 为首要支撑，${formatPrice(marketPrice * 1.006, quote.decimals)} 上方确认突破后再提高仓位。`,
+                  `本地模板示例（未调用模型、未核实行情）：${agentPrompt}。${marketSymbol} 短线保持震荡，${formatPrice(marketPrice * 0.994, quote.decimals)} 为首要支撑，${formatPrice(marketPrice * 1.006, quote.decimals)} 上方确认突破后再提高仓位。`,
                 );
-                say("Ace Agent 已生成分析");
+                say("本地演示模板已生成；未请求模型");
               }}
             >
               ↑
@@ -4237,15 +4321,16 @@ function UtilityDrawer({ type, close, go, say, watch, setWatch, marketSymbol = "
               </button>
             </div>
           )}
-        </div>
+        </div></details></>
       ) : type === "trade" ? (
         <div className="professional-order-panel">
           <nav className="professional-order-tabs">
             {["下单", "抢新开盘", "特色"].map((name) => <button key={name} className={orderPanelTab === name ? "on" : ""} onClick={() => { setOrderPanelTab(name); setOrderTool(null); }}>{name}</button>)}
             <button aria-label="下单设置" onClick={() => openOverlay("settings", "下单设置")}><I.Gear/></button>
           </nav>
+          <PaperOrderTicket symbol={marketSymbol} reviewRequest={paperReviewRequest} workspaceContext={workspaceContext}/>
           {orderPanelTab === "下单" ? (authorizedAccounts.length ? <>
-          <h2>{marketSymbol}/USDT <small>已关联 {authorizedAccounts.length} 个本地授权记录</small></h2>
+          <h2>{instrumentTitle} <small>已关联 {authorizedAccounts.length} 个本地授权记录</small></h2>
           <div className="quick-trade">
             <button
               className={tradeSide === "买入" ? "on buy" : ""}
@@ -4390,7 +4475,7 @@ function UtilityDrawer({ type, close, go, say, watch, setWatch, marketSymbol = "
             <I.RocketLaunch/>
             <h3>抢新开盘</h3>
             <p>新币上线前预设开盘时间、最大价格和重试规则。这里只保存本地草稿，不会自动向交易所发送委托。</p>
-            <label>交易对<input value={`${marketSymbol}/USDT`} readOnly/></label>
+            <label>标的<input value={instrumentTitle} readOnly/></label>
             <label>开盘时间<input type="datetime-local"/></label>
             <label>最高可接受价格<input inputMode="decimal" placeholder={`参考 ${formatPrice(marketPrice, quote.decimals)}`}/></label>
             <label>重试次数<select defaultValue="20"><option>10</option><option>20</option><option>50</option></select></label>
@@ -4790,8 +4875,8 @@ function MessageCenterPanel({ say }) {
   );
 }
 
-function SystemSettingsPanel({ prefs, setPrefs, close, say, initialSection = "通用" }) {
-  const sections = ["通用", "AI服务", "资讯服务", "K线设置", "下单设置", "预警", "快讯弹窗", "策略通知", "市场异动", "消息中心", "Webhook"];
+function SystemSettingsPanel({ workspaceContext,workspaceAgentOpen,onRestoreWorkspace,prefs, setPrefs, close, say, initialSection = "通用" }) {
+  const sections = ["通用", "工作区同步", "后端会话", "AI服务", "资讯服务", "K线设置", "下单设置", "预警", "快讯弹窗", "策略通知", "市场异动", "消息中心", "Webhook"];
   const [section, setSection] = useState(initialSection);
   const settingDefaults = {
     theme: "浅色", scale: "100%", redUp: prefs.redUp ?? false, minimize: true, autoUpdate: true,
@@ -4804,6 +4889,9 @@ function SystemSettingsPanel({ prefs, setPrefs, close, say, initialSection = "�
     messageNotice: true, accountActivity: true,
   };
   const [settings, setSettings] = useState(()=>{try{const stored=prefs.systemSettings??JSON.parse(localStorage.getItem("ai-trading-assistant-system-settings")||"null");return stored&&typeof stored==="object"&&!Array.isArray(stored)?{...settingDefaults,...stored}:settingDefaults;}catch{return settingDefaults;}});
+  const embeddedAppearance=typeof document!=='undefined'&&document.documentElement.hasAttribute('data-terminal-feature');
+  const [colorMode,setColorMode]=useState(()=>document.documentElement.dataset.terminalColorMode||'dark');
+  useEffect(()=>{if(!embeddedAppearance)return;const receive=()=>setColorMode(document.documentElement.dataset.terminalColorMode||'dark');window.addEventListener('terminal:appearance',receive);return()=>window.removeEventListener('terminal:appearance',receive);},[embeddedAppearance]);
   const [settingsSaveError,setSettingsSaveError]=useState("");
   const [webhook, setWebhook] = useState("");
   const [webhooks, setWebhooks] = useStoredState("ai-trading-assistant-webhooks", []);
@@ -4819,6 +4907,7 @@ function SystemSettingsPanel({ prefs, setPrefs, close, say, initialSection = "�
       "市场异动": ["movementRise", "movementFall", "movementVolume"],
       "消息中心": ["messageNotice", "accountActivity"],
       "Webhook": [],
+      "后端会话": [],
     }[section];
     setSettings({ ...settings, ...Object.fromEntries(keys.map((key) => [key, settingDefaults[key]])) });
     if (section === "Webhook") setWebhooks([]);
@@ -4826,9 +4915,11 @@ function SystemSettingsPanel({ prefs, setPrefs, close, say, initialSection = "�
   };
   const switchRow = (key, title, description) => <button className="setting-switch-row" onClick={() => toggle(key)}><span><b>{title}</b><small>{description}</small></span><i className={settings[key] ? "switch on" : "switch"}/></button>;
   let content;
-  if(section==="AI服务")content=<AIIntegrationSettings/>;
+  if(section==="工作区同步")content=<WorkspaceSyncSettings key={workspaceContext?.user_id||"local"} context={workspaceContext} agentOpen={workspaceAgentOpen} onRestore={onRestoreWorkspace}/>;
+  else if(section==="后端会话")content=<BackendSessionSettings/>;
+  else if(section==="AI服务")content=<AIIntegrationSettings/>;
   else if(section==="资讯服务")content=<NewsFeedSettings/>;
-  else if (section === "通用") content = <><div className="setting-field"><span><b>主题</b><small>切换应用整体外观</small></span><select value={settings.theme} onChange={(event) => setSettings({ ...settings, theme: event.target.value })}><option>浅色</option><option>深色</option><option>跟随系统</option></select></div><div className="setting-field"><span><b>软件缩放</b><small>修改后刷新工作区生效</small></span><select value={settings.scale} onChange={(event) => setSettings({ ...settings, scale: event.target.value })}><option>90%</option><option>100%</option><option>110%</option><option>125%</option></select></div>{switchRow("redUp", "红涨绿跌", "关闭时使用绿涨红跌")}{switchRow("minimize", "关闭时最小化至托盘", "保持策略和提醒在本地运行")}{switchRow("autoUpdate", "自动检查更新", "启动时检查版本与资源")}</>;
+  else if (section === "通用") content = <><div className="setting-field"><span><b>主题</b><small>切换应用整体外观</small></span><select aria-label="应用主题" value={embeddedAppearance?(colorMode==='light'?'浅色':'深色'):settings.theme} onChange={(event) => {setSettings({ ...settings, theme: event.target.value });if(embeddedAppearance)requestEmbeddedAppearance(event.target.value==='浅色'?'light':'dark');}}><option>浅色</option><option>深色</option>{!embeddedAppearance&&<option>跟随系统</option>}</select></div><div className="setting-field"><span><b>软件缩放</b><small>修改后刷新工作区生效</small></span><select value={settings.scale} onChange={(event) => setSettings({ ...settings, scale: event.target.value })}><option>90%</option><option>100%</option><option>110%</option><option>125%</option></select></div>{switchRow("redUp", "红涨绿跌", "关闭时使用绿涨红跌")}{switchRow("minimize", "关闭时最小化至托盘", "保持策略和提醒在本地运行")}{switchRow("autoUpdate", "自动检查更新", "启动时检查版本与资源")}</>;
   else if (section === "K线设置") content = <><div className="setting-field"><span><b>K线样式</b><small>应用于所有图表窗口</small></span><select value={settings.candle} onChange={(event) => setSettings({ ...settings, candle: event.target.value })}><option>K线图</option><option>K线图 (HLC)</option><option>美国线</option><option>收盘价线</option><option>平均K线</option></select></div>{switchRow("realtimePrice", "实时价格线", "显示价格线和价格标签")}{switchRow("countdown", "K线结束倒计时", "在实时价格旁显示倒计时")}{switchRow("grid", "水平与垂直辅助线", "保持图表坐标网格")}{switchRow("costLine", "持仓成本线", "授权账户后显示平均成本")}{switchRow("depthBars", "盘口深度背景条", "在买卖档位后显示累计委托强度")}</>;
   else if (section === "下单设置") content = <>{switchRow("orderConfirm", "下单二次确认", "提交前再次核对方向、价格和数量")}{switchRow("priceCheck", "下单价格检查", "超出盘口合理范围时阻止提交")}{switchRow("quickOrder", "闪电下单", "一键生成市价单，默认关闭")}{switchRow("cancelConfirm", "撤单二次确认", "批量撤单前显示账户与订单范围")}<div className="settings-warning"><I.ShieldWarning/>当前服务仅保存本地偏好，不发送真实订单。</div></>;
   else if (section === "预警") content = <>{switchRow("alertEnabled", "预警推送", "接收价格、指标和链上预警")}<div className="setting-field"><span><b>预警铃声</b><small>选择本地提示音</small></span><select value={settings.alertSound} onChange={(event) => setSettings({ ...settings, alertSound: event.target.value })}><option>AI交易助手预警</option><option>上涨铃声</option><option>下跌铃声 1</option><option>平缓铃声</option></select></div><label className="setting-range">铃声音量 <input type="range" min="0" max="100" value={settings.alertVolume} onChange={(event) => setSettings({ ...settings, alertVolume: event.target.value })}/><output>{settings.alertVolume}%</output></label>{switchRow("alertLoop", "循环播放", "直到手动关闭预警")}</>;
@@ -4837,7 +4928,7 @@ function SystemSettingsPanel({ prefs, setPrefs, close, say, initialSection = "�
   else if (section === "市场异动") content = <><label className="setting-number">上涨异动阈值<input value={settings.movementRise} onChange={(event) => setSettings({ ...settings, movementRise: event.target.value })} inputMode="decimal"/><span>% / 5分钟</span></label><label className="setting-number">下跌异动阈值<input value={settings.movementFall} onChange={(event) => setSettings({ ...settings, movementFall: event.target.value })} inputMode="decimal"/><span>% / 5分钟</span></label>{switchRow("movementVolume", "成交量异动", "成交量超过过去 20 根均值的 2 倍")}</>;
   else if (section === "消息中心") content = <>{switchRow("messageNotice", "消息通知", "产品、系统与版本消息")}{switchRow("accountActivity", "账户活动", "登录、授权检查和工作区变化")}</>;
   else content = <><p className="setting-intro">Webhook 只保存在本机，用于模拟预警转发配置，不会主动发送请求。</p><div className="webhook-add"><input value={webhook} onChange={(event) => setWebhook(event.target.value)} placeholder="https://example.com/webhook"/><button onClick={() => { if (!/^https:\/\//.test(webhook)) return say("请输入 https:// 开头的 Webhook 地址"); if (!webhooks.includes(webhook)) setWebhooks([...webhooks, webhook]); setWebhook(""); say("Webhook 地址已保存到本机"); }}>添加</button></div>{webhooks.map((url) => <div className="webhook-row" key={url}><I.Link/><span>{url}</span><button onClick={() => setWebhooks(webhooks.filter((item) => item !== url))}>删除</button></div>)}{!webhooks.length && <div className="utility-empty"><I.WebhooksLogo/><b>暂无 Webhook 地址</b></div>}</>;
-  return <div className="system-settings-panel"><aside>{sections.map((name) => <button className={section === name ? "on" : ""} key={name} onClick={() => setSection(name)}>{name}<I.CaretRight/></button>)}</aside><main><header><div><small>系统设置</small><h3>{section}</h3></div>{!["AI服务","资讯服务","快讯弹窗"].includes(section)&&<button onClick={resetSection}>恢复默认</button>}</header><section>{content}{settingsSaveError&&<p role="alert">{settingsSaveError}</p>}</section><footer><button onClick={close}>{["AI服务","资讯服务","快讯弹窗"].includes(section)?"关闭":"取消"}</button>{!["AI服务","资讯服务","快讯弹窗"].includes(section)&&<button className="overlay-primary" onClick={() => {try{const next={ ...prefs, systemSettings:{...settings}, desktop: settings.alertEnabled, sound: settings.flashSound, auto: settings.autoUpdate, redUp: settings.redUp, showDepthBars: settings.depthBars, chartDefaults:chartDisplayPreferences(settings) };localStorage.setItem("ai-trading-assistant-prefs",JSON.stringify(next));setPrefs(next);say("系统设置已保存，K线显示已应用于所有图窗");close();}catch(error){setSettingsSaveError(`设置保存失败：${error.message}；当前修改仍保留，可重试或取消`);}}}>保存设置</button>}</footer></main></div>;
+  return <div className="system-settings-panel"><aside>{sections.map((name) => <button className={section === name ? "on" : ""} key={name} onClick={() => setSection(name)}>{name}<I.CaretRight/></button>)}</aside><main><header><div><small>系统设置</small><h3>{section}</h3></div>{!["工作区同步","后端会话","AI服务","资讯服务","快讯弹窗"].includes(section)&&<button onClick={resetSection}>恢复默认</button>}</header><section>{content}{settingsSaveError&&<p role="alert">{settingsSaveError}</p>}</section><footer><button onClick={close}>{["工作区同步","后端会话","AI服务","资讯服务","快讯弹窗"].includes(section)?"关闭":"取消"}</button>{!["工作区同步","后端会话","AI服务","资讯服务","快讯弹窗"].includes(section)&&<button className="overlay-primary" onClick={() => {try{const next={ ...prefs, systemSettings:{...settings}, desktop: settings.alertEnabled, sound: settings.flashSound, auto: settings.autoUpdate, redUp: settings.redUp, showDepthBars: settings.depthBars, chartDefaults:chartDisplayPreferences(settings) };localStorage.setItem("ai-trading-assistant-prefs",JSON.stringify(next));setPrefs(next);say("系统设置已保存，K线显示已应用于所有图窗");close();}catch(error){setSettingsSaveError(`设置保存失败：${error.message}；当前修改仍保留，可重试或取消`);}}}>保存设置</button>}</footer></main></div>;
 }
 
 function AlertCenterPanel({ model, close, say }) {
@@ -4934,6 +5025,7 @@ function AlertCenterPanel({ model, close, say }) {
 }
 
 function ActionOverlay({
+  workspaceContext,workspaceAgentOpen,onRestoreWorkspace,
   model,
   close,
   say,
@@ -5051,7 +5143,7 @@ function ActionOverlay({
             <button onClick={() => done("已退出演示账户")}>退出登录</button>
           </div>
         ) : model.type === "settings" ? (
-          <SystemSettingsPanel prefs={prefs} setPrefs={setPrefs} close={close} say={say} initialSection={model.title.includes("弹窗")?"快讯弹窗":model.title.includes("资讯")?"资讯服务":model.title.includes("AI服务")?"AI服务":"通用"} />
+          <SystemSettingsPanel workspaceContext={workspaceContext} workspaceAgentOpen={workspaceAgentOpen} onRestoreWorkspace={onRestoreWorkspace} prefs={prefs} setPrefs={setPrefs} close={close} say={say} initialSection={model.title.includes("弹窗")?"快讯弹窗":model.title.includes("资讯")?"资讯服务":model.title.includes("AI服务")?"AI服务":"通用"} />
         ) : model.type === "create" && model.title.includes("图表布局") ? (
           <div className="layout-create-panel">
             <p>新布局会保存当前图表、指标与工作台组合，可随时从布局列表恢复。</p>
@@ -5532,4 +5624,4 @@ function Ticker({symbol="BTC",mode="web3",snapshot}) {
   </footer>;
 }
 
-createRoot(document.getElementById("root")).render(<App />);
+if (!document.documentElement.hasAttribute("data-terminal-feature")) createRoot(document.getElementById("root")).render(<App />);

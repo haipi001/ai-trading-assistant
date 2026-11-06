@@ -27,7 +27,7 @@ def _apply_tenant_read_scope(orm_execute_state) -> None:
         statement = statement.options(
             with_loader_criteria(
                 model,
-                lambda entity, tenant_id=tenant_id: entity.user_id == tenant_id,
+                model.user_id == tenant_id,
                 include_aliases=True,
             )
         )

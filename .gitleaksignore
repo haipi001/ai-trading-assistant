@@ -1,0 +1,9 @@
+# Reviewed false positives: source SHA-256 digests and controlled Paper UUID idempotency keys.
+docs/acceptance/R127_ACTOR_IDENTITY_RESULTS_2026_11_01.json:generic-api-key:14
+docs/acceptance/R127_PAPER_ATOMIC_EXECUTION_RESULTS_2026_11_02.json:generic-api-key:46
+docs/acceptance/R127_PAPER_ATOMIC_EXECUTION_RESULTS_2026_11_02.json:generic-api-key:54
+docs/acceptance/R127_T0_AUTH_RESULTS_2026_11_01.json:generic-api-key:30
+docs/acceptance/R127_T0_AUTH_RESULTS_2026_11_01.json:generic-api-key:31
+docs/acceptance/R127_T0_AUTH_RESULTS_2026_11_01.json:generic-api-key:33
+docs/planning/r127-master-2026-11-01/SOURCE_SHA256.json:generic-api-key:4
+docs/planning/r127-master-2026-11-01/SOURCE_SHA256.json:generic-api-key:18

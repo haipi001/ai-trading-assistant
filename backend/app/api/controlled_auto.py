@@ -1,3 +1,4 @@
+from app.core.auth import require_permission
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
@@ -14,7 +15,7 @@ from app.services.controlled_auto import ControlledAutoService
 router = APIRouter(prefix="/controlled-auto", tags=["controlled-auto"])
 
 
-@router.post("/evaluate/{kind}", response_model=ControlledAutoEvaluationResponse)
+@router.post("/evaluate/{kind}", response_model=ControlledAutoEvaluationResponse, dependencies=[Depends(require_permission("trade:preview"))])
 def evaluate_controlled_auto(kind: str, payload: ControlledAutoEvaluateRequest, db: Session = Depends(get_db)):
     try:
         return ControlledAutoService(db).evaluate(kind, payload.model_dump())
@@ -24,7 +25,7 @@ def evaluate_controlled_auto(kind: str, payload: ControlledAutoEvaluateRequest, 
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
-@router.post("/execute/{kind}", response_model=ControlledAutoExecuteResponse)
+@router.post("/execute/{kind}", response_model=ControlledAutoExecuteResponse, dependencies=[Depends(require_permission("trade:submit"))])
 def execute_controlled_auto(kind: str, payload: ControlledAutoEvaluateRequest, db: Session = Depends(get_db)):
     try:
         return ControlledAutoService(db).execute(kind, payload.model_dump())

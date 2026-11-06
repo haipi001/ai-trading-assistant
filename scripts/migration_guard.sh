@@ -3,10 +3,10 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKEND_DIR="$ROOT_DIR/backend"
-ALEMBIC="$BACKEND_DIR/.venv/bin/alembic"
+ALEMBIC="${ALEMBIC_BIN:-$BACKEND_DIR/.venv/bin/alembic}"
 
 if [ ! -x "$ALEMBIC" ]; then
-  echo "migration guard requires backend/.venv/bin/alembic" >&2
+  echo "migration guard requires executable backend/.venv/bin/alembic or ALEMBIC_BIN" >&2
   exit 1
 fi
 

@@ -4,6 +4,10 @@ from datetime import timezone
 from decimal import Decimal
 from typing import Any
 
+import hashlib
+import json
+import re
+from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -23,6 +27,8 @@ from app.models import TradeJournalEntry
 
 DEFAULT_PAPER_CASH = Decimal("100000")
 EPSILON = Decimal("0.0000000001")
+PaperExecutionReceipt = tuple[Execution, TradeJournalEntry, PostTradeReview, OrderDraft, list[PaperTaxLot], list[PaperTaxLotRealization]]
+
 MINUS_ONE = Decimal("-1")
 ONE = Decimal("1")
 TEN_THOUSAND = Decimal("10000")
@@ -41,9 +47,14 @@ class PaperExecutionBlockedError(ValueError):
     pass
 
 
+class PaperExecutionConflictError(PaperExecutionBlockedError):
+    """Database conflict with an outcome the caller must reconcile by key."""
+
+
 class PaperExecutionService:
     def __init__(self, db: Session):
         self.db = db
+        self.replayed = False
 
     def apply_cash_dividend(
         self,
@@ -228,6 +239,87 @@ class PaperExecutionService:
         return corporate_action, journal_entry
 
     def execute_draft(
+        self, draft: OrderDraft, *, approver_id: str | None = None, decision_reason: str | None = None,
+        fill_price: float | None = None, fill_quantity: float | None = None,
+        fee_bps: float = 1.0, slippage_bps: float = 0.0, idempotency_key: str | None = None,
+    ) -> PaperExecutionReceipt:
+        """Serialize Paper fills by account and commit the entire ledger event once."""
+        if idempotency_key is not None and (not isinstance(idempotency_key, str) or not re.fullmatch(r'[A-Za-z0-9_.:-]{1,128}', idempotency_key)):
+            raise PaperExecutionBlockedError('invalid idempotency key')
+        draft_id = draft.id
+        if self.db.new or self.db.dirty or self.db.deleted:
+            raise PaperExecutionBlockedError('commit pending changes before Paper execution')
+        requested = dict(approver_id=approver_id, decision_reason=decision_reason,
+                         fill_price=fill_price, fill_quantity=fill_quantity, fee_bps=fee_bps, slippage_bps=slippage_bps)
+        fingerprint = hashlib.sha256(json.dumps({
+            key: str(Decimal(str(value)).normalize()) if isinstance(value, (int, float, Decimal)) else value
+            for key, value in requested.items()
+        }, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        # Discard an earlier read snapshot before acquiring the database lock.
+        self.db.rollback()
+        try:
+            dialect = self.db.get_bind().dialect.name
+            if dialect == 'sqlite':
+                self.db.connection().exec_driver_sql('BEGIN IMMEDIATE')
+            elif dialect != 'postgresql':
+                raise PaperExecutionBlockedError('Paper atomic execution requires SQLite or PostgreSQL')
+            draft = self.db.get(OrderDraft, draft_id, populate_existing=True)
+            intent = self.db.get(OrderIntent, draft.order_intent_id) if draft else None
+            if intent is None:
+                raise PaperExecutionBlockedError('order intent is unavailable')
+            account = self.db.scalar(select(Account).where(Account.id == intent.account_id).with_for_update())
+            if account is None:
+                raise PaperExecutionBlockedError('order intent account is unavailable')
+            # The account lock is acquired first for every competing execution.
+            draft = self.db.scalar(select(OrderDraft).where(OrderDraft.id == draft_id)
+                                   .with_for_update().execution_options(populate_existing=True))
+            if idempotency_key:
+                prior = self.db.scalar(select(Execution).where(Execution.order_draft_id == draft_id,
+                                                               Execution.idempotency_key == idempotency_key))
+                if prior is not None:
+                    if prior.request_fingerprint != fingerprint:
+                        raise PaperExecutionBlockedError('idempotency key reused with different execution parameters')
+                    receipt = self._persisted_receipt(prior, draft)
+                    self._write_audit_log(action='paper_execution.replayed', entity_type='Execution', entity_id=prior.id,
+                                          payload_json={'order_draft_id': draft_id, 'new_fill': False})
+                    self.db.commit()
+                    self.replayed = True
+                    return receipt
+            return self._execute_draft_locked(draft, **requested, idempotency_key=idempotency_key,
+                                              request_fingerprint=fingerprint)
+        except Exception as exc:
+            # Preserve blocked gate evidence, but never commit any partial ledger
+            # changes or audit claims that an aborted fill succeeded.
+            blocked = [dict(actor_type=item.actor_type, actor_id=item.actor_id, action=item.action,
+                            entity_type=item.entity_type, entity_id=item.entity_id, payload_json=item.payload_json)
+                       for item in self.db.new if isinstance(item, AuditLog) and item.action in {
+                           'research_evidence.blocked', 'decision_gate.revalidation_blocked'}]
+            self.db.rollback()
+            for values in blocked:
+                self.db.add(AuditLog(**values))
+            if not isinstance(exc, (IntegrityError, OperationalError)):
+                self._write_audit_log(action='paper_execution.blocked' if isinstance(exc, PaperExecutionBlockedError) else 'paper_execution.attempt_failed',
+                                      entity_type='OrderDraft', entity_id=draft_id,
+                                      payload_json={'reason': str(exc), 'rollback_requested': True,
+                                                    'outcome': 'read receipt with the original key before retrying'})
+                self.db.commit()
+            if isinstance(exc, (IntegrityError, OperationalError)):
+                raise PaperExecutionConflictError('Paper transaction conflict; read the receipt before retrying the same key') from exc
+            raise
+
+    def _persisted_receipt(self, execution: Execution, draft: OrderDraft) -> PaperExecutionReceipt:
+        review = self.db.scalar(select(PostTradeReview).where(PostTradeReview.execution_id == execution.id))
+        journal = self.db.get(TradeJournalEntry, review.trade_journal_entry_id) if review else None
+        if review is None or journal is None:
+            raise PaperExecutionBlockedError('stored execution receipt incomplete; reconcile before retrying')
+        realizations = list(self.db.scalars(select(PaperTaxLotRealization).where(PaperTaxLotRealization.execution_id == execution.id)).all())
+        ids = [item.tax_lot_id for item in realizations]
+        lots = list(self.db.scalars(select(PaperTaxLot).where(
+            (PaperTaxLot.source_execution_id == execution.id) | PaperTaxLot.id.in_(ids),
+        )).all())
+        return execution, journal, review, draft, lots, realizations
+
+    def _execute_draft_locked(
         self,
         draft: OrderDraft,
         *,
@@ -237,6 +329,8 @@ class PaperExecutionService:
         fill_quantity: float | None = None,
         fee_bps: float = 1.0,
         slippage_bps: float = 0.0,
+        idempotency_key: str | None = None,
+        request_fingerprint: str | None = None,
     ) -> tuple[
         Execution,
         TradeJournalEntry,
@@ -278,8 +372,10 @@ class PaperExecutionService:
             self._ensure_tax_lot_coverage(account, asset, paper_position)
 
         execution_status = "filled" if self._is_effectively_zero(fill_context.remaining_quantity) else "partially_filled"
+        sequence = (self.db.scalar(select(func.max(Execution.fill_sequence)).where(Execution.order_draft_id == draft.id)) or 0) + 1
         execution = Execution(
-            order_draft_id=draft.id,
+            order_draft_id=draft.id, fill_sequence=sequence,
+            idempotency_key=idempotency_key, request_fingerprint=request_fingerprint,
             position_id=paper_position.id,
             execution_mode="paper",
             status=execution_status,
@@ -369,7 +465,7 @@ class PaperExecutionService:
             execution_id=execution.id,
             trade_journal_entry_id=journal_entry.id,
             order_draft_id=draft.id,
-            user_id=approver_id or "manual-user",
+            user_id=execution.user_id,
             status="pending",
             prompt_json=self._post_trade_prompt(
                 order_intent=order_intent,
@@ -487,6 +583,38 @@ class PaperExecutionService:
             raise PaperExecutionBlockedError("paper execution requires approved order draft")
         if draft.execution_status == "paper_filled":
             raise PaperExecutionBlockedError("order draft already has a paper execution")
+
+        from app.services.approval_grants import ApprovalGrantError, require_approval_grant
+        try:
+            require_approval_grant(self.db, draft)
+        except ApprovalGrantError as exc:
+            raise PaperExecutionBlockedError(str(exc)) from exc
+
+        # Re-read server balances, reservations and Kill-switch at execution;
+        # an earlier preview/approval is not authority over today's account.
+        from app.services.risk import RiskEngineService
+        risk = RiskEngineService(self.db)
+        previous = risk.latest_risk_check(draft.order_intent_id)
+        intent = self.db.get(OrderIntent, draft.order_intent_id)
+        if intent is None:
+            raise PaperExecutionBlockedError("order intent is unavailable")
+        current = risk.check_order(intent, dict((previous.rules_json or {}).get("context") or {}) if previous else {}, draft_id=draft.id, commit=False)
+        if not current.hard_rule_passed:
+            raise PaperExecutionBlockedError(current.reason or "current account risk blocks paper execution")
+        from app.services.decision_gates import DecisionGateService, DecisionGateBlockedError
+        try:
+            DecisionGateService(self.db).require_current_research(
+                intent.id, (draft.decision_gate_results or {}).get("RESEARCH_GATE", {}).get("gate_id"), commit=False,
+            )
+            DecisionGateService(self.db).require_current_nonresearch(
+                intent.id, draft.decision_gate_results or {}, draft_id=draft.id, commit=False,
+            )
+        except DecisionGateBlockedError as exc:
+            raise PaperExecutionBlockedError(str(exc)) from exc
+        current_asset = self.db.get(Asset, intent.asset_id)
+        execution_gate = DecisionGateService(self.db)._execution_gate(intent, current_asset, dict((current.rules_json or {}).get("context") or {}))
+        if execution_gate.blocking_reasons:
+            raise PaperExecutionBlockedError(", ".join(execution_gate.blocking_reasons))
 
         gate_results = draft.decision_gate_results or {}
         required = {"RESEARCH_GATE", "THESIS_GATE", "RISK_GATE", "BEHAVIOR_GATE", "EXECUTION_GATE"}

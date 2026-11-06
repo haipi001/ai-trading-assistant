@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-trading-os/order_event",
+  "title": "order_event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "order_id",
+    "execution_request_id",
+    "client_order_id",
+    "exchange_order_id",
+    "event_type",
+    "venue",
+    "account_id",
+    "mode",
+    "instrument_id",
+    "event_time",
+    "received_at",
+    "sequence",
+    "filled_quantity",
+    "remaining_quantity",
+    "last_fill_id",
+    "source"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "order_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "execution_request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "client_order_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "exchange_order_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "event_type": {
+      "type": "string",
+      "description": "执行事件",
+      "enum": [
+        "SUBMIT_REQUESTED",
+        "ACKNOWLEDGED",
+        "OPEN",
+        "PARTIALLY_FILLED",
+        "FILLED",
+        "CANCEL_PENDING",
+        "CANCELLED",
+        "REJECTED",
+        "EXPIRED",
+        "UNKNOWN_PENDING_RECONCILIATION",
+        "RECONCILED"
+      ]
+    },
+    "venue": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "account_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "mode": {
+      "type": "string",
+      "description": "订单模式",
+      "enum": [
+        "PAPER",
+        "LIVE"
+      ]
+    },
+    "instrument_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "event_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "received_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "filled_quantity": {
+      "type": "string",
+      "description": "累计真实成交数量十进制字符串"
+    },
+    "remaining_quantity": {
+      "type": "string",
+      "description": "剩余未成交数量十进制字符串"
+    },
+    "last_fill_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "source": {
+      "type": "string",
+      "description": "权威来源",
+      "enum": [
+        "broker_private_stream",
+        "broker_rest",
+        "paper_engine",
+        "execution_gateway"
+      ]
+    },
+    "error_code": {
+      "anyOf": [
+        {
+          "type": "string",
+          "description": "错误码"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

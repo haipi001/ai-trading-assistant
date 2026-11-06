@@ -1,0 +1,22 @@
+{
+  "backend": {
+    "passed": 767,
+    "warnings": 1,
+    "seconds": 66.02,
+    "exit_code": 0
+  },
+  "frontend_model_scripts": 53,
+  "build_seconds": 4.14,
+  "migration": "SQLite upgrade/parity/downgrade/re-upgrade passed",
+  "browser": "UI and offline feedback observed; no online save/restore E2E",
+  "goal_status": "active",
+  "source_sha256": {
+    "backend/app/api/workspaces.py": "f34f03ebc2c83fe44b6fc17f722fed706164d9f7111d7c1929bb8a70c1d58fae",
+    "backend/app/models/core.py": "3208ef312438b827129cd5cf8b75e14565f5ef261fa44592bebfbe2cca25633a",
+    "backend/app/db/session.py": "2aa10a5bc06d11bd90fb4a8253bb1e87b8bc3b07c1ab075422de08d080aa25be",
+    "backend/alembic/versions/20261101_0023_terminal_workspaces.py": "3eb76bc1becfa191758319f757f664753e40abed2a72c89f947d9af24ead18eb",
+    "src/workspace-sync.js": "19efc2a30d58d922b282e589eeecf5dad883eabeb14b31429b45ad5ac2e1718e",
+    "src/workspace-sync-settings.jsx": "76816855c18556730072dffdaf17538d2512772dfa63953841a8d49fb415bdeb",
+    "src/main.jsx": "cbfe7f6b21a18640494ec4fadffb8dbe2706d01f3a64a8bba87ef35453fff2a4"
+  }
+}

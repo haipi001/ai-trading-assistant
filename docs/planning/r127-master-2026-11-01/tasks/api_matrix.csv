@@ -1,0 +1,26 @@
+﻿Status,Method,Route,Purpose,Auth,UI,Acceptance
+Existing,GET,/health/status,status,no trading auth,顶部连接状态,审查public auth/health结果
+Existing,GET,/assets,asset list,read permission,搜索/自选,资产身份来源、时效
+Existing,GET,/candles,candles,read,行情K线,标的与周期一致，来源
+Existing,GET,/news-feed/latest,news,production_user,快讯/要闻/Ace,来源级失败及缓存
+Existing,POST,/production/human-control/llm/chat,research chat,research approval and BYOK,S1/S2 Agent,不假造成功/成本/证据
+Existing,GET,/production/human-control/llm/chat/status,AI status,production_user,AI设置/Ace,状态真实
+Existing,GET,/exchange-connections,read-only connection,production_user,授权/资产,用户隔离
+Existing,POST,/exchange-connections/{id}/check,verify+balance,production_user,授权/资产,只读范围
+Existing,POST,/agents/run-research,mock committee,review exact auth,Ace Team,不得标真实多Agent
+Existing,POST,/decision-gates/evaluate,gate eval,review client trust,风控/票据,服务端可信数据
+Existing,POST,/paper-executions/drafts/{id}/execute,paper execution,review exact auth,交易/Paper,真实的模拟账本
+New Proposal,GET,/api/v2/trading/accounts,accounts/capabilities,account:read,授权/票据,Key无提现+交易账户权限
+New Proposal,POST,/api/v2/trading/orders/drafts,create versioned draft,trade:draft,专业票据,明确账户/模式及当前标的
+New Proposal,PATCH,/api/v2/trading/orders/{id},edit draft,trade:draft,专业票据,编辑后使旧审批失效
+New Proposal,POST,/api/v2/trading/orders/preview,fresh risk estimate,trade:preview,专业票据,所有硬风控服务端
+New Proposal,POST,/api/v2/trading/orders/{id}/approve,approval,trade:approve,确认弹窗,用户确认+TTL+版本
+New Proposal,POST,/api/v2/trading/orders/{id}/submit,live order request,trade:submit,交易,按幂等提交/禁重复
+New Proposal,POST,/api/v2/trading/orders/{id}/cancel,cancel,trade:cancel,订单栏,竞态与真实最终状态
+New Proposal,GET,/api/v2/trading/orders,orders,account:read,订单栏,交易所事件/对账
+New Proposal,GET,/api/v2/trading/fills,fills,account:read,成交/日志,真实成交ID与手续费
+New Proposal,GET,/api/v2/trading/positions,positions,account:read,资产/风险,账户权威数据
+New Proposal,POST,/api/v2/agent/tasks,agent task,research:run,Ace Chat/Team,可取消/真实提供者
+New Proposal,GET,/api/v2/agent/tasks/{id},task status,owner,Ace Tasks,任务进度/来源
+New Proposal,GET,/api/v2/agent/actions,action cards,owner,Ace Actions,操作不直连交易所
+New Proposal,GET,/api/v2/events/stream,SSE cursor,authenticated,全站,重连游标+租户隔离

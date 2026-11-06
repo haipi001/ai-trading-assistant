@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-trading-os/trade_proposal",
+  "title": "trade_proposal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "proposal_id",
+    "origin",
+    "account_id",
+    "instrument_id",
+    "venue",
+    "mode",
+    "side",
+    "order_type",
+    "quantity",
+    "limit_price",
+    "quote_currency",
+    "evidence_ids",
+    "market_snapshot_id",
+    "status",
+    "version",
+    "created_at",
+    "reason"
+  ],
+  "properties": {
+    "proposal_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "origin": {
+      "type": "string",
+      "description": "来源",
+      "enum": [
+        "manual",
+        "agent",
+        "strategy"
+      ]
+    },
+    "source_task_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "thesis_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "strategy_version_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "account_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "instrument_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "venue": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "mode": {
+      "type": "string",
+      "description": "交易模式",
+      "enum": [
+        "PAPER",
+        "LIVE"
+      ]
+    },
+    "side": {
+      "type": "string",
+      "description": "方向",
+      "enum": [
+        "BUY",
+        "SELL"
+      ]
+    },
+    "order_type": {
+      "type": "string",
+      "description": "订单类型",
+      "enum": [
+        "LIMIT",
+        "MARKET"
+      ]
+    },
+    "quantity": {
+      "type": "string",
+      "description": "以十进制字符串传递数量"
+    },
+    "limit_price": {
+      "anyOf": [
+        {
+          "type": "string",
+          "description": "限价数量字符串"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "quote_currency": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    },
+    "market_snapshot_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "risk_evaluation_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "type": "string",
+      "description": "草稿生命周期",
+      "enum": [
+        "DRAFT",
+        "VALIDATED",
+        "REJECTED",
+        "EXPIRED"
+      ]
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "description": "明确交易理由"
+    }
+  }
+}

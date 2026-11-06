@@ -20,3 +20,11 @@ __pycache__/
 .openai/*.tar.gz
 private-evidence/
 test-results/
+
+# Python editable-install metadata
+*.egg-info/
+
+# Generated acceptance screenshots and terminal bundles
+output/
+terminal-ui/features/
+terminal-ui/evidence/

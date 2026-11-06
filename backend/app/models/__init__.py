@@ -137,3 +137,10 @@ __all__ = [
     "WorkflowReviewTask",
     "WorkflowState",
 ]
+
+from app.models.core import TerminalWorkspace
+__all__.append("TerminalWorkspace")
+from app.models.core import ManualTradeEvidence
+__all__.append('ManualTradeEvidence')
+from app.models.core import AceActionState
+__all__.append('AceActionState')

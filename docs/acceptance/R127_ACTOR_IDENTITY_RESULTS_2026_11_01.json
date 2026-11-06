@@ -1,0 +1,17 @@
+{
+  "backend": {
+    "passed": 762,
+    "warnings": 1,
+    "seconds": 47.62,
+    "exit_code": 0
+  },
+  "new_tests": 13,
+  "environment": "existing Python3.13; SQLite in-memory; managed-auth fixture",
+  "ui_changed": false,
+  "external_calls": false,
+  "goal_status": "active",
+  "source_sha256": {
+    "backend/app/core/auth_middleware.py": "3b810fb40b7b10a618ab083f0e70c5400d381c7e8dc7b67bc7f0725555a55d02",
+    "backend/tests/test_trade_permissions.py": "516ebf7782d6edac4c1db7c744652b703f2be6e19fea000efdc7dbc140c954a4"
+  }
+}

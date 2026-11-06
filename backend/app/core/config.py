@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     live_execution_dry_run_only: bool = True
     live_execution_adapter_mode: str = "disabled"
     automation_level: str = "A0_READ_ONLY"
+    order_approval_ttl_seconds: int = Field(default=300, ge=1, le=3600)
     database_url: str = "postgresql+psycopg://ai_trading_os:ai_trading_os@localhost:5432/ai_trading_os"
     redis_url: str = "redis://localhost:6379/0"
     api_rate_limit_enabled: bool = False
@@ -31,7 +32,7 @@ class Settings(BaseSettings):
     api_login_rate_limit_requests: int = 10
     api_auth_failure_rate_limit_requests: int = 30
     backend_cors_origins_raw: str = Field(
-        default="https://haipi001.github.io,http://localhost:3002,http://127.0.0.1:3002",
+        default="https://haipi001.github.io,http://localhost:3002,http://127.0.0.1:3002,http://localhost:8850,http://127.0.0.1:8850",
         alias="BACKEND_CORS_ORIGINS",
     )
     dependency_check_timeout_seconds: int = 1

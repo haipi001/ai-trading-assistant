@@ -1,0 +1,317 @@
+/* Generated semantic overrides for the terminal chrome. */
+/* ============ TERMINAL · market data workstation ============ */
+
+/* ---------- top bar ---------- */
+html[data-terminal-color-mode] .bar{
+  background:linear-gradient(var(--ui-surface),var(--ui-bg));
+}
+html[data-terminal-color-mode] .brand{ color:var(--ui-dim);
+}
+html[data-terminal-color-mode] .brand .dot{background:var(--ui-bg); box-shadow:0 0 0 2px rgba(0,0,0,0.200) inset;}
+html[data-terminal-color-mode] .cmdwrap{ background:var(--ui-surface);}
+html[data-terminal-color-mode] .cmdwrap:focus-within{ box-shadow:0 0 0 1px rgba(0,0,0,0.200);}
+html[data-terminal-color-mode] #cmd{ color:var(--ui-text);
+}
+html[data-terminal-color-mode] #cmd::placeholder{color:var(--ui-dim);}
+html[data-terminal-color-mode] #gobtn{ background:var(--ui-surface);
+}
+html[data-terminal-color-mode] #gobtn:hover{ color:var(--ui-dim);}
+@keyframes pulse{}
+html[data-terminal-color-mode] #clock{color:var(--ui-text);}
+
+/* ---------- body ---------- */
+html[data-terminal-color-mode] .rail{
+  background:linear-gradient(180deg,var(--ui-bg),var(--ui-bg));
+}
+html[data-terminal-color-mode] .rail-hd{
+  border-bottom:1px solid var(--ui-line); background:var(--ui-bg);
+}
+html[data-terminal-color-mode] .rail li{
+  color:var(--ui-text);
+}
+html[data-terminal-color-mode] .rail li:hover{background:var(--ui-surface); color:var(--ui-text);}
+html[data-terminal-color-mode] .rail li.on{background:var(--ui-surface); color:var(--ui-text);}
+html[data-terminal-color-mode] .rail li .k{ background:var(--ui-surface); border:1px solid var(--ui-line);
+}
+html[data-terminal-color-mode] .rail li.on .k{ border-color:var(--ui-line);}
+html[data-terminal-color-mode] .rail-sess b{color:var(--ui-text);}
+
+/* ---------- main panel ---------- */
+html[data-terminal-color-mode] .panel-hd{
+  background:linear-gradient(var(--ui-surface),var(--ui-bg));
+}
+
+/* ---------- tables ---------- */
+html[data-terminal-color-mode] thead th{ color:var(--ui-muted); background:var(--ui-bg);
+}
+html[data-terminal-color-mode] tbody td{ border-bottom:1px solid var(--ui-line);
+}
+html[data-terminal-color-mode] tbody td:first-child{ color:var(--ui-text);}
+html[data-terminal-color-mode] tbody td.nm{color:var(--ui-muted);}
+html[data-terminal-color-mode] tbody tr:hover{background:var(--ui-surface);}
+@keyframes fu{}
+@keyframes fd{}
+
+/* ---------- DES ---------- */
+html[data-terminal-color-mode] .h1{ color:var(--ui-text);}
+html[data-terminal-color-mode] .px .last{ color:var(--ui-text);} html[data-terminal-color-mode] .kv dd{color:var(--ui-text);}
+html[data-terminal-color-mode] .desc{ color:var(--ui-text);}
+html[data-terminal-color-mode] .badge{
+  border:1px solid var(--ui-line); color:var(--ui-muted);}
+
+/* ---------- news ---------- */
+html[data-terminal-color-mode] .news li{
+  border-bottom:1px solid var(--ui-line);}
+html[data-terminal-color-mode] .news li:hover{background:var(--ui-surface);}
+html[data-terminal-color-mode] .news .h{color:var(--ui-text);}
+
+/* ---------- chart ---------- */
+html[data-terminal-color-mode] .legend{
+  background:color-mix(in srgb, var(--ui-bg) 72.16%, transparent);}
+html[data-terminal-color-mode] .legend b{color:var(--ui-text);} html[data-terminal-color-mode] .chartfoot b{color:var(--ui-text);}
+
+/* ---------- help ---------- */
+html[data-terminal-color-mode] .help p{color:var(--ui-text);}
+html[data-terminal-color-mode] .help code{color:var(--ui-text); background:var(--ui-surface);}
+html[data-terminal-color-mode] .help td{border-bottom:1px solid var(--ui-line);}
+
+/* ---------- footer ---------- */
+html[data-terminal-color-mode] .foot{
+  background:var(--ui-bg);
+}
+html[data-terminal-color-mode] #stRight{color:var(--ui-dim);}
+
+/* ---------- toast ---------- */
+html[data-terminal-color-mode] #toast{
+  background:var(--ui-surface); color:var(--ui-text); box-shadow:0 8px 24px rgba(0,0,0,0.200);}
+
+/* scrollbars */
+html[data-terminal-color-mode] ::-webkit-scrollbar-track{background:var(--ui-bg)}
+html[data-terminal-color-mode] ::-webkit-scrollbar-thumb{background:var(--ui-surface); border:2px solid var(--ui-line)}
+html[data-terminal-color-mode] ::-webkit-scrollbar-thumb:hover{background:var(--ui-subtle)}
+
+/* ---------- autocomplete ---------- */
+html[data-terminal-color-mode] #sugg{ background:var(--ui-bg);
+  box-shadow:0 14px 30px rgba(0,0,0,0.200);}
+html[data-terminal-color-mode] #sugg .l{color:var(--ui-text);}
+
+/* ---------- chart period toolbar ---------- */
+html[data-terminal-color-mode] .pbtn{background:var(--ui-surface);}
+html[data-terminal-color-mode] .pbtn.on{color:var(--ui-dim);}
+
+/* ---------- portfolio ---------- */
+html[data-terminal-color-mode] .card{background:linear-gradient(var(--ui-bg),var(--ui-bg));}
+html[data-terminal-color-mode] .ticket{ background:var(--ui-bg);}
+html[data-terminal-color-mode] .ticket input{ background:var(--ui-surface);}
+html[data-terminal-color-mode] .tbtn.b{color:var(--ui-dim);}
+html[data-terminal-color-mode] .tbtn.s{color:var(--ui-dim);}
+
+/* ---------- option chain ---------- */
+html[data-terminal-color-mode] .optwrap tbody td:nth-child(5){
+  background:var(--ui-surface);
+}
+html[data-terminal-color-mode] .optwrap thead th:nth-child(5){background:var(--ui-surface);}
+html[data-terminal-color-mode] .optwrap tbody tr:hover td:nth-child(5){background:var(--ui-surface);}
+
+/* ---------- login overlay ---------- */
+html[data-terminal-color-mode] .authmask{ background:color-mix(in srgb, var(--ui-bg) 81.96%, transparent);}
+html[data-terminal-color-mode] .authbox{ background:linear-gradient(var(--ui-surface),var(--ui-bg));
+  box-shadow:0 20px 60px rgba(0,0,0,0.200);}
+html[data-terminal-color-mode] .authbox input{ background:var(--ui-surface);}
+html[data-terminal-color-mode] .authbox .alist .pchip.on{color:var(--ui-dim);}
+
+/* ---------- themes ---------- */
+html[data-terminal-color-mode] body.theme-ice .brand,html[data-terminal-color-mode] body.theme-toxic .brand{color:var(--ui-dim);}
+html[data-terminal-color-mode] body.theme-ice .govchart,html[data-terminal-color-mode] body.theme-toxic .govchart{background:var(--ui-bg);}
+
+/* ---------- top bar buttons ---------- */
+html[data-terminal-color-mode] .mbtn{background:var(--ui-surface);}
+html[data-terminal-color-mode] #thbtn[data-theme="ICE"]{color:var(--ui-accent);}
+html[data-terminal-color-mode] #thbtn[data-theme="TOXIC"]{color:var(--ui-up);}
+
+/* ---------- GOV ---------- */
+html[data-terminal-color-mode] .govchart{ background:var(--ui-bg);}
+
+/* ---------- FA / EQS / FLDS ---------- */
+html[data-terminal-color-mode] .fachart{ background:var(--ui-bg);}
+@media (max-width:1180px){ }
+
+/* ---------- FX matrix ---------- */
+html[data-terminal-color-mode] .fxmat .fxh{background:var(--ui-bg);}
+html[data-terminal-color-mode] .fxmat .fxr{background:var(--ui-bg);}
+html[data-terminal-color-mode] .fxmat .fxdiag{background:var(--ui-bg);}
+html[data-terminal-color-mode] .fxmat .fxcell{
+  background:var(--ui-bg);}
+
+/* ---------- ECO ---------- */
+
+/* ---------- COMP ---------- */
+
+/* ---------- command palette ---------- */
+html[data-terminal-color-mode] .palette{ background:color-mix(in srgb, var(--ui-bg) 72.16%, transparent);}
+html[data-terminal-color-mode] .palette .pbox{ background:var(--ui-bg); box-shadow:0 24px 70px rgba(0,0,0,0.200);}
+html[data-terminal-color-mode] .palette input{ background:var(--ui-surface);
+  color:var(--ui-text);}
+html[data-terminal-color-mode] .palette input::placeholder{color:var(--ui-dim);}
+html[data-terminal-color-mode] .palette .pitem{
+  border-bottom:1px solid var(--ui-line);}
+html[data-terminal-color-mode] .palette .pitem.sel .pl{color:var(--ui-text);}
+
+/* ---------- view toolbar (port / ord / alrt) ---------- */
+
+/* ---------- chart drawing layer ---------- */
+
+/* ---------- split screen ---------- */
+html[data-terminal-color-mode] .qhd{ background:var(--ui-bg);}
+html[data-terminal-color-mode] .qcell.focus .qhd{background:var(--ui-surface);}
+html[data-terminal-color-mode] .qidx{color:var(--ui-dim);}
+html[data-terminal-color-mode] .qfn{color:var(--ui-text);}
+
+/* ---------- draggable splitters ---------- */
+html[data-terminal-color-mode] .qsplit:hover,html[data-terminal-color-mode] .qsplit.live{background:color-mix(in srgb, var(--ui-warning-solid) 32.16%, transparent);
+  box-shadow:0 0 0 1px rgba(0,0,0,0.200);}
+
+/* ---------- screener builder ---------- */
+html[data-terminal-color-mode] .eqrow select,html[data-terminal-color-mode] .eqrow input{background:var(--ui-surface);}
+html[data-terminal-color-mode] .eqtools select,html[data-terminal-color-mode] .eqtools input{background:var(--ui-surface);}
+
+/* ---------- portfolio risk ---------- */
+html[data-terminal-color-mode] .sbbar{ background:var(--ui-bg);}
+
+/* ---------- fx converter ---------- */
+html[data-terminal-color-mode] .fxconv{ background:var(--ui-bg);}
+html[data-terminal-color-mode] .fxconv input{ background:var(--ui-surface);}
+html[data-terminal-color-mode] .fxconv select{background:var(--ui-surface);}
+
+/* ---------- page shells: one padding baseline for every panel-style view ---------- */
+
+/* ---------- filter bar (TOP / N / SRCH) ---------- */
+html[data-terminal-color-mode] .newswrap > .nfbar{ border-bottom:1px solid var(--ui-line);}
+html[data-terminal-color-mode] .nfbar input{ background:var(--ui-surface);}
+html[data-terminal-color-mode] .nfbar input:focus{ box-shadow:0 0 0 1px rgba(0,0,0,0.200);}
+
+/* ---------- news list: 4-column row + collapsible body ---------- */
+html[data-terminal-color-mode] .nitem.open .nbody{ color:var(--ui-text); border-top:1px dashed var(--ui-line);}
+html[data-terminal-color-mode] .nitem.open{background:var(--ui-surface);}
+
+/* ---------- depth / DOM two-column workspace ---------- */
+html[data-terminal-color-mode] table.book.tas tbody tr.big td{background:color-mix(in srgb, var(--ui-subtle) 10.20%, transparent);}
+html[data-terminal-color-mode] .imbbar{ background:color-mix(in srgb, var(--ui-down-solid) 38.04%, transparent);}
+html[data-terminal-color-mode] .imbbar i{ background:linear-gradient(90deg,var(--ui-up-solid),var(--ui-up-solid));}
+
+/* ---------- alert trigger log ---------- */
+
+/* ---------- market map heat tiles ---------- */
+html[data-terminal-color-mode] .mcl{ border-bottom:1px solid var(--ui-line);}
+html[data-terminal-color-mode] .mtile{ border:1px solid color-mix(in srgb, var(--ui-line) 5.88%, transparent);}
+html[data-terminal-color-mode] .mtile b{ color:var(--ui-text);}
+html[data-terminal-color-mode] .mtile span{ color:color-mix(in srgb, var(--ui-text) 81.96%, transparent);}
+
+/* ---------- chart type switcher (DES) ---------- */
+
+/* ---------- focus visibility (a11y) ---------- */
+
+/* ---------- responsive ---------- */
+@media (max-width:1180px){
+}
+@media (max-width:900px){
+}
+@media (max-width:680px){
+}
+@media (prefers-reduced-motion: reduce){
+}
+
+/* ---- 12. numeric column alignment ---- */
+
+/* ---- 13. split-screen density ---- */
+
+/* ---- 14. filtered empty state ---- */
+html[data-terminal-color-mode] .emptyhint{ border-bottom:1px solid var(--ui-line);}
+
+/* ---- 15. wider text columns inside split panels (titles give full value) ---- */
+
+/* ---- 16. sortable column headers ---- */
+
+/* ---- 17. row context menu ---- */
+html[data-terminal-color-mode] .ctxmenu{
+  background:var(--ui-bg); border:1px solid var(--ui-line); box-shadow:0 12px 30px rgba(0,0,0,0.200);}
+html[data-terminal-color-mode] .ctxmenu .citem:hover{background:var(--ui-surface); color:var(--ui-text);}
+html[data-terminal-color-mode] .ctxmenu .csep{ background:var(--ui-surface);}
+
+/* ---- 18. narrow viewports: stacked split panels ---- */
+@media (max-width:900px){
+}
+
+/* ---- 19. print stylesheet: paper-safe rendering ---- */
+@media print{
+  html[data-terminal-color-mode],html[data-terminal-color-mode] body{background:var(--ui-hover) !important; color:var(--ui-dim) !important;}
+  html[data-terminal-color-mode] .card,html[data-terminal-color-mode] .tile,html[data-terminal-color-mode] .qcell,html[data-terminal-color-mode] table,html[data-terminal-color-mode] th,html[data-terminal-color-mode] td{border-color:var(--ui-line) !important; background:var(--ui-hover) !important; color:var(--ui-dim) !important;}
+  html[data-terminal-color-mode] .up{color:var(--ui-up) !important;}
+  html[data-terminal-color-mode] .dn{color:var(--ui-down) !important;}
+  html[data-terminal-color-mode] .acc{color:var(--ui-dim) !important;}
+}
+
+/* ---------------- SET: settings / profiles / export ---------------- */
+html[data-terminal-color-mode] .plist .pchip.on{color:var(--ui-dim);}
+html[data-terminal-color-mode] .swtch.on{color:var(--ui-dim);}
+@media (max-width:900px){
+}
+
+/* ---------------- watchlist reorder / touch / focus ---------------- */
+@media print{
+}
+
+/* alert bar state chips (tone / desktop notifications) */
+
+/* ---------------- command history popover ---------------- */
+html[data-terminal-color-mode] .hbtn{background:var(--ui-surface);}
+html[data-terminal-color-mode] .histpop{
+  background:var(--ui-bg); box-shadow:0 12px 28px rgba(0,0,0,0.200);}
+html[data-terminal-color-mode] .histpop .hitem:hover,html[data-terminal-color-mode] .histpop .hitem:focus-visible{background:var(--ui-surface);}
+
+/* ---------------- keyboard reference overlay ---------------- */
+html[data-terminal-color-mode] .qf{ background:color-mix(in srgb, var(--ui-bg) 78.04%, transparent);}
+html[data-terminal-color-mode] .qf .qbox{
+  background:var(--ui-bg); box-shadow:0 20px 48px rgba(0,0,0,0.200);}
+html[data-terminal-color-mode] .qf kbd{
+  background:var(--ui-surface);}
+@media (max-width:720px){ }
+
+/* ---------------- indicator parameter popover ---------------- */
+html[data-terminal-color-mode] .indpop{
+  background:var(--ui-bg); box-shadow:0 12px 28px rgba(0,0,0,0.200);}
+html[data-terminal-color-mode] .indpop .ifld i{ color:var(--ui-muted);}
+html[data-terminal-color-mode] .indpop .iinp{ background:var(--ui-surface);}
+html[data-terminal-color-mode] .indpop .iinp.bad{border-color:var(--ui-line); color:var(--ui-down);}
+
+/* ---------------- full-screen chart ---------------- */
+
+/* ---------------- footer status chips ---------------- */
+html[data-terminal-color-mode] .fchip.live{color:var(--ui-up); border-color:var(--ui-line);}
+html[data-terminal-color-mode] .fchip.stale{color:var(--ui-warning); border-color:var(--ui-line);}
+@media (max-width:820px){
+}
+
+/* ---------------- top bar responsive ---------------- */
+@media (max-width:760px){
+}
+@media (max-width:560px){
+}
+
+/* ---------------- print: title block + hide chrome ---------------- */
+@media print{
+  html[data-terminal-color-mode] .panel-hd{border-bottom:1px solid var(--ui-line) !important;}
+  html[data-terminal-color-mode] .panel-hd::after{ color:var(--ui-muted);}
+}
+
+/* ---------------- sortable header indicators ---------------- */
+@media print{
+}
+
+/* Persistent workspace controls — complete function access at every viewport. */
+html[data-terminal-color-mode] .function-directory{box-shadow:0 14px 30px rgba(0,0,0,0.200)}
+@media(max-width:1100px){}
+@media(max-width:680px){}
+@media(max-width:680px){}@media(max-width:680px){}@media(prefers-reduced-motion:reduce){}@media(max-width:680px){}
+
+html[data-terminal-color-mode] .integration-bar{border-bottom:1px solid var(--ui-line);background:var(--ui-surface);color:var(--ui-text)}html[data-terminal-color-mode] .integration-bar input,html[data-terminal-color-mode] .integration-bar select,html[data-terminal-color-mode] .integration-bar button,html[data-terminal-color-mode] .integration-drawer button,html[data-terminal-color-mode] .integration-drawer input{background:var(--ui-subtle);color:var(--ui-text);border:1px solid var(--ui-line)}html[data-terminal-color-mode] .integration-status{color:var(--ui-warning)}html[data-terminal-color-mode] .integration-drawer{background:var(--ui-surface);color:var(--ui-text);border:1px solid var(--ui-line)}html[data-terminal-color-mode] .integration-drawer h2{color:var(--ui-warning)}html[data-terminal-color-mode] .integration-bar :focus-visible,html[data-terminal-color-mode] .integration-drawer :focus-visible{outline:2px solid var(--ui-line)}

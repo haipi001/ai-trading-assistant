@@ -1,0 +1,113 @@
+{
+  "date": "2026-11-02",
+  "goal_status": "active",
+  "backend_tests": {
+    "passed": 895,
+    "warnings": 1,
+    "seconds": 120.35,
+    "exit_code": 0,
+    "log": "/tmp/r127-paper-atomic-final.log"
+  },
+  "new_backend_cases": 12,
+  "frontend_model_scripts": 54,
+  "frontend_model_failures": 0,
+  "buttons": 616,
+  "form_controls": 253,
+  "build_seconds": 6.86,
+  "migration": {
+    "head": "20261102_0025",
+    "sqlite_guard": "passed",
+    "historical_copy": {
+      "previous_revision": "20261102_0024",
+      "new_revision": "20261102_0025",
+      "existing_executions": 2,
+      "all_existing_columns_and_rows_preserved": true,
+      "verified_tables": [
+        "executions",
+        "positions",
+        "paper_tax_lots",
+        "paper_tax_lot_realizations",
+        "trade_journal_entries",
+        "post_trade_reviews"
+      ],
+      "fill_sequences_backfilled": true,
+      "sqlite_integrity": "ok",
+      "isolated_copy": "/var/folders/j9/ncm48trd2sb_f2h2b_gz06j80000gn/T/r127-execution-migration-iatyo4eq/history.sqlite"
+    },
+    "postgres_verified": false
+  },
+  "browser_fault_proof": {
+    "draft_id": "8b577536-cc7e-47ea-aa27-453b758988af",
+    "attempts": [
+      {
+        "backend_port": 8003,
+        "dropped": true,
+        "status": 201,
+        "idempotency_key": "6da17198-94aa-4bf7-86fd-62c0cd80e513",
+        "execution_id": "c0fb6d06-55cb-4297-afa7-8281fbe60320",
+        "replayed": false
+      },
+      {
+        "backend_port": 8004,
+        "dropped": false,
+        "status": 201,
+        "idempotency_key": "6da17198-94aa-4bf7-86fd-62c0cd80e513",
+        "execution_id": "c0fb6d06-55cb-4297-afa7-8281fbe60320",
+        "replayed": true
+      }
+    ],
+    "backend_processes": {
+      "8003": 81452,
+      "8004": 81453
+    },
+    "fills_before_retry": 1,
+    "fills_after_retry": 1,
+    "execution_id": "c0fb6d06-55cb-4297-afa7-8281fbe60320",
+    "fill_sequence": 1,
+    "quantity": 1,
+    "price": 225.12,
+    "notional": 225.12,
+    "fee": 0.022512,
+    "cash_effect": -225.142512,
+    "review_count": 1,
+    "journal_count": 1,
+    "sqlite_integrity": "ok"
+  },
+  "browser_scope": "actual response drop after first-process commit; explicit original-key retry through a second process; 409/5xx classifications separately API/model tested",
+  "temporary_services_shutdown": {
+    "two_backends_shutdown_complete": true,
+    "exit_codes": [
+      143,
+      143,
+      143
+    ],
+    "ports8001_8003_8004_listening": false,
+    "original_SOL_Binance_1h_returned": true
+  },
+  "screenshot": "output/r127-paper-atomic-20261102/recovered-single-fill.png",
+  "source_sha256": {
+    "backend/app/models/core.py": "ff7871b23738558cbe55d47ed2878d89152f74d7e0d4f851e9016f0acfaee337",
+    "backend/app/schemas/core.py": "4883f58fe9039e512ca8cfa319eea67da9e81462b1b2d09df20aa56c76360c9f",
+    "backend/app/services/paper_execution.py": "54e62a97c4335b9194d54287f9eb21f37cca9c49e0c572d1b820729c5f73da4f",
+    "backend/app/services/risk.py": "c7d5581a6404d50b11c1a0ef908e6458745a30cc4f6ffa62826fbe375e56bf8f",
+    "backend/app/services/decision_gates.py": "5faf9d3524fabe1a09243531fa44822c0d79921bffa56e52b62cb70cf9754120",
+    "backend/app/api/paper_execution.py": "c21669fd9a5ab9030f892393c7955dba123b18e329f28510a6c5a570f8327770",
+    "backend/alembic/versions/20261102_0025_paper_execution_identity.py": "c8aa47eb58e145c120f279b4d0664933a9fb98a77d56e6406da38616f452814b",
+    "backend/tests/test_paper_execution_atomic.py": "6a388d945ae14181799a9069776540f180d5ba0538b04426667cef6fe067ba31",
+    "src/paper-order-workflow.js": "17153c1aaadbdf460aa6ffddee193e858ec6e66db8f996616ec95727630feabc",
+    "src/paper-order-ticket.jsx": "ebaf0ea3c13e4c69559a21fc06c4991be90b8f561f3d5147986539874d93a733",
+    "scripts/check-paper-order-workflow.mjs": "6858983aaa106547fa9f21f61b72b381eed89ae36c006c86d7d5d306195f9f99"
+  },
+  "secret_scan": "passed",
+  "diff_check": "passed",
+  "external_llm": false,
+  "live_orders": false,
+  "remaining": [
+    "Postgres runtime and multi-instance stress",
+    "Other account mutations do not yet share the execution lock protocol",
+    "Corporate actions/approval/import concurrency",
+    "No-key partial attempts are not deduplicated",
+    "Idempotency key UI handoff across refresh",
+    "External broker/Outbox/reconciliation and full project acceptance"
+  ]
+}

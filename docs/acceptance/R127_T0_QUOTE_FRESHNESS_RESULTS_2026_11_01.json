@@ -1,0 +1,21 @@
+{
+  "backend": {
+    "passed": 741,
+    "warnings": 1,
+    "seconds": 57.72,
+    "exit_code": 0,
+    "environment": "existing Python3.13; SQLite in-memory"
+  },
+  "new_cases": 6,
+  "ui_changed": false,
+  "external_calls": false,
+  "goal_status": "active",
+  "source_sha256": {
+    "backend/app/services/decision_gates.py": "1578630835f2ca125a0ac232cb854a42123440ee92a7a6c1c01872f4d093f1c1",
+    "backend/app/services/account_risk_context.py": "5a3cae70a0903c9385dcdc98d8c9759bed00d42e6cd410612a32ce098790b71a",
+    "backend/app/services/risk.py": "aa8dcce4944fb5e3ddc8e15e820d31d0c14430eb566babc318eef7c52f7d0936",
+    "backend/app/services/paper_execution.py": "4425996d26614f4d45f328b4f463bfe41b934ab50d2f3507cd5f765d707d6da0",
+    "backend/tests/test_quote_freshness.py": "5465859e546eac92fa93373ce36a7603d6353133b8e54b7bcf49a32d6a293b15",
+    "backend/tests/test_server_account_risk.py": "4b7e4cb11c771ae1f83de571caffc99d769a4cdf644e5918319ea56b179346a5"
+  }
+}

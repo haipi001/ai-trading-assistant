@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-trading-os/workspace_context",
+  "title": "workspace_context",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "workspace_id",
+    "context_version",
+    "asset_class",
+    "mode",
+    "venue",
+    "symbol",
+    "timeframe",
+    "news_snapshot_ids",
+    "updated_at",
+    "source"
+  ],
+  "properties": {
+    "workspace_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "context_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "asset_class": {
+      "type": "string",
+      "description": "当前市场",
+      "enum": [
+        "crypto_spot",
+        "crypto_derivative",
+        "stock",
+        "etf",
+        "onchain",
+        "other"
+      ]
+    },
+    "mode": {
+      "type": "string",
+      "description": "DEMO/PAPER/LIVE",
+      "enum": [
+        "DEMO",
+        "PAPER",
+        "LIVE"
+      ]
+    },
+    "venue": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "symbol": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "instrument_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "timeframe": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "selected_range": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "from",
+            "to"
+          ],
+          "properties": {
+            "from": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "to": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "market_snapshot_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "news_snapshot_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    },
+    "account_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "portfolio_snapshot_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "strategy_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "thesis_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string",
+      "description": "用户或自动同步",
+      "enum": [
+        "user_selection",
+        "chart_selection",
+        "navigation",
+        "server_restore"
+      ]
+    }
+  }
+}

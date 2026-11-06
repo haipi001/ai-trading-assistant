@@ -34,6 +34,7 @@ def test_live_execution_config_health_check_fails_closed_and_rejects_raw_secret(
 
 def test_prepare_live_execution_blocks_by_default_even_for_approved_draft(client: TestClient) -> None:
     draft = create_approved_draft(client)
+    positions_before = client.get("/positions").json()
 
     response = client.post("/live-execution/prepare", json={"order_draft_id": draft["id"]})
 
@@ -50,6 +51,7 @@ def test_prepare_live_execution_blocks_by_default_even_for_approved_draft(client
 
 def test_live_approval_is_blocked_when_readiness_fails(client: TestClient) -> None:
     draft = create_approved_draft(client)
+    positions_before = client.get("/positions").json()
 
     response = client.post(
         "/live-execution/approve",
@@ -72,6 +74,7 @@ def test_live_approval_is_blocked_when_readiness_fails(client: TestClient) -> No
 
 def test_execute_live_order_records_blocked_attempt_without_fill_or_position_change(client: TestClient) -> None:
     draft = create_approved_draft(client)
+    positions_before = client.get("/positions").json()
 
     response = client.post(
         "/live-execution/execute",
@@ -98,7 +101,7 @@ def test_execute_live_order_records_blocked_attempt_without_fill_or_position_cha
     paper_executions = client.get("/paper-executions").json()
     assert paper_executions == []
     positions = client.get("/positions").json()
-    assert positions == []
+    assert positions == positions_before
 
     history = client.get("/live-execution/history").json()
     assert len(history) == 1
@@ -117,6 +120,7 @@ def test_execute_live_order_records_blocked_attempt_without_fill_or_position_cha
 
 def test_live_execution_sandbox_run_does_not_mutate_draft_or_create_execution(client: TestClient) -> None:
     draft = create_approved_draft(client)
+    positions_before = client.get("/positions").json()
 
     response = client.post(
         "/live-execution/sandbox-run",
@@ -146,7 +150,7 @@ def test_live_execution_sandbox_run_does_not_mutate_draft_or_create_execution(cl
     assert refreshed_draft["execution_status"] == draft["execution_status"]
     assert client.get("/live-execution/history").json() == []
     assert client.get("/paper-executions").json() == []
-    assert client.get("/positions").json() == []
+    assert client.get("/positions").json() == positions_before
 
     audit_logs = client.get("/audit-logs").json()
     assert any(log["action"] == "live_execution.sandbox_run" for log in audit_logs)
@@ -154,6 +158,7 @@ def test_live_execution_sandbox_run_does_not_mutate_draft_or_create_execution(cl
 
 def test_live_execution_sandbox_certification_preserves_dry_run_boundary(client: TestClient) -> None:
     draft = create_approved_draft(client)
+    positions_before = client.get("/positions").json()
 
     response = client.post(
         "/live-execution/sandbox-certification",
@@ -185,6 +190,7 @@ def test_live_execution_sandbox_certification_preserves_dry_run_boundary(client:
 
 def test_small_pilot_readiness_checks_size_and_blocks_without_live_readiness(client: TestClient) -> None:
     draft = create_approved_draft(client, notional=50)
+    positions_before = client.get("/positions").json()
 
     response = client.post(
         "/live-execution/small-pilot-readiness",
@@ -212,6 +218,7 @@ def test_small_pilot_readiness_checks_size_and_blocks_without_live_readiness(cli
 
 def test_small_pilot_approval_packet_is_unsigned_and_not_submitted(client: TestClient) -> None:
     draft = create_approved_draft(client, notional=50)
+    positions_before = client.get("/positions").json()
 
     response = client.post(
         "/live-execution/small-pilot-approval-packet",
@@ -243,7 +250,7 @@ def test_small_pilot_approval_packet_is_unsigned_and_not_submitted(client: TestC
     refreshed_draft = client.get(f"/orders/drafts/{draft['id']}").json()
     assert refreshed_draft["execution_status"] == draft["execution_status"]
     assert client.get("/live-execution/history").json() == []
-    assert client.get("/positions").json() == []
+    assert client.get("/positions").json() == positions_before
 
     audit_logs = client.get("/audit-logs").json()
     assert any(log["action"] == "live_execution.small_pilot_readiness_checked" for log in audit_logs)
@@ -251,6 +258,7 @@ def test_small_pilot_approval_packet_is_unsigned_and_not_submitted(client: TestC
 
 def test_broker_sandbox_proof_packet_exports_state_machine_without_execution(client: TestClient) -> None:
     draft = create_approved_draft(client, notional=50)
+    positions_before = client.get("/positions").json()
 
     response = client.post(
         "/live-execution/broker-sandbox-proof-packet",
@@ -278,7 +286,7 @@ def test_broker_sandbox_proof_packet_exports_state_machine_without_execution(cli
     assert "global_live_trading_disabled" in packet["blockers"]
     assert "no real broker submission" in packet["safe_boundary"].lower()
     assert client.get("/live-execution/history").json() == []
-    assert client.get("/positions").json() == []
+    assert client.get("/positions").json() == positions_before
 
     audit_logs = client.get("/audit-logs").json()
     assert any(log["action"] == "live_execution.broker_sandbox_proof_packet_created" for log in audit_logs)
@@ -286,6 +294,7 @@ def test_broker_sandbox_proof_packet_exports_state_machine_without_execution(cli
 
 def test_small_pilot_readiness_blocks_oversized_draft(client: TestClient) -> None:
     draft = create_approved_draft(client, notional=250)
+    positions_before = client.get("/positions").json()
 
     response = client.post(
         "/live-execution/small-pilot-readiness",

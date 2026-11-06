@@ -1,0 +1,9 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import {researchOnchainContext} from '../../src/terminal-onchain.js';
+function material(){const reference={schema_version:1,wallet_id:'w',chain_id:'1',contract_address:'',context_version:2,snapshot_id:'s',allowance_ids:[],protocol_ids:[]};return {schema_version:1,reference,wallet_id:'w',wallet_public_address:'0x'+'1'.repeat(40),chain_id:'1',contract_address:'',context_version:2,source_snapshot_id:'s',block_number:100,server_retrieved:true,independently_verified:false,content_hash:'a'.repeat(64),entries:[{id:'W1',record_id:'s',as_of:new Date().toISOString(),source:'evm_rpc_readonly',kind:'balances',block_number:100,balances:[{amount:'1.000000000000000001',contract_address:null}]}]};}
+test('AI material display cannot disagree with its echoed reference or source observation',()=>{assert.equal(researchOnchainContext(material()).wallet_id,'w');for(const mutate of [v=>v.wallet_id='other',v=>v.context_version=3,v=>v.block_number=101,v=>v.entries[0].record_id='another',v=>v.entries[0].balances[0].contract_address='0x'+'a'.repeat(40)]){const v=material();mutate(v);assert.throws(()=>researchOnchainContext(v));}});
+test('approval evidence must map to selected record IDs and preserve contract identity',()=>{
+ const v=material();v.reference.allowance_ids=['approval-1'];v.entries.push({id:'A1',record_id:'approval-1',kind:'allowance',source:'stored_record',as_of:new Date().toISOString(),stale:true,contract_address:'0x'+'a'.repeat(40),spender:'0x'+'2'.repeat(40),amount:'1000',risk_level:'high'});
+ assert.equal(researchOnchainContext(v).entries[1].amount,'1000');
+ for(const mutate of [x=>x.entries[1].record_id='foreign',x=>x.entries[1].amount='NaN',x=>x.entries[1].kind='balances',x=>x.reference.allowance_ids.push('approval-1')]){const bad=structuredClone(v);mutate(bad);assert.throws(()=>researchOnchainContext(bad));}
+});

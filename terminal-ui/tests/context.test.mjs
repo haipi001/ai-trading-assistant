@@ -1,0 +1,6 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {initialState,switchMarket,updateContext} from '../integration/context.mjs';
+test('market switching restores separate accounts and resets execution permission',()=>{let s=initialState();s=updateContext(s,{accountId:'stock-account',instrumentId:'MSFT'});s=switchMarket(s,'cex');assert.equal(s.current.accountId,'');s=updateContext(s,{accountId:'cex-account'});s=switchMarket(s,'stocks');assert.equal(s.current.accountId,'stock-account');assert.equal(s.current.instrumentId,'MSFT');assert.equal(s.current.executionMode,'READ_ONLY');assert.equal(s.current.contextVersion,4);});
+test('restore rejects unknown markets and live permissions',()=>{assert.equal(initialState('{broken').current.market,'stocks');assert.equal(initialState(JSON.stringify({current:{market:'cex',executionMode:'LIVE'}})).current.executionMode,'READ_ONLY');});
+test('onchain contract validation and snapshot isolation',()=>{let s=switchMarket(initialState(),'onchain');const snapshot=structuredClone(s.current);assert.throws(()=>updateContext(s,{contractAddress:'BTC'}));s=updateContext(s,{contractAddress:'0x'+'a'.repeat(40)});assert.equal(snapshot.contractAddress,'');s=switchMarket(s,'stocks');assert.equal(s.current.chainId,null);assert.equal(s.current.contractAddress,'');});

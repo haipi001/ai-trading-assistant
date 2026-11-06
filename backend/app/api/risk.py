@@ -35,7 +35,7 @@ class PortfolioRiskRunRequest(BaseModel):
     data_snapshot_ids: list[str] = Field(default_factory=list)
 
 
-@router.get("/portfolio-risk/time-series/latest")
+@router.get("/portfolio-risk/time-series/latest", dependencies=[Depends(require_permission("read"))])
 def latest_portfolio_time_series_risk(
     current_user: AuthenticatedUser = Depends(require_permission("read")),
     db: Session = Depends(get_db),
@@ -46,7 +46,7 @@ def latest_portfolio_time_series_risk(
     return packet
 
 
-@router.post("/portfolio-risk/time-series/sync-and-run")
+@router.post("/portfolio-risk/time-series/sync-and-run", dependencies=[Depends(require_permission("trade:preview"))])
 def sync_and_run_portfolio_time_series_risk(
     payload: PortfolioRiskRunRequest,
     current_user: AuthenticatedUser = Depends(require_permission("read")),
@@ -64,7 +64,7 @@ def sync_and_run_portfolio_time_series_risk(
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
-@router.post("/portfolio-risk/time-series/sync-market-data")
+@router.post("/portfolio-risk/time-series/sync-market-data", dependencies=[Depends(require_permission("trade:preview"))])
 def sync_portfolio_risk_market_data_for_review(
     payload: PortfolioRiskRunRequest,
     current_user: AuthenticatedUser = Depends(require_permission("read")),
@@ -79,7 +79,7 @@ def sync_portfolio_risk_market_data_for_review(
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
-@router.post("/portfolio-risk/time-series/evidence-packet")
+@router.post("/portfolio-risk/time-series/evidence-packet", dependencies=[Depends(require_permission("trade:preview"))])
 def create_portfolio_time_series_risk_evidence_packet(
     current_user: AuthenticatedUser = Depends(require_permission("read")),
     db: Session = Depends(get_db),
@@ -87,7 +87,7 @@ def create_portfolio_time_series_risk_evidence_packet(
     return PortfolioTimeSeriesRiskService(db).evidence_packet(user_id=current_user.user_id)
 
 
-@router.post("/risk/check-order", response_model=RiskCheckRead, status_code=201)
+@router.post("/risk/check-order", response_model=RiskCheckRead, status_code=201, dependencies=[Depends(require_permission("trade:preview"))])
 def check_order_risk(payload: RiskCheckOrderRequest, db: Session = Depends(get_db)):
     order_intent = db.get(OrderIntent, payload.order_intent_id)
     if order_intent is None:
@@ -100,7 +100,7 @@ def check_order_risk(payload: RiskCheckOrderRequest, db: Session = Depends(get_d
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
-@router.get("/risk-checks", response_model=list[RiskCheckRead])
+@router.get("/risk-checks", response_model=list[RiskCheckRead], dependencies=[Depends(require_permission("read"))])
 def list_risk_checks(
     order_intent_id: str | None = None,
     limit: int = 100,
@@ -112,7 +112,7 @@ def list_risk_checks(
     return list(db.scalars(query.order_by(RiskCheck.created_at.desc(), RiskCheck.id.desc()).limit(limit)).all())
 
 
-@router.post("/orders/intents/{order_intent_id}/draft", response_model=OrderDraftRead, status_code=201)
+@router.post("/orders/intents/{order_intent_id}/draft", response_model=OrderDraftRead, status_code=201, dependencies=[Depends(require_permission("proposal:create"))])
 def create_order_draft_after_risk(
     order_intent_id: str,
     payload: RiskCheckOrderRequest,
@@ -131,7 +131,7 @@ def create_order_draft_after_risk(
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
-@router.post("/orders/drafts/{order_draft_id}/approve", response_model=ApprovalRead, status_code=201)
+@router.post("/orders/drafts/{order_draft_id}/approve", response_model=ApprovalRead, status_code=201, dependencies=[Depends(require_permission("trade:approve"))])
 def approve_order_draft(
     order_draft_id: str,
     payload: ApprovalDecisionRequest,
@@ -148,7 +148,7 @@ def approve_order_draft(
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
-@router.get("/orders/drafts/{order_draft_id}/approvals", response_model=list[ApprovalRead])
+@router.get("/orders/drafts/{order_draft_id}/approvals", response_model=list[ApprovalRead], dependencies=[Depends(require_permission("read"))])
 def list_order_draft_approvals(
     order_draft_id: str,
     db: Session = Depends(get_db),
@@ -165,7 +165,7 @@ def list_order_draft_approvals(
     )
 
 
-@router.post("/orders/drafts/{order_draft_id}/reject", response_model=ApprovalRead, status_code=201)
+@router.post("/orders/drafts/{order_draft_id}/reject", response_model=ApprovalRead, status_code=201, dependencies=[Depends(require_permission("trade:approve"))])
 def reject_order_draft(
     order_draft_id: str,
     payload: ApprovalDecisionRequest,
@@ -179,7 +179,7 @@ def reject_order_draft(
     return service.reject_draft(draft, payload.approver_id, payload.decision_reason)
 
 
-@router.post("/orders/drafts/{order_draft_id}/modify", response_model=OrderDraftRead)
+@router.post("/orders/drafts/{order_draft_id}/modify", response_model=OrderDraftRead, dependencies=[Depends(require_permission("proposal:create"))])
 def modify_order_draft(
     order_draft_id: str,
     payload: DraftModifyRequest,

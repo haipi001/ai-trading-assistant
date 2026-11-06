@@ -24,7 +24,7 @@
 .market.side-collapsed{grid-template-columns:210px minmax(520px,1fr)}
 .market.watch-collapsed.side-collapsed{grid-template-columns:minmax(620px,1fr)}
 .canvas.market-drawer-open{overflow:visible}
-.market-side-workspace{min-width:0;height:calc(100% + 52px);margin-top:-52px;border-left:1px solid var(--line);display:flex;flex-direction:column;overflow:visible;background:#fff;position:relative;z-index:12}
+.market-side-workspace{min-width:0;height:calc(100dvh - 72px);max-height:calc(100dvh - 72px);align-self:start;margin-top:-52px;border-left:1px solid var(--line);display:flex;flex-direction:column;overflow:visible;background:#fff;position:relative;z-index:12}
 .market-side-data{min-height:0;flex:1;overflow:hidden}
 .market-side-data>.orderbook{display:block;width:100%;height:100%;border-left:0;overflow:auto}
 .market-side-order{min-height:160px;flex:1 1 auto;overflow:hidden}

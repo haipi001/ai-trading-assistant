@@ -13,6 +13,8 @@ from app.models import OrderIntent
 from app.models import Position
 from app.models import RiskCheck
 from app.models.core import utc_now
+from app.services.account_risk_context import server_account_context
+from app.services.approval_grants import issue_approval_grant
 from app.services.decision_gates import DecisionGateBlockedError
 from app.services.decision_gates import DecisionGateService
 
@@ -36,12 +38,13 @@ class RiskEngineService:
     def __init__(self, db: Session):
         self.db = db
 
-    def check_order(self, order_intent: OrderIntent, context: dict[str, Any]) -> RiskCheck:
+    def check_order(self, order_intent: OrderIntent, context: dict[str, Any], *, draft_id: str | None = None, commit: bool = True) -> RiskCheck:
         asset = self.db.get(Asset, order_intent.asset_id)
         account = self.db.get(Account, order_intent.account_id)
         if asset is None or account is None:
             raise RiskCheckBlockedError("order intent asset or account is unavailable")
 
+        context = server_account_context(self.db, order_intent, context, draft_id=draft_id)
         rules = self._evaluate_rules(order_intent, asset, account, context)
         failed_rules = [rule["rule"] for rule in rules if not rule["passed"]]
         passed = not failed_rules
@@ -68,8 +71,9 @@ class RiskEngineService:
                 "failed_rules": failed_rules,
             },
         )
-        self.db.commit()
-        self.db.refresh(risk_check)
+        if commit:
+            self.db.commit()
+            self.db.refresh(risk_check)
         return risk_check
 
     def create_draft_after_risk(self, order_intent: OrderIntent, context: dict[str, Any]) -> OrderDraft:
@@ -130,6 +134,7 @@ class RiskEngineService:
         draft.approval_status = "approved"
         self.db.add(approval)
         self.db.flush()
+        issue_approval_grant(self.db, draft, approval)
         self._write_audit_log(
             action="order_draft.approved",
             entity_type="Approval",
@@ -163,6 +168,7 @@ class RiskEngineService:
 
     def modify_draft(self, draft: OrderDraft, decision_reason: str | None) -> OrderDraft:
         draft.approval_status = "modified"
+        draft.approval_policy = {key: value for key, value in (draft.approval_policy or {}).items() if key != "grant"}
         self.db.flush()
         self._write_audit_log(
             action="order_draft.modified",
@@ -180,6 +186,21 @@ class RiskEngineService:
         risk_check = self.require_latest_risk_passed(draft.order_intent_id)
         if not risk_check.hard_rule_passed:
             raise ApprovalBlockedError("latest risk check is not passed")
+        intent = self.db.get(OrderIntent, draft.order_intent_id)
+        if intent is None:
+            raise ApprovalBlockedError("order intent is unavailable")
+        refreshed = self.check_order(intent, dict((risk_check.rules_json or {}).get("context") or {}), draft_id=draft.id)
+        if not refreshed.hard_rule_passed:
+            raise ApprovalBlockedError(refreshed.reason or "current account risk blocks approval")
+        try:
+            DecisionGateService(self.db).require_current_research(
+                intent.id, (draft.decision_gate_results or {}).get("RESEARCH_GATE", {}).get("gate_id"),
+            )
+            DecisionGateService(self.db).require_current_nonresearch(
+                intent.id, draft.decision_gate_results or {}, draft_id=draft.id,
+            )
+        except DecisionGateBlockedError as exc:
+            raise ApprovalBlockedError(str(exc)) from exc
 
     def _evaluate_rules(
         self,
@@ -188,14 +209,15 @@ class RiskEngineService:
         account: Account,
         context: dict[str, Any],
     ) -> list[dict[str, Any]]:
-        notional = order_notional(order_intent)
+        notional = max(order_notional(order_intent), to_decimal(context.get("_server_order_notional", 0)))
         order_mode = context.get("order_mode", "manual")
         total_equity = decimal_context(context, "total_equity", self._portfolio_total_value(account.id))
         current_position_value = decimal_context(context, "current_position_value", self._position_value(account.id, asset.id))
-        final_position_value = final_value_after_order(order_intent, current_position_value, notional)
-        final_position_pct = safe_divide(final_position_value, total_equity)
+        final_position_value = final_value_after_order(order_intent, current_position_value, to_decimal(context.get("_server_remaining_notional", notional)))
+        final_position_pct = max(safe_divide(final_position_value, total_equity), to_decimal(context.get("_server_projected_position_pct", 0)))
 
         rules = [
+            rule("trusted_account_state", not context.get("_account_risk_errors"), {"errors": context.get("_account_risk_errors", []), "snapshot": context.get("_account_risk_evidence")}),
             rule("live_trading_enabled", account.mode != "live" or bool(account.live_trading_enabled), {"account_mode": account.mode}),
             rule("account_mode_allows_order_draft", account.mode in ORDER_DRAFT_ACCOUNT_MODES, {"account_mode": account.mode}),
             rule("asset_tradable", bool(asset.tradable), {"tradable": asset.tradable}),
@@ -232,7 +254,7 @@ class RiskEngineService:
 
     def _portfolio_total_value(self, account_id: str) -> Decimal:
         values = [to_decimal(position.market_value) for position in self.db.scalars(select(Position).where(Position.account_id == account_id)).all()]
-        return sum(values, Decimal("0")) or Decimal("100000")
+        return sum(values, Decimal("0"))
 
     def _position_value(self, account_id: str, asset_id: str) -> Decimal:
         values = [

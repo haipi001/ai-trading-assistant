@@ -3,13 +3,14 @@ from __future__ import annotations
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import Request, Response
-from fastapi import Header
+from fastapi import Header, Query
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.api.domain import write_audit_log
 from app.core.auth import AuthenticatedUser
 from app.core.auth import get_current_user
+from app.core.auth import require_permission
 from app.core.config import get_settings
 from app.core.local_secrets import LocalSecretError
 from app.core.local_secrets import delete_user_secret
@@ -398,6 +399,22 @@ def research_market_snapshot(snapshot_id: str, response: Response, actor: Authen
         raise HTTPException(404,detail={"code":"market_context_not_found"}) from None
 
 
+@router.get("/human-control/llm/chat/onchain-contexts")
+def research_onchain_history(wallet_id: str = Query(min_length=1,max_length=128), chain_id: str = Query(pattern=r"^[1-9][0-9]{0,19}$"), contract_address: str = Query(default="",pattern=r"^(0x[0-9a-fA-F]{40})?$"), actor: AuthenticatedUser = Depends(production_user), db: Session = Depends(get_db)) -> dict:
+    if not wallet_id or len(wallet_id)>128 or len(chain_id)>20 or len(contract_address)>42:
+        raise HTTPException(422,detail={"code":"ai_onchain_invalid"})
+    return HumanControlService(db).research_onchain_history(actor=actor,wallet_id=wallet_id,chain_id=chain_id,contract_address=contract_address)
+
+
+@router.get("/human-control/llm/chat/onchain-context/{snapshot_id}")
+def research_onchain_snapshot(snapshot_id: str, response: Response, actor: AuthenticatedUser = Depends(production_user), db: Session = Depends(get_db)) -> dict:
+    response.headers["Cache-Control"] = "no-store"
+    try:
+        return HumanControlService(db).research_onchain_snapshot(actor=actor,snapshot_id=snapshot_id)
+    except HumanControlError:
+        raise HTTPException(404,detail={"code":"onchain_context_not_found"}) from None
+
+
 @router.post("/human-control/llm/chat")
 async def research_chat(request: Request, response: Response, actor: AuthenticatedUser = Depends(production_user), db: Session = Depends(get_db)) -> dict:
     import json
@@ -408,7 +425,7 @@ async def research_chat(request: Request, response: Response, actor: Authenticat
         if len(raw) > 200000:
             raise ValueError()
         payload = json.loads(raw)
-        if not isinstance(payload, dict) or set(payload) - {"question", "page", "symbol", "history", "response_style", "include_news", "market_context"}:
+        if not isinstance(payload, dict) or set(payload) - {"question", "page", "symbol", "history", "response_style", "include_news", "market_context", "onchain_context"}:
             raise ValueError()
     except (ValueError, TypeError):
         raise HTTPException(422, detail={"code": "ai_question_invalid"}) from None
@@ -710,7 +727,7 @@ def pilot_readiness(actor: AuthenticatedUser = Depends(production_user), db: Ses
         raise HTTPException(status_code=403, detail=str(exc)) from exc
 
 
-@router.post("/broker-sandbox/orders", status_code=201)
+@router.post("/broker-sandbox/orders", status_code=201, dependencies=[Depends(require_permission("trade:submit"))])
 def submit_sandbox_order(payload: dict, actor: AuthenticatedUser = Depends(production_user), db: Session = Depends(get_db)) -> dict:
     try:
         return BrokerSandboxProofService(db).submit(actor=actor, order_draft_id=str(payload.get("order_draft_id") or ""), idempotency_key=str(payload.get("idempotency_key") or ""))

@@ -57,6 +57,16 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
 }
 
 
+# Trade authority is separate from observation and infrastructure operations.
+# Neither an operator nor a research/viewer role can approve or execute orders.
+for _role in ("owner", "admin"):
+    ROLE_PERMISSIONS[_role].extend([
+        "trade:preview", "proposal:create", "trade:approve", "trade:submit",
+        "trade:configure", "trade:pause", "trade:resume",
+    ])
+ROLE_PERMISSIONS["operator"].extend(["trade:preview", "proposal:create", "trade:pause"])
+
+
 @dataclass(frozen=True)
 class AuthenticatedUser:
     user_id: str

@@ -33,7 +33,7 @@ services:
       - key: AUTOMATION_LEVEL
         value: A0_READ_ONLY
       - key: MANAGED_AUTH_REQUIRED
-        value: false
+        value: true
       - key: RUNTIME_SCHEDULER_ENABLED
         value: true
       - key: API_RATE_LIMIT_ENABLED

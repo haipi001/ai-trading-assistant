@@ -320,6 +320,7 @@ class YahooFinancePublicMarketDataAdapter(ReadOnlyMarketDataAdapter):
             ask=float(meta["ask"]) if meta.get("ask") is not None else None,
             source=self.provider,
             as_of=as_of,
+            currency=meta.get("currency"),
         )
 
     def get_candles(self, symbol: str, timeframe: str, limit: int) -> list[AdapterCandle]:
@@ -435,6 +436,7 @@ class YahooFinancePublicMarketDataAdapter(ReadOnlyMarketDataAdapter):
                     close=float(close),
                     volume=float(volume_value or 0),
                     source=self.provider,
+                    currency=(result.get("meta") or {}).get("currency"),
                 )
             )
         return candles

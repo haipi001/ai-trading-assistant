@@ -1,0 +1,16 @@
+:root{--mono:"SF Mono",ui-monospace,Menlo,Consolas,"PingFang SC",monospace;font-family:var(--mono);font-variant-numeric:tabular-nums;--line:var(--ui-line);--muted:var(--ui-muted);--green:var(--ui-up);--red:var(--ui-down);--ink:var(--ui-text)}
+html,body,#feature-root{margin:0;width:100%;height:100%;background:var(--ui-surface,#0d1319);color:var(--ui-text,#dce5ed)}
+.terminal.terminal-embedded{min-width:0;min-height:100%;height:100%;background:var(--ui-surface);color:var(--ui-text);grid-template:44px minmax(0,1fr)/minmax(0,1fr) 48px}
+.terminal-embedded>.pagebar{grid-column:1;grid-row:1;overflow:auto;white-space:nowrap;background:var(--ui-subtle);color:var(--ui-text);border-color:var(--ui-line)}
+.terminal-embedded .pagebar button{color:var(--ui-muted)}
+.terminal-embedded .pagebar button.on{color:var(--ui-accent)}
+.terminal-embedded .pagebar button.on:after{background:var(--ui-accent)}
+.terminal-embedded>.canvas{grid-column:1;grid-row:2;background:var(--ui-surface);color:var(--ui-text)}
+.terminal-embedded>.right-rail{grid-column:2;grid-row:1/3;background:var(--ui-subtle);border-color:var(--ui-line)}
+.terminal-embedded .right-rail button{color:var(--ui-muted)}
+.terminal-embedded .drawer{top:44px}
+.terminal-embedded>.ticker,.terminal-embedded .market-mode-switch{display:none!important}
+.terminal-embedded button,.terminal-embedded input,.terminal-embedded textarea,.terminal-embedded select{border-radius:2px;background:var(--ui-subtle);color:var(--ui-text);border:1px solid var(--ui-line)}
+.terminal-embedded button.ai{background:var(--ui-accent-solid);color:var(--ui-on-strong)}
+.terminal-embedded :focus-visible{outline:2px solid var(--ui-accent);outline-offset:2px}
+.feature-loading{padding:20px;font:13px var(--mono);background:var(--ui-surface);color:var(--ui-text)}

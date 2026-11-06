@@ -1,3 +1,4 @@
+from app.core.auth import require_permission
 from typing import Any
 
 from fastapi import APIRouter
@@ -212,7 +213,7 @@ def create_portfolio_snapshot(payload: PortfolioSnapshotCreate, db: Session = De
     return snapshot
 
 
-@router.post("/orders/intents", response_model=OrderIntentRead, status_code=201, tags=["orders"])
+@router.post("/orders/intents", response_model=OrderIntentRead, status_code=201, tags=["orders"], dependencies=[Depends(require_permission("proposal:create"))])
 def create_order_intent(payload: OrderIntentCreate, db: Session = Depends(get_db)) -> OrderIntent:
     order_intent = OrderIntent(**payload.model_dump())
     db.add(order_intent)
@@ -229,7 +230,7 @@ def create_order_intent(payload: OrderIntentCreate, db: Session = Depends(get_db
     return order_intent
 
 
-@router.get("/orders/intents/{order_intent_id}", response_model=OrderIntentRead, tags=["orders"])
+@router.get("/orders/intents/{order_intent_id}", response_model=OrderIntentRead, tags=["orders"], dependencies=[Depends(require_permission("read"))])
 def get_order_intent(order_intent_id: str, db: Session = Depends(get_db)) -> OrderIntent:
     order_intent = db.get(OrderIntent, order_intent_id)
     if order_intent is None:
@@ -237,12 +238,12 @@ def get_order_intent(order_intent_id: str, db: Session = Depends(get_db)) -> Ord
     return order_intent
 
 
-@router.get("/orders/drafts", response_model=list[OrderDraftRead], tags=["orders"])
+@router.get("/orders/drafts", response_model=list[OrderDraftRead], tags=["orders"], dependencies=[Depends(require_permission("read"))])
 def list_order_drafts(limit: int = 100, db: Session = Depends(get_db)) -> list[OrderDraft]:
     return list_records(db, OrderDraft, limit)
 
 
-@router.get("/orders/drafts/{order_draft_id}/decision-narrative", response_model=DecisionNarrativeRead, tags=["orders"])
+@router.get("/orders/drafts/{order_draft_id}/decision-narrative", response_model=DecisionNarrativeRead, tags=["orders"], dependencies=[Depends(require_permission("read"))])
 def get_order_draft_decision_narrative(order_draft_id: str, db: Session = Depends(get_db)) -> dict[str, Any]:
     try:
         return DecisionNarrativeService(db).get_order_draft_narrative(order_draft_id)
@@ -250,7 +251,7 @@ def get_order_draft_decision_narrative(order_draft_id: str, db: Session = Depend
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@router.get("/orders/drafts/{order_draft_id}", response_model=OrderDraftRead, tags=["orders"])
+@router.get("/orders/drafts/{order_draft_id}", response_model=OrderDraftRead, tags=["orders"], dependencies=[Depends(require_permission("read"))])
 def get_order_draft(order_draft_id: str, db: Session = Depends(get_db)) -> OrderDraft:
     order_draft = db.get(OrderDraft, order_draft_id)
     if order_draft is None:
@@ -258,7 +259,7 @@ def get_order_draft(order_draft_id: str, db: Session = Depends(get_db)) -> Order
     return order_draft
 
 
-@router.post("/orders/drafts", response_model=OrderDraftRead, status_code=201, tags=["orders"])
+@router.post("/orders/drafts", response_model=OrderDraftRead, status_code=201, tags=["orders"], dependencies=[Depends(require_permission("proposal:create"))])
 def create_order_draft(payload: OrderDraftCreate, db: Session = Depends(get_db)) -> OrderDraft:
     risk_service = RiskEngineService(db)
     try:
@@ -270,9 +271,12 @@ def create_order_draft(payload: OrderDraftCreate, db: Session = Depends(get_db))
     order_draft = OrderDraft(
         **{
             **payload.model_dump(),
-            "decision_gate_results": payload.decision_gate_results or decision_gate_results,
+            "risk_status": "passed",
+            "approval_status": "pending",
+            "execution_status": "not_executable",
+            "decision_gate_results": decision_gate_results,
             "behavior_status": "passed",
-            "approval_policy": payload.approval_policy or {"required": True, "source": "decision_gates"},
+            "approval_policy": {"required": True, "source": "decision_gates"},
         }
     )
     db.add(order_draft)

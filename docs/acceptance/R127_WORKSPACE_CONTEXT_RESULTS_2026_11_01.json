@@ -1,0 +1,16 @@
+{
+  "model_scripts": 52,
+  "failed": 0,
+  "build_seconds": 3.27,
+  "buttons": 604,
+  "form_controls": 244,
+  "browser": "strategy to flash research context change observed; no model request",
+  "backend_changed": false,
+  "goal_status": "active",
+  "source_sha256": {
+    "src/workspace-context.js": "c89c558d86b38e4852eec3502b7d9acd43e570ec59ef194d70a87f81aec5cf90",
+    "src/main.jsx": "3d3e045862dc95c1872cf08de17e9af01fbca36a356a69662dd1673de9a564ae",
+    "src/research-ai-chat.jsx": "cd7a7f78b0713c7afe824707f311d929e8d71d96eb1dc54a4e00a0cc4641b181",
+    "scripts/check-workspace-context.mjs": "c9893afb52b0adfd243181062e1471a9af74e0fae68d57e777406d3f9901ecd2"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-01",
+  "base_commit": "9e774c232992bda309fdd22099114b5303a74f10",
+  "state": "uncommitted T0 authority/session changes",
+  "backend": {
+    "passed": 722,
+    "warnings": 1,
+    "seconds": 45.48,
+    "exit_code": 0,
+    "environment": "existing Python3.13 venv; SQLite in-memory",
+    "command": "DATABASE_URL=sqlite+pysqlite:///:memory: <existing-venv>/bin/python -m pytest -q"
+  },
+  "frontend": {
+    "model_scripts": 51,
+    "failed": 0,
+    "static_buttons": 604,
+    "static_form_controls": 244,
+    "build": "passed; chunk-size warning",
+    "preservation_guard": "passed"
+  },
+  "browser": "settings/session form and empty-input disabled state observed; no real token entered",
+  "source_sha256": {
+    "backend/app/api/domain.py": "038f3b295eaaafa507fa815454b5c5460407e42ea309748dfb47cea7132f47e9",
+    "backend/app/api/risk.py": "5ce50780e4d3423838b058ebcee290b268fd52e47e70b3bd817099f9ff710bc7",
+    "backend/app/api/decision_gates.py": "30fc49ff4636ad8e8c1b78c76f845e5835cbd968ba31e1e10f2f9faa04077937",
+    "backend/app/api/paper_execution.py": "e83026de3e9ae92ce20234c269c7f8affdac78a23485442e9f92b917ba777f5c",
+    "backend/app/api/live_execution.py": "7e50cbbed35aaab2df64d01f320563909be7e0d0327877994bbe58cae2f4a975",
+    "backend/app/api/controlled_auto.py": "ab6a4a0f86c2c6bb3b5c023b92557aef560237a4ea0ae3d9c6da2da4ab5f62fe",
+    "backend/app/api/production.py": "19148f1580005079107da32256131739a8da8bb5a2796c7d773514ec401d1c54",
+    "backend/app/core/auth.py": "c9e3ff6ddf7f84e8de32c1aa4d9f7ab80f38e1edfeb427fb2bf43ba19ed6944c",
+    "backend/app/core/auth_middleware.py": "eb6b835770713ff1d7dbf771b76bb29572d11c2a4a1f3d9efe22f61d3f7605d6",
+    "backend/app/services/broker_sandbox.py": "bd8faf0a803c1767cae6bf989129162a9d722175af308fc28431a84f03456115",
+    "src/backend-api.js": "ac263228132bbc724e91e3089cc3f0fe5dc55555f3f83f55323aa729aca6d40f",
+    "src/backend-session.js": "9383bce8e930ae9c418dd217f5d8eca93ceebcd7202e6cecf8c87f11f4037197",
+    "src/backend-session-settings.jsx": "59c3d6676f72485dbed7fb5a6e70c8fb481bd2e8420a98eda18c010da42738b3"
+  },
+  "external_oidc": "not verified",
+  "external_broker": "not called",
+  "remote_ci": "not run",
+  "live": "disabled",
+  "scope_status": "T0 and overall goal incomplete"
+}

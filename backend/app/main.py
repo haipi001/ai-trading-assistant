@@ -1,3 +1,6 @@
+from app.api.workspaces import router as workspaces_router
+from app.api.terminal_onchain import router as terminal_onchain_router
+from app.api.ace_status import router as ace_status_router
 import asyncio
 import logging
 from contextlib import asynccontextmanager
@@ -95,6 +98,9 @@ def create_app() -> FastAPI:
         logging.getLogger("uvicorn.access").disabled = True
         app.add_middleware(SafeRequestLoggingMiddleware)
 
+    app.include_router(workspaces_router)
+    app.include_router(terminal_onchain_router)
+    app.include_router(ace_status_router)
     app.include_router(health_router)
     app.include_router(ai_provider_router)
     app.include_router(demo_router)

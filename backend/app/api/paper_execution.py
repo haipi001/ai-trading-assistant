@@ -1,3 +1,5 @@
+from app.core.auth import require_permission, AuthenticatedUser
+from pydantic import BaseModel
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
@@ -25,12 +27,16 @@ from app.schemas import PostTradeReviewRead
 from app.schemas import PostTradeReviewUpdate
 from app.schemas import TradeJournalEntryRead
 from app.services.paper_execution import PaperExecutionBlockedError
+from app.services.paper_execution import PaperExecutionConflictError
 from app.services.paper_execution import PaperExecutionService
+
+from app.schemas.core import ManualPaperEvidenceRead
+from app.services.manual_trade_evidence import ManualEvidenceError, prepare_manual_evidence, read_manual_evidence
 
 router = APIRouter(tags=["paper-execution"])
 
 
-@router.get("/paper-executions", response_model=list[ExecutionRead])
+@router.get("/paper-executions", response_model=list[ExecutionRead], dependencies=[Depends(require_permission("read"))])
 def list_paper_executions(limit: int = 100, db: Session = Depends(get_db)) -> list[Execution]:
     return list(
         db.scalars(
@@ -42,7 +48,31 @@ def list_paper_executions(limit: int = 100, db: Session = Depends(get_db)) -> li
     )
 
 
-@router.post("/paper-executions/drafts/{order_draft_id}/execute", response_model=PaperExecutionResponse, status_code=201)
+class PaperReviewContext(BaseModel):
+    execution: ExecutionRead
+    journal_entry: TradeJournalEntryRead
+    post_trade_review: PostTradeReviewRead
+    execution_available: bool = False
+
+
+@router.get('/paper-executions/{execution_id}/review-context', response_model=PaperReviewContext)
+def paper_review_context(execution_id: str,
+                         actor: AuthenticatedUser = Depends(require_permission('read')),
+                         db: Session = Depends(get_db)):
+    execution = db.scalar(select(Execution).where(Execution.id == execution_id,
+        Execution.user_id == actor.user_id, Execution.execution_mode == 'paper'))
+    if execution is None:
+        raise HTTPException(404, detail='paper execution not found')
+    review = db.scalar(select(PostTradeReview).where(PostTradeReview.execution_id == execution.id,
+        PostTradeReview.user_id == actor.user_id, PostTradeReview.order_draft_id == execution.order_draft_id))
+    journal = db.scalar(select(TradeJournalEntry).where(TradeJournalEntry.id == review.trade_journal_entry_id,
+        TradeJournalEntry.user_id == actor.user_id)) if review else None
+    if review is None or journal is None:
+        raise HTTPException(409, detail='paper review records incomplete')
+    return PaperReviewContext(execution=execution, journal_entry=journal, post_trade_review=review)
+
+
+@router.post("/paper-executions/drafts/{order_draft_id}/execute", response_model=PaperExecutionResponse, status_code=201, dependencies=[Depends(require_permission("trade:submit"))])
 def execute_paper_draft(
     order_draft_id: str,
     payload: PaperExecutionRequest,
@@ -62,11 +92,15 @@ def execute_paper_draft(
             fill_quantity=payload.fill_quantity,
             fee_bps=payload.fee_bps,
             slippage_bps=payload.slippage_bps,
+            idempotency_key=payload.idempotency_key,
         )
+    except PaperExecutionConflictError as exc:
+        raise HTTPException(status_code=409, detail={'code': 'paper_execution_outcome_unknown', 'message': str(exc)}) from exc
     except PaperExecutionBlockedError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     return PaperExecutionResponse(
+        replayed=service.replayed,
         execution=execution,
         journal_entry=journal_entry,
         post_trade_review=post_trade_review,
@@ -76,7 +110,7 @@ def execute_paper_draft(
     )
 
 
-@router.get("/paper-corporate-actions", response_model=list[PaperCorporateActionRead])
+@router.get("/paper-corporate-actions", response_model=list[PaperCorporateActionRead], dependencies=[Depends(require_permission("read"))])
 def list_paper_corporate_actions(
     account_id: str | None = None,
     asset_id: str | None = None,
@@ -93,7 +127,7 @@ def list_paper_corporate_actions(
     )
 
 
-@router.post("/paper-corporate-actions/cash-dividend", response_model=PaperCorporateActionResponse, status_code=201)
+@router.post("/paper-corporate-actions/cash-dividend", response_model=PaperCorporateActionResponse, status_code=201, dependencies=[Depends(require_permission("proposal:create"))])
 def apply_paper_cash_dividend(
     payload: PaperCashDividendRequest,
     db: Session = Depends(get_db),
@@ -112,7 +146,7 @@ def apply_paper_cash_dividend(
     return PaperCorporateActionResponse(corporate_action=corporate_action, journal_entry=journal_entry)
 
 
-@router.post("/paper-corporate-actions/stock-split", response_model=PaperCorporateActionResponse, status_code=201)
+@router.post("/paper-corporate-actions/stock-split", response_model=PaperCorporateActionResponse, status_code=201, dependencies=[Depends(require_permission("proposal:create"))])
 def apply_paper_stock_split(
     payload: PaperStockSplitRequest,
     db: Session = Depends(get_db),
@@ -132,7 +166,7 @@ def apply_paper_stock_split(
     return PaperCorporateActionResponse(corporate_action=corporate_action, journal_entry=journal_entry)
 
 
-@router.get("/paper-tax-lots", response_model=list[PaperTaxLotRead])
+@router.get("/paper-tax-lots", response_model=list[PaperTaxLotRead], dependencies=[Depends(require_permission("read"))])
 def list_paper_tax_lots(
     account_id: str | None = None,
     asset_id: str | None = None,
@@ -149,7 +183,7 @@ def list_paper_tax_lots(
     )
 
 
-@router.get("/paper-tax-lot-realizations", response_model=list[PaperTaxLotRealizationRead])
+@router.get("/paper-tax-lot-realizations", response_model=list[PaperTaxLotRealizationRead], dependencies=[Depends(require_permission("read"))])
 def list_paper_tax_lot_realizations(
     execution_id: str | None = None,
     limit: int = 100,
@@ -165,21 +199,21 @@ def list_paper_tax_lot_realizations(
     )
 
 
-@router.get("/trade-journal-entries", response_model=list[TradeJournalEntryRead])
+@router.get("/trade-journal-entries", response_model=list[TradeJournalEntryRead], dependencies=[Depends(require_permission("read"))])
 def list_trade_journal_entries(limit: int = 100, db: Session = Depends(get_db)) -> list[TradeJournalEntry]:
     return list(
         db.scalars(select(TradeJournalEntry).order_by(TradeJournalEntry.created_at.desc(), TradeJournalEntry.id.desc()).limit(limit)).all()
     )
 
 
-@router.get("/post-trade-reviews", response_model=list[PostTradeReviewRead])
+@router.get("/post-trade-reviews", response_model=list[PostTradeReviewRead], dependencies=[Depends(require_permission("read"))])
 def list_post_trade_reviews(limit: int = 100, db: Session = Depends(get_db)) -> list[PostTradeReview]:
     return list(
         db.scalars(select(PostTradeReview).order_by(PostTradeReview.created_at.desc(), PostTradeReview.id.desc()).limit(limit)).all()
     )
 
 
-@router.patch("/post-trade-reviews/{review_id}", response_model=PostTradeReviewRead)
+@router.patch("/post-trade-reviews/{review_id}", response_model=PostTradeReviewRead, dependencies=[Depends(require_permission("proposal:create"))])
 def update_post_trade_review(
     review_id: str,
     payload: PostTradeReviewUpdate,
@@ -195,3 +229,21 @@ def update_post_trade_review(
     db.commit()
     db.refresh(review)
     return review
+
+
+@router.post('/orders/intents/{order_intent_id}/manual-evidence', status_code=201,
+             dependencies=[Depends(require_permission('trade:preview'))], response_model=ManualPaperEvidenceRead)
+def prepare_manual_paper_evidence(order_intent_id: str, db: Session = Depends(get_db)) -> dict:
+    try:
+        return prepare_manual_evidence(db, order_intent_id)
+    except ManualEvidenceError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.get('/orders/intents/{order_intent_id}/manual-evidence',
+            dependencies=[Depends(require_permission('read'))], response_model=ManualPaperEvidenceRead)
+def get_manual_paper_evidence(order_intent_id: str, db: Session = Depends(get_db)) -> dict:
+    try:
+        return read_manual_evidence(db, order_intent_id)
+    except ManualEvidenceError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc

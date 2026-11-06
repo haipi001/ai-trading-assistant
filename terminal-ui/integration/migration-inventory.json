@@ -1,0 +1,762 @@
+{
+  "status": "页面与策略初始映射已接入，不能作为全功能迁移完成证明；控件盘点另见control-inventory.json",
+  "items": [
+    {
+      "source": "r127",
+      "page": "home",
+      "tab": "AI智搜",
+      "destination": "R001",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "home",
+      "tab": "市场概览",
+      "destination": "R002",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "home",
+      "tab": "条件选币",
+      "destination": "R003",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "home",
+      "tab": "热门榜单",
+      "destination": "R004",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "home",
+      "tab": "排行",
+      "destination": "R005",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "home",
+      "tab": "功能指南",
+      "destination": "R006",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "home",
+      "tab": "云图",
+      "destination": "R007",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "home",
+      "tab": "合约雷达",
+      "destination": "R008",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "market",
+      "tab": "图表",
+      "destination": "R009",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "market",
+      "tab": "深度",
+      "destination": "R010",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "market",
+      "tab": "资金流",
+      "destination": "R011",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "market",
+      "tab": "合约数据",
+      "destination": "R012",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "market",
+      "tab": "自选",
+      "destination": "R013",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "flash",
+      "tab": "精选",
+      "destination": "R014",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "flash",
+      "tab": "直播",
+      "destination": "R015",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "flash",
+      "tab": "巨鲸",
+      "destination": "R016",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "flash",
+      "tab": "主力",
+      "destination": "R017",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "flash",
+      "tab": "推特",
+      "destination": "R018",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "flash",
+      "tab": "市场",
+      "destination": "R019",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "flash",
+      "tab": "特朗普",
+      "destination": "R020",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "flash",
+      "tab": "上新",
+      "destination": "R021",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "flash",
+      "tab": "链上",
+      "destination": "R022",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "flash",
+      "tab": "ETF",
+      "destination": "R023",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "flash",
+      "tab": "宏观",
+      "destination": "R024",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "flash",
+      "tab": "币股",
+      "destination": "R025",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "news",
+      "tab": "精选",
+      "destination": "R026",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "news",
+      "tab": "活动FUN放",
+      "destination": "R027",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "news",
+      "tab": "分析",
+      "destination": "R028",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "news",
+      "tab": "直播回顾",
+      "destination": "R029",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "news",
+      "tab": "币股",
+      "destination": "R030",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "news",
+      "tab": "产品教程",
+      "destination": "R031",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "news",
+      "tab": "科普",
+      "destination": "R032",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "news",
+      "tab": "长推",
+      "destination": "R033",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "news",
+      "tab": "媒体报道",
+      "destination": "R034",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "news",
+      "tab": "Web3.0",
+      "destination": "R035",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "news",
+      "tab": "行业报告",
+      "destination": "R036",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "news",
+      "tab": "AI号",
+      "destination": "R037",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "strategy",
+      "tab": "自动赚币",
+      "destination": "R038",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "strategy",
+      "tab": "套利机会",
+      "destination": "R039",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "strategy",
+      "tab": "专业套利",
+      "destination": "R040",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "strategy",
+      "tab": "我的套利",
+      "destination": "R041",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "chain",
+      "tab": "聪明钱",
+      "destination": "R042",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "chain",
+      "tab": "Hyperliquid",
+      "destination": "R043",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "chain",
+      "tab": "Polymarket",
+      "destination": "R044",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "assets",
+      "tab": "总览",
+      "destination": "R045",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "assets",
+      "tab": "币种分布",
+      "destination": "R046",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "assets",
+      "tab": "API账号分布",
+      "destination": "R047",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "assets",
+      "tab": "盈亏日历",
+      "destination": "R048",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "assets",
+      "tab": "流水",
+      "destination": "R049",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "assets",
+      "tab": "风控",
+      "destination": "R050",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "auth",
+      "tab": "已授权账户",
+      "destination": "R051",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "auth",
+      "tab": "添加授权",
+      "destination": "R052",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "auth",
+      "tab": "安全说明",
+      "destination": "R053",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "data",
+      "tab": "加密货币储备",
+      "destination": "R054",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "data",
+      "tab": "Hyperliquid",
+      "destination": "R055",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "more",
+      "tab": "钱包",
+      "destination": "R056",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "more",
+      "tab": "宏观",
+      "destination": "R057",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "more",
+      "tab": "自定义导航",
+      "destination": "R058",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "r127",
+      "page": "more",
+      "tab": "帮助中心",
+      "destination": "R059",
+      "status": "业务组件已接入新终端面板；逐控件与数据闭环待验收",
+      "evidence": null
+    },
+    {
+      "source": "terminal-ui",
+      "command": "WEI",
+      "label": "World Equity Indices",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "W",
+      "label": "Watchlist",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "TOP",
+      "label": "Top News",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "DES",
+      "label": "Security Description",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "GP",
+      "label": "Graph Price",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "HP",
+      "label": "Historical Prices",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "N",
+      "label": "News by Security",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "MOST",
+      "label": "Most Active",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "PORT",
+      "label": "Portfolio & Trading",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "HELP",
+      "label": "Help / Command Reference",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "TRD",
+      "label": "Trade Blotter",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "OPT",
+      "label": "Option Chain",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "GOV",
+      "label": "Govt Yield Curve",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "FX",
+      "label": "FX Cross Matrix",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "ECO",
+      "label": "Economic Calendar",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "COMP",
+      "label": "Peer Comparison",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "ORD",
+      "label": "Order Book / Working Orders",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "ALRT",
+      "label": "Price Alerts",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "FA",
+      "label": "Financial Analysis",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "EQS",
+      "label": "Equity Screener",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "FLDS",
+      "label": "Field Dictionary",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "SRCH",
+      "label": "Security Search",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "DEPTH",
+      "label": "Market Depth / DOM",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "MAP",
+      "label": "Market Map",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "CMDT",
+      "label": "Commodity Curve",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "SET",
+      "label": "Settings & Profiles",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "CONN",
+      "label": "Data & Connections",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "PLUG",
+      "label": "Components & Integrations",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "WORK",
+      "label": "Workspace & Accessibility",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "XL",
+      "label": "Office & Spreadsheet",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "MSG",
+      "label": "Messaging & Contacts",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "FEED",
+      "label": "Market Data Setup",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "BROKER",
+      "label": "Broker Connection",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "ACCOUNT",
+      "label": "Account & Entitlements",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "INBOX",
+      "label": "Notification Center",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "SUPPORT",
+      "label": "Help & Diagnostics",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "terminal-ui",
+      "command": "ABOUT",
+      "label": "About & UI Coverage",
+      "status": "现有DEMO/本地功能；业务接入待验收"
+    },
+    {
+      "source": "r127",
+      "page": "strategy",
+      "category": "我的策略",
+      "destination": "STR0",
+      "status": "业务组件已接入；逐项验收待完成"
+    },
+    {
+      "source": "r127",
+      "page": "strategy",
+      "category": "智能套利",
+      "destination": "STR1",
+      "status": "业务组件已接入；逐项验收待完成"
+    },
+    {
+      "source": "r127",
+      "page": "strategy",
+      "category": "全币种 DCA",
+      "destination": "STR2",
+      "status": "业务组件已接入；逐项验收待完成"
+    },
+    {
+      "source": "r127",
+      "page": "strategy",
+      "category": "AI网格",
+      "destination": "STR3",
+      "status": "业务组件已接入；逐项验收待完成"
+    },
+    {
+      "source": "r127",
+      "page": "strategy",
+      "category": "指标策略",
+      "destination": "STR4",
+      "status": "业务组件已接入；逐项验收待完成"
+    },
+    {
+      "source": "r127",
+      "page": "strategy",
+      "category": "跟单策略 · CEX",
+      "destination": "STR5",
+      "status": "业务组件已接入；逐项验收待完成"
+    },
+    {
+      "source": "r127",
+      "page": "strategy",
+      "category": "跟单策略 · DEX",
+      "destination": "STR6",
+      "status": "业务组件已接入；逐项验收待完成"
+    },
+    {
+      "source": "r127",
+      "page": "strategy",
+      "category": "主力追踪",
+      "destination": "STR7",
+      "status": "业务组件已接入；逐项验收待完成"
+    },
+    {
+      "source": "r127",
+      "page": "strategy",
+      "category": "游资追踪",
+      "destination": "STR8",
+      "status": "业务组件已接入；逐项验收待完成"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ from datetime import date
 from datetime import timezone
 
 from sqlalchemy import Boolean
+from sqlalchemy import CheckConstraint
 from sqlalchemy import Date
 from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
@@ -1034,6 +1035,14 @@ class Execution(Base, TenantOwnedMixin):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)
     order_draft_id: Mapped[str] = mapped_column(ForeignKey("order_drafts.id"), nullable=False, index=True)
+    fill_sequence: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    idempotency_key: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    request_fingerprint: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    __table_args__ = (
+        CheckConstraint("execution_mode != 'paper' OR (fill_sequence IS NOT NULL AND fill_sequence > 0)", name='ck_paper_execution_fill_sequence'),
+        Index('ux_executions_draft_fill_sequence', 'order_draft_id', 'fill_sequence', unique=True),
+        Index('ux_executions_draft_idempotency_key', 'order_draft_id', 'idempotency_key', unique=True),
+    )
     position_id: Mapped[str | None] = mapped_column(ForeignKey("positions.id"), nullable=True, index=True)
     execution_mode: Mapped[str] = mapped_column(String(32), default="none", nullable=False)
     status: Mapped[str] = mapped_column(String(32), default="not_started", nullable=False)
@@ -1153,3 +1162,33 @@ class AuditLog(Base, TenantOwnedMixin):
     entity_id: Mapped[str] = mapped_column(String(128), nullable=False)
     payload_json: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+class TerminalWorkspace(Base, TimestampMixin, TenantOwnedMixin):
+    __tablename__ = "terminal_workspaces"
+    user_id: Mapped[str] = mapped_column(String(128), primary_key=True, index=True)
+    workspace_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    context_json: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    layout_json: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+
+
+class ManualTradeEvidence(Base, TenantOwnedMixin):
+    __tablename__ = 'manual_trade_evidence'
+
+    data_snapshot_id: Mapped[str] = mapped_column(ForeignKey('data_snapshots.id'), primary_key=True)
+    order_intent_id: Mapped[str] = mapped_column(ForeignKey('order_intents.id'), nullable=False, index=True)
+    quote_id: Mapped[str] = mapped_column(ForeignKey('quotes.id'), nullable=False)
+    content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+class AceActionState(Base):
+    __tablename__ = 'ace_action_states'
+    user_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    action_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    source_revision: Mapped[str] = mapped_column(String(64), nullable=False)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default='OPEN')
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)

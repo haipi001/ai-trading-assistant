@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-02",
+  "goal_status": "active",
+  "backend_tests": {
+    "passed": 804,
+    "warnings": 1,
+    "seconds": 57.13,
+    "exit_code": 0,
+    "log": "/tmp/r127-research-revalidation-full.log"
+  },
+  "new_cases": 25,
+  "existing_focused_regression": {
+    "passed": 39,
+    "warnings": 1,
+    "seconds": 6.64
+  },
+  "initial_new_test_helper_failure": "helper did not evaluate gates; corrected before passing targeted cases; no production bypass",
+  "commands": [
+    "DATABASE_URL=sqlite+pysqlite:///:memory: /Users/lizekai/Documents/交易系统/ai-trading-os/backend/.venv/bin/python -m pytest -q backend/tests",
+    "python scripts/secret_scan.py",
+    "git diff --check"
+  ],
+  "source_sha256": {
+    "backend/app/services/decision_gates.py": "ef712c4e0673ee5c3d1b488ca39518247b1d508395fbac0bad66b6658ba9c9d5",
+    "backend/app/services/risk.py": "5a8944b816ccd405120d882327427e39031a1d167d8945eac8ffa275d00bfc34",
+    "backend/app/services/paper_execution.py": "81de74cde63f0b1ce3a3c701e105419c3fb07b9a8455866ae168e96c1552b6f5",
+    "backend/app/services/approval_grants.py": "3cb1cdbe334a0000c92c99c375fa0c21dcb918f9da39e87e0f1703665f754155",
+    "backend/tests/test_research_evidence_revalidation.py": "7e5501504bf1c9a23063f16179c575b225e790d0aa216396111cd487aa79bfa9"
+  },
+  "secret_scan": "passed",
+  "diff_check": "passed",
+  "browser_e2e_rerun": false,
+  "frontend_source_changed": false,
+  "live": false,
+  "external_llm": false,
+  "remaining": [
+    "Concurrent evidence-change race/transaction locks not verified",
+    "Non-research gates need broader cross-stage revalidation",
+    "Live execution not covered",
+    "Historical scope and provider/venue mapping limitations remain",
+    "Full 113-task project not complete"
+  ]
+}

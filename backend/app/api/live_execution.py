@@ -1,3 +1,4 @@
+from app.core.auth import require_permission
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
@@ -32,12 +33,12 @@ router = APIRouter(prefix="/live-execution", tags=["live-execution"])
 kill_switch_router = APIRouter(prefix="/kill-switch", tags=["kill-switch"])
 
 
-@router.get("/configs", response_model=list[LiveExecutionConfigRead])
+@router.get("/configs", response_model=list[LiveExecutionConfigRead], dependencies=[Depends(require_permission("read"))])
 def list_live_execution_configs(limit: int = 100, db: Session = Depends(get_db)):
     return LiveExecutionService(db).list_configs(limit=limit)
 
 
-@router.post("/configs", response_model=LiveExecutionConfigRead, status_code=201)
+@router.post("/configs", response_model=LiveExecutionConfigRead, status_code=201, dependencies=[Depends(require_permission("trade:configure"))])
 def create_live_execution_config(payload: LiveExecutionConfigCreate, db: Session = Depends(get_db)):
     try:
         return LiveExecutionService(db).create_config(**payload.model_dump())
@@ -45,7 +46,7 @@ def create_live_execution_config(payload: LiveExecutionConfigCreate, db: Session
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
-@router.delete("/configs/{config_id}", status_code=204)
+@router.delete("/configs/{config_id}", status_code=204, dependencies=[Depends(require_permission("trade:configure"))])
 def delete_live_execution_config(config_id: str, db: Session = Depends(get_db)) -> Response:
     try:
         LiveExecutionService(db).disable_config(config_id)
@@ -54,7 +55,7 @@ def delete_live_execution_config(config_id: str, db: Session = Depends(get_db)) 
     return Response(status_code=204)
 
 
-@router.post("/configs/{config_id}/health-check", response_model=BrokerHealthResponse)
+@router.post("/configs/{config_id}/health-check", response_model=BrokerHealthResponse, dependencies=[Depends(require_permission("trade:preview"))])
 def broker_health_check(config_id: str, db: Session = Depends(get_db)):
     try:
         return LiveExecutionService(db).broker_health_check(config_id)
@@ -62,7 +63,7 @@ def broker_health_check(config_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@router.post("/prepare", response_model=LiveExecutionPrepareResponse)
+@router.post("/prepare", response_model=LiveExecutionPrepareResponse, dependencies=[Depends(require_permission("trade:preview"))])
 def prepare_live_execution(payload: LiveExecutionPrepareRequest, db: Session = Depends(get_db)):
     try:
         return LiveExecutionService(db).prepare(payload.order_draft_id)
@@ -70,7 +71,7 @@ def prepare_live_execution(payload: LiveExecutionPrepareRequest, db: Session = D
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@router.post("/approve", response_model=LiveExecutionApprovalResponse)
+@router.post("/approve", response_model=LiveExecutionApprovalResponse, dependencies=[Depends(require_permission("trade:approve"))])
 def approve_live_execution(payload: LiveExecutionApprovalRequest, db: Session = Depends(get_db)):
     try:
         return LiveExecutionService(db).approve(**payload.model_dump())
@@ -78,7 +79,7 @@ def approve_live_execution(payload: LiveExecutionApprovalRequest, db: Session = 
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@router.post("/execute", response_model=LiveExecutionExecuteResponse, status_code=201)
+@router.post("/execute", response_model=LiveExecutionExecuteResponse, status_code=201, dependencies=[Depends(require_permission("trade:submit"))])
 def execute_live_order(payload: LiveExecutionExecuteRequest, db: Session = Depends(get_db)):
     try:
         return LiveExecutionService(db).execute(**payload.model_dump())
@@ -86,7 +87,7 @@ def execute_live_order(payload: LiveExecutionExecuteRequest, db: Session = Depen
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@router.post("/sandbox-run", response_model=LiveExecutionSandboxResponse)
+@router.post("/sandbox-run", response_model=LiveExecutionSandboxResponse, dependencies=[Depends(require_permission("trade:submit"))])
 def sandbox_live_execution(payload: LiveExecutionSandboxRequest, db: Session = Depends(get_db)):
     try:
         return LiveExecutionService(db).sandbox_run(**payload.model_dump())
@@ -94,7 +95,7 @@ def sandbox_live_execution(payload: LiveExecutionSandboxRequest, db: Session = D
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@router.post("/sandbox-certification")
+@router.post("/sandbox-certification", dependencies=[Depends(require_permission("trade:submit"))])
 def sandbox_certification(payload: LiveExecutionSandboxRequest, db: Session = Depends(get_db)):
     try:
         return LiveExecutionService(db).sandbox_certification(
@@ -106,7 +107,7 @@ def sandbox_certification(payload: LiveExecutionSandboxRequest, db: Session = De
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@router.post("/sandbox-drill-report")
+@router.post("/sandbox-drill-report", dependencies=[Depends(require_permission("trade:submit"))])
 def sandbox_drill_report(payload: LiveExecutionSandboxRequest, db: Session = Depends(get_db)):
     try:
         return LiveExecutionService(db).sandbox_drill_report(
@@ -118,7 +119,7 @@ def sandbox_drill_report(payload: LiveExecutionSandboxRequest, db: Session = Dep
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@router.post("/small-pilot-readiness", response_model=LiveExecutionSmallPilotReadinessResponse)
+@router.post("/small-pilot-readiness", response_model=LiveExecutionSmallPilotReadinessResponse, dependencies=[Depends(require_permission("trade:preview"))])
 def small_pilot_readiness(payload: LiveExecutionSmallPilotReadinessRequest, db: Session = Depends(get_db)):
     try:
         return LiveExecutionService(db).small_pilot_readiness(**payload.model_dump())
@@ -126,7 +127,7 @@ def small_pilot_readiness(payload: LiveExecutionSmallPilotReadinessRequest, db: 
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@router.post("/broker-reconciliation-plan")
+@router.post("/broker-reconciliation-plan", dependencies=[Depends(require_permission("trade:preview"))])
 def broker_reconciliation_plan(payload: LiveExecutionSandboxRequest, db: Session = Depends(get_db)):
     try:
         return LiveExecutionService(db).broker_reconciliation_plan(
@@ -138,7 +139,7 @@ def broker_reconciliation_plan(payload: LiveExecutionSandboxRequest, db: Session
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@router.post("/broker-sandbox-proof-packet")
+@router.post("/broker-sandbox-proof-packet", dependencies=[Depends(require_permission("trade:preview"))])
 def broker_sandbox_proof_packet(payload: LiveExecutionSandboxRequest, db: Session = Depends(get_db)):
     try:
         return LiveExecutionService(db).sandbox_proof_packet(
@@ -150,7 +151,7 @@ def broker_sandbox_proof_packet(payload: LiveExecutionSandboxRequest, db: Sessio
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@router.post("/small-pilot-approval-packet")
+@router.post("/small-pilot-approval-packet", dependencies=[Depends(require_permission("trade:preview"))])
 def small_pilot_approval_packet(payload: LiveExecutionSmallPilotReadinessRequest, db: Session = Depends(get_db)):
     try:
         return LiveExecutionService(db).small_pilot_approval_packet(**payload.model_dump())
@@ -158,7 +159,7 @@ def small_pilot_approval_packet(payload: LiveExecutionSmallPilotReadinessRequest
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@router.post("/small-pilot-go-no-go")
+@router.post("/small-pilot-go-no-go", dependencies=[Depends(require_permission("trade:preview"))])
 def small_pilot_go_no_go(payload: LiveExecutionSmallPilotReadinessRequest, db: Session = Depends(get_db)):
     try:
         return LiveExecutionService(db).small_pilot_go_no_go(**payload.model_dump())
@@ -166,17 +167,17 @@ def small_pilot_go_no_go(payload: LiveExecutionSmallPilotReadinessRequest, db: S
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@router.get("/history", response_model=list[LiveExecutionHistoryEntry])
+@router.get("/history", response_model=list[LiveExecutionHistoryEntry], dependencies=[Depends(require_permission("read"))])
 def live_execution_history(limit: int = 50, db: Session = Depends(get_db)):
     return LiveExecutionService(db).history(limit=limit)
 
 
-@kill_switch_router.get("/active", response_model=list[KillSwitchEntry])
+@kill_switch_router.get("/active", response_model=list[KillSwitchEntry], dependencies=[Depends(require_permission("read"))])
 def active_kill_switches(db: Session = Depends(get_db)):
     return KillSwitchService(db).active()
 
 
-@kill_switch_router.post("/engage", response_model=KillSwitchEntry, status_code=201)
+@kill_switch_router.post("/engage", response_model=KillSwitchEntry, status_code=201, dependencies=[Depends(require_permission("trade:pause"))])
 def engage_kill_switch(payload: KillSwitchEngageRequest, db: Session = Depends(get_db)):
     try:
         return KillSwitchService(db).engage(**payload.model_dump())
@@ -184,12 +185,12 @@ def engage_kill_switch(payload: KillSwitchEngageRequest, db: Session = Depends(g
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
-@kill_switch_router.post("/disengage")
+@kill_switch_router.post("/disengage", dependencies=[Depends(require_permission("trade:resume"))])
 def disengage_kill_switch(payload: KillSwitchDisengageRequest, db: Session = Depends(get_db)):
     return {"disengaged": KillSwitchService(db).disengage(**payload.model_dump())}
 
 
-@kill_switch_router.post("/check", response_model=KillSwitchCheckResponse)
+@kill_switch_router.post("/check", response_model=KillSwitchCheckResponse, dependencies=[Depends(require_permission("trade:preview"))])
 def check_kill_switch(
     account_id: str | None = None,
     asset_id: str | None = None,
@@ -198,6 +199,6 @@ def check_kill_switch(
     return KillSwitchService(db).check(account_id=account_id, asset_id=asset_id)
 
 
-@kill_switch_router.get("/history", response_model=list[KillSwitchEntry])
+@kill_switch_router.get("/history", response_model=list[KillSwitchEntry], dependencies=[Depends(require_permission("read"))])
 def kill_switch_history(limit: int = 100, db: Session = Depends(get_db)):
     return KillSwitchService(db).history(limit=limit)

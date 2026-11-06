@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-02",
+  "goal_status": "active",
+  "backend_tests": {
+    "passed": 860,
+    "warnings": 1,
+    "seconds": 91.25,
+    "exit_code": 0,
+    "log": "/tmp/r127-asset-identity-full.log"
+  },
+  "new_cases": 20,
+  "targeted": {
+    "passed": 63,
+    "warnings": 1,
+    "seconds": 8.58
+  },
+  "first_targeted_failure": "5 tests incorrectly assumed a GET /quotes API; corrected tests to inspect persisted Quote rows",
+  "source_sha256": {
+    "backend/app/services/asset_identity.py": "b7356d4ae1a31cf55ec733bbcfea642d4f585ba37b4d0c826f9d6e3864b0e7f2",
+    "backend/app/services/data_sources.py": "5d486db0cea2e4da2980910fbb09ef68b51df9c64f4bbe19847319f61eef30a4",
+    "backend/app/services/mock_import.py": "a44c504457e1290c219d258d86df237ba0f7d6be8f6245634885979748c7ff6a",
+    "backend/app/api/mock.py": "48bad655fc5f342c16758d2a24c542a8e3a511c07332cf9c6a3bbb7bec93ee49",
+    "backend/app/adapters/types.py": "a3e666f374e2081e0a47e027a9e6106b03da0a377ee82532a8eec0007b059cb2",
+    "backend/app/adapters/market_data_readonly.py": "718b6a341841fbc7c4d84c949a71e793370ad38b57886fe82aaff06dad1bb8b0",
+    "backend/app/services/decision_gates.py": "75e10a09d8a8e16a89fad02c40d5498e0577b919518e67048e2b65f96a027fbe",
+    "backend/tests/test_data_source_asset_identity.py": "fcdb53aa75abb1f2affd2d95d81b36a842948b11443f1b58cda2cdb1b475cfe9"
+  },
+  "commands": [
+    "DATABASE_URL=sqlite+pysqlite:///:memory: /Users/lizekai/Documents/交易系统/ai-trading-os/backend/.venv/bin/python -m pytest -q backend/tests",
+    "python scripts/secret_scan.py",
+    "git diff --check"
+  ],
+  "secret_scan": "passed",
+  "diff_check": "passed",
+  "frontend_source_changed": false,
+  "browser_e2e_rerun": false,
+  "external_live_provider_calls": false,
+  "live": false,
+  "external_llm": false,
+  "schema_changed": false,
+  "remaining": [
+    "Database uniqueness/atomic import concurrency",
+    "Authoritative venue aliases and instrument registry",
+    "Metadata-absent providers still rely on declared identity",
+    "Historical misbinding review and explicit migration",
+    "Other symbol-only paths and manual trade-first flow",
+    "Complete 113-task acceptance"
+  ]
+}

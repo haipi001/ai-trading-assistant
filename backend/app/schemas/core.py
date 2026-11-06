@@ -1704,6 +1704,7 @@ OrderMode = Literal["manual", "auto"]
 
 
 class RiskCheckOrderRequest(BaseModel):
+    model_config = {"allow_inf_nan": False}
     order_intent_id: str
     order_mode: OrderMode = "manual"
     max_order_notional: float = 10_000
@@ -2107,6 +2108,7 @@ class DecisionGateRead(DecisionGateCreate, ORMModel):
 
 
 class DecisionGateEvaluateRequest(BaseModel):
+    model_config = {"allow_inf_nan": False}
     order_intent_id: str
     user_id: str | None = None
     data_snapshot_id: str | None = None
@@ -2791,6 +2793,8 @@ class ApprovalRead(ORMModel):
 
 
 class PaperExecutionRequest(BaseModel):
+    model_config = {'allow_inf_nan': False}
+    idempotency_key: str | None = Field(default=None, min_length=1, max_length=128, pattern=r'^[A-Za-z0-9_.:-]+$')
     approver_id: str | None = None
     decision_reason: str | None = None
     fill_price: float | None = None
@@ -2817,6 +2821,8 @@ class PaperStockSplitRequest(BaseModel):
 
 
 class ExecutionRead(ORMModel):
+    fill_sequence: int | None = None
+    idempotency_key: str | None = None
     id: str
     order_draft_id: str
     position_id: str | None
@@ -2964,6 +2970,7 @@ class PlaybookProposalPublishResponse(BaseModel):
 
 
 class PaperExecutionResponse(BaseModel):
+    replayed: bool = False
     execution: ExecutionRead
     journal_entry: TradeJournalEntryRead
     post_trade_review: PostTradeReviewRead
@@ -2981,3 +2988,14 @@ class AuditLogRead(ORMModel):
     entity_id: str
     payload_json: dict
     created_at: datetime
+
+
+class ManualPaperEvidenceRead(BaseModel):
+    order_intent_id: str
+    data_snapshot_id: str
+    quote_id: str
+    price: float
+    quote_source: str
+    quote_as_of: datetime
+    expires_at: datetime
+    evidence_mode: Literal['manual_paper_quote']

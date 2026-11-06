@@ -1,5 +1,7 @@
 from fastapi import APIRouter
 from fastapi import Depends
+from fastapi import HTTPException
+from app.services.asset_identity import AssetIdentityError
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
@@ -17,9 +19,17 @@ def import_accounts(db: Session = Depends(get_db)) -> dict:
 
 @router.post("/import-positions")
 def import_positions(db: Session = Depends(get_db)) -> dict:
-    return import_mock_positions(db)
+    try:
+        return import_mock_positions(db)
+    except AssetIdentityError as exc:
+        db.rollback()
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @router.post("/update-quotes")
 def update_quotes(db: Session = Depends(get_db)) -> dict:
-    return update_mock_quotes(db)
+    try:
+        return update_mock_quotes(db)
+    except AssetIdentityError as exc:
+        db.rollback()
+        raise HTTPException(status_code=422, detail=str(exc)) from exc

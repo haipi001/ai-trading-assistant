@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from hashlib import sha256
 from fastapi.routing import APIRoute
+from fastapi import routing as fastapi_routing
 from starlette.routing import Match
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
@@ -26,6 +27,13 @@ from app.services.beta_analytics import BetaAnalyticsService
 class ManagedAuthMiddleware(BaseHTTPMiddleware):
     PUBLIC_PREFIXES = ("/health", "/docs", "/redoc", "/openapi.json", "/production/auth/login")
     LOGIN_PATH = "/production/auth/login"
+
+    @classmethod
+    def _is_public_path(cls, path: str) -> bool:
+        return path in {cls.LOGIN_PATH, "/openapi.json"} or any(
+            path == prefix or path.startswith(prefix + "/") for prefix in ("/health", "/docs", "/redoc")
+        )
+
     BETA_RECOVERY_PATHS = (
         "/production/auth/logout",
         "/production/beta-profile",
@@ -108,16 +116,18 @@ class ManagedAuthMiddleware(BaseHTTPMiddleware):
         )
 
     @staticmethod
-    def _route_body_accepts_user_id(request: Request) -> bool:
-        for route in request.app.router.routes:
+    def _route_body_accepts_user_id(request: Request, field_name: str = "user_id") -> bool:
+        iterator = getattr(fastapi_routing, "iter_route_contexts", None)
+        candidates = ((context, context.original_route) for context in iterator(request.app.router.routes)) if iterator else ((route, route) for route in request.app.router.routes)
+        for matcher, route in candidates:
             if not isinstance(route, APIRoute):
                 continue
-            match, _ = route.matches(request.scope)
+            match, _ = matcher.matches(request.scope)
             if match != Match.FULL or route.body_field is None:
                 continue
             annotation = getattr(route.body_field.field_info, "annotation", None)
             model_fields = getattr(annotation, "model_fields", {})
-            return "user_id" in model_fields
+            return field_name in model_fields
         return False
 
     async def _bind_json_user(self, request: Request, actor) -> JSONResponse | None:
@@ -136,6 +146,20 @@ class ManagedAuthMiddleware(BaseHTTPMiddleware):
             return None
         if not isinstance(payload, dict):
             return None
+        changed = False
+        # Resource ownership may be delegated to an administrator; the actor
+        # who approved or stopped trading may never be impersonated.
+        for field in ("approver_id", "engaged_by", "disengaged_by"):
+            if not self._route_body_accepts_user_id(request, field):
+                continue
+            value = payload.get(field)
+            if value is not None and str(value).strip() != actor.user_id:
+                return JSONResponse(
+                    {"detail": f"{field} must match the authenticated session", "code": "actor_identity_mismatch"},
+                    status_code=403, headers={"Cache-Control": "no-store"},
+                )
+            payload[field] = actor.user_id
+            changed = True
         requested_user_id = payload.get("user_id")
         if requested_user_id is not None and str(requested_user_id).strip() != actor.user_id and actor.role not in {"owner", "admin"}:
             return JSONResponse(
@@ -145,12 +169,13 @@ class ManagedAuthMiddleware(BaseHTTPMiddleware):
             )
         if requested_user_id is not None:
             request.state.tenant_user_id = str(requested_user_id).strip()
-            return None
-        if not self._route_body_accepts_user_id(request):
+        elif self._route_body_accepts_user_id(request):
+            payload["user_id"] = actor.user_id
+            request.state.tenant_user_id = actor.user_id
+            changed = True
+        if not changed:
             return None
 
-        payload["user_id"] = actor.user_id
-        request.state.tenant_user_id = actor.user_id
         encoded = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
         request._body = encoded
         sent = False
@@ -174,6 +199,16 @@ class ManagedAuthMiddleware(BaseHTTPMiddleware):
         settings = get_settings()
         if request.method == "OPTIONS":
             return await call_next(request)
+        # A deployment misconfiguration must never expose local header identity
+        # as production authentication. Keep health/docs observable for recovery.
+        environment = str(getattr(settings, "environment", "local")).lower()
+        if environment in {"production", "staging"} and not settings.managed_auth_required:
+            if not self._is_public_path(request.url.path) or request.url.path == self.LOGIN_PATH:
+                return JSONResponse(
+                    {"detail": "managed authentication is required in hosted environments", "code": "hosted_auth_misconfigured"},
+                    status_code=503,
+                    headers={"Cache-Control": "no-store"},
+                )
         if request.url.path == self.LOGIN_PATH:
             client_host = request.client.host if request.client else "unknown-client"
             limited = self._rate_limit_response(
@@ -185,7 +220,7 @@ class ManagedAuthMiddleware(BaseHTTPMiddleware):
             if limited is not None:
                 return limited
             return await call_next(request)
-        if not settings.managed_auth_required or request.url.path.startswith(self.PUBLIC_PREFIXES):
+        if not settings.managed_auth_required or self._is_public_path(request.url.path):
             return await call_next(request)
         authorization = request.headers.get("authorization") or ""
         if not authorization.startswith("Bearer "):

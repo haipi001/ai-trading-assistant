@@ -1,0 +1,5 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import {chartPeriod,terminalPeriod} from '../../src/terminal-selection.js';
+import {nextWorkspaceContext,workspaceHistory} from '../../src/workspace-context.js';
+test('chart and terminal periods preserve units without confusing minutes and months',()=>{for(const period of ['5M','45M','4H','1D','2W','3MO','30S'])assert.equal(terminalPeriod(chartPeriod(period)),period);assert.equal(terminalPeriod('分时'),'1M');assert.throws(()=>chartPeriod('1分钟'));assert.throws(()=>terminalPeriod('LIVE'));});
+test('chain, contract, wallet and account changes isolate AI history',()=>{const base={page:'chain',asset_class:'onchain',symbol:'TOKEN',chain_id:'1',contract_address:'0x'+'a'.repeat(40),wallet_id:'wallet-a',account_id:'account-a'};const first=nextWorkspaceContext(null,base);for(const patch of [{chain_id:'10'},{contract_address:'0x'+'b'.repeat(40)},{wallet_id:'wallet-b'},{account_id:'account-b'}]){const next=nextWorkspaceContext(first,{...base,...patch});assert.equal(next.context_version,2);assert.deepEqual(workspaceHistory([{workspaceIdentity:first.identity,text:'prior chain research'}],next),[]);}});

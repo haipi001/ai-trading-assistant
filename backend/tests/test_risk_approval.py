@@ -297,3 +297,28 @@ def test_approval_writes_audit_log(client: TestClient) -> None:
     assert approval["status"] == "approved"
     audit_logs = client.get("/audit-logs").json()
     assert any(log["action"] == "order_draft.approved" and log["entity_id"] == approval["id"] for log in audit_logs)
+
+
+def test_draft_creation_ignores_forged_approval_and_gate_results(client):
+    asset = create_asset(client)
+    account = create_account(client)
+    intent = create_intent(client, asset["id"], account["id"])
+    pass_decision_gates(client, intent["id"], account["id"])
+    check = client.post("/risk/check-order", json={"order_intent_id": intent["id"]})
+    assert check.status_code == 201 and check.json()["hard_rule_passed"]
+    response = client.post("/orders/drafts", json={
+        "order_intent_id": intent["id"], "risk_status": "passed", "behavior_status": "passed",
+        "approval_status": "approved", "execution_status": "live_ready",
+        "approval_policy": {"required": False},
+        "decision_gate_results": {"FORGED": {"status": "PASSED"}},
+    })
+    assert response.status_code == 201
+    draft = response.json()
+    assert draft["approval_status"] == "pending"
+    assert draft["execution_status"] == "not_executable"
+    assert draft["approval_policy"]["required"] is True
+    assert "FORGED" not in draft["decision_gate_results"]
+    assert "RISK_GATE" in draft["decision_gate_results"]
+    execution = client.post(f"/paper-executions/drafts/{draft['id']}/execute", json={})
+    assert execution.status_code == 422
+    assert "approved" in execution.json()["detail"]

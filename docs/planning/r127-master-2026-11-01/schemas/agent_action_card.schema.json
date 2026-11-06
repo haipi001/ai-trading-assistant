@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-trading-os/agent_action_card",
+  "title": "agent_action_card",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "action_id",
+    "task_id",
+    "kind",
+    "title",
+    "summary",
+    "context_snapshot_id",
+    "evidence_ids",
+    "generated_at",
+    "status",
+    "next_action",
+    "execution_available",
+    "limitations"
+  ],
+  "properties": {
+    "action_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "kind": {
+      "type": "string",
+      "description": "操作等级",
+      "enum": [
+        "INFO",
+        "RECOMMENDATION",
+        "ORDER_PROPOSAL",
+        "APPROVAL_REQUEST"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "description": "卡片标题"
+    },
+    "summary": {
+      "type": "string",
+      "description": "非交易执行指令"
+    },
+    "context_snapshot_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "type": "string",
+      "description": "用户处理",
+      "enum": [
+        "OPEN",
+        "ACKNOWLEDGED",
+        "DISMISSED",
+        "EXPIRED",
+        "CONVERTED"
+      ]
+    },
+    "next_action": {
+      "type": "string",
+      "description": "工具明确允许的跳转或草稿动作",
+      "enum": [
+        "open_source",
+        "open_chart",
+        "open_research",
+        "create_draft",
+        "review_approval",
+        "none"
+      ]
+    },
+    "trade_proposal_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "execution_available": {
+      "type": "boolean",
+      "const": false
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "资料与能力限制"
+      }
+    }
+  }
+}

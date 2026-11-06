@@ -2,6 +2,7 @@ import { cp, mkdir, writeFile } from "node:fs/promises";
 
 await mkdir("dist/client", { recursive: true });
 await cp("dist/index.html", "dist/client/index.html");
+await cp("dist/local-data-migration.html", "dist/client/local-data-migration.html");
 await cp("dist/assets", "dist/client/assets", { recursive: true });
 
 await mkdir("dist/server", { recursive: true });

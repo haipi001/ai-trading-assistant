@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="terminal-api-base" content="http://127.0.0.1:8001">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TERMINAL — Market Data Workstation</title>
+<meta name="theme-color" content="#0a0f14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TERMINAL">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/icon-16.png">
+<link id="brandicon" rel="icon" type="image/png" sizes="32x32" href="assets/icon-32.png">
+<link rel="icon" type="image/png" sizes="256x256" href="assets/icon-256.png">
+<link rel="apple-touch-icon" href="assets/icon-128.png">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="integration/desk.css?v=2">
+<link rel="stylesheet" href="integration/appearance.tokens.css">
+<link rel="stylesheet" href="integration/appearance.generated.css">
+<link rel="stylesheet" href="integration/appearance.css">
+</head>
+<body>
+
+<div id="app">
+
+  <header class="bar">
+    <div class="brand"><span class="dot"></span>TERMINAL</div>
+    <div class="cmdwrap">
+      <input id="cmd" aria-label="Terminal command" autocomplete="off" spellcheck="false"
+             placeholder="AAPL US Equity &lt;GO&gt;   ·   WEI   ·   TOP   ·   HELP">
+      <button id="gobtn">&lt;GO&gt;</button>
+      <button id="histbtn" class="hbtn" title="Command history (&#8984;H)" aria-label="Command history">&#9662;</button>
+      <div id="histpop" class="histpop hidden">
+        <div class="hhead">COMMAND HISTORY <span>&#8984;H</span></div>
+        <ul id="histlist"></ul>
+      </div>
+    </div>
+    <div class="meta">
+      <a id="public-site-link" href="https://haipi001.github.io/ai-trading-assistant/" target="_blank" rel="noopener" style="color:var(--muted);font:10px monospace" title="所有人可访问的网站 · 开发预览 / Live关闭">公开网站 ↗</a>
+      <button id="palbtn" class="mbtn" title="Command palette (Cmd+K)">&#8984;K</button>
+      <button id="qkbtn" class="mbtn" title="Keyboard shortcuts (?)">?</button>
+      <button id="thbtn" class="mbtn" data-theme="AMBER" title="切换强调色：AMBER / ICE / TOXIC">TH</button>
+      <span id="status-dot" class="live"></span><span id="conn">LOCAL SIM</span>
+      <span id="clock">--:--:--</span>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="rail">
+      <div class="rail-hd">FUNCTION MENU</div>
+      <ul id="fkeys"></ul>
+      <div class="rail-hd">MONITOR</div>
+      <ul id="monitor"></ul>
+      <div class="rail-hd">SESSION</div>
+      <div class="rail-sess">
+        <div><span>USER</span><b id="sessUser" title="Click to switch profile">GUEST</b></div>
+        <div><span>MODE</span><b>DEMO</b></div>
+        <div><span>TICKS</span><b id="tickcount">0</b></div>
+      </div>
+    </aside>
+
+    <main id="main">
+      <nav class="workspace-nav" aria-label="Workspace navigation">
+        <div class="workspace-tabs">
+          <button data-command="WEI" class="workspace-tab">Markets</button>
+          <button data-command="AAPL GP" class="workspace-tab">Charting</button>
+          <button data-command="TOP" class="workspace-tab">News</button>
+          <button data-command="PORT" class="workspace-tab">Portfolio</button>
+          <button data-command="EQS" class="workspace-tab">Research</button>
+          <button id="directory-toggle" class="workspace-tab" aria-expanded="false">All functions ▾</button>
+        </div>
+        <div class="layout-picker" role="group" aria-label="Panel layout">
+          <span>WORKSPACE</span><button data-command="LAY 1" aria-label="Single panel">▣ 1</button><button data-command="LAY 2" aria-label="Two panels">◫ 2</button><button data-command="LAY 4" aria-label="Four panels">⊞ 4</button>
+        </div>
+      </nav>
+      <section id="function-directory" class="function-directory" hidden aria-label="All terminal functions"></section>
+      <div class="panel-hd">
+        <span id="phTitle">HELP</span>
+        <span id="phSub">Function list · type a command above</span>
+        <span id="phRight"></span>
+      </div>
+      <div id="view"></div>
+    </main>
+  </div>
+
+  <footer class="foot">
+    <span id="stMsg">Ready. Type a command or press F1–F9. ↑↓ move · ⏎ open · ESC clear</span>
+    <span class="fright">
+      <span id="freshflag" class="fchip live" title="Feed state">LIVE</span>
+      <span id="savedflag" class="fchip" title="Profile autosave">SAVED</span>
+      <button id="qkfoot" class="fkey" title="Keyboard reference (?)" aria-label="Keyboard reference">?</button>
+      <span id="stRight">12ms · SIM FEED</span>
+    </span>
+  </footer>
+
+  <div id="palette" class="palette hidden" role="dialog" aria-modal="true" aria-label="Command palette">
+    <div class="pbox">
+      <input id="pinput" autocomplete="off" spellcheck="false" placeholder="Jump to function or security...">
+      <div id="plist" class="plist"></div>
+      <div class="pfoot">&#8593;&#8595; navigate &nbsp; &#8629; open &nbsp; ESC close</div>
+    </div>
+  </div>
+
+  <div id="authmask" class="authmask hidden" role="dialog" aria-modal="true" aria-label="Local profile login">
+    <div class="authbox">
+      <div class="ahead">TERMINAL LOGIN</div>
+      <p class="asub">Local profiles — cash, positions, blotter and watchlist are stored per user.</p>
+      <div class="arow">
+        <input id="authname" autocomplete="off" spellcheck="false" placeholder="USER NAME">
+        <button id="authgo" class="tbtn b">ENTER</button>
+        <button id="authx" class="tbtn">CANCEL</button>
+      </div>
+      <div class="alist" id="userlist"></div>
+    </div>
+  </div>
+
+  <div id="ctxmenu" class="ctxmenu hidden"></div>
+
+  <div id="quickref" class="qf hidden" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+    <div class="qbox">
+      <div class="qhead">KEYBOARD REFERENCE <button id="qkx" class="qx" aria-label="Close">&times;</button></div>
+      <div class="qgrid">
+        <section>
+          <h4>COMMAND LINE</h4>
+          <div class="qrow"><kbd>F1</kbd><kbd>–</kbd><kbd>F12</kbd><span>Function keys from the rail</span></div>
+          <div class="qrow"><kbd>&#8984;</kbd><kbd>K</kbd><span>Command palette — functions &amp; securities</span></div>
+          <div class="qrow"><kbd>&#8984;</kbd><kbd>H</kbd><span>Command history list</span></div>
+          <div class="qrow"><kbd>&#8984;</kbd><kbd>+</kbd><kbd>&#8722;</kbd><kbd>0</kbd><span>Scale the workstation up, down, or back to 100%</span></div>
+          <div class="qrow"><kbd>Tab</kbd><span>Complete the highlighted suggestion</span></div>
+          <div class="qrow"><kbd>&#8593;</kbd><kbd>&#8595;</kbd><span>Recall history, or move the rail selection</span></div>
+        </section>
+        <section>
+          <h4>VIEW</h4>
+          <div class="qrow"><kbd>&#8629;</kbd><span>Open the selected row</span></div>
+          <div class="qrow"><kbd>&#8593;</kbd><kbd>&#8595;</kbd><span>Rove between focused table rows</span></div>
+          <div class="qrow"><kbd>Home</kbd><kbd>End</kbd><span>Jump to the first or last row</span></div>
+          <div class="qrow"><kbd>PgUp</kbd><kbd>PgDn</kbd><span>Move a screenful at a time</span></div>
+          <div class="qrow"><kbd>ESC</kbd><span>Clear input · close overlays · exit full screen</span></div>
+          <div class="qrow"><kbd>?</kbd><span>This reference</span></div>
+          <div class="qrow"><span class="qnote">Tab onto a heat-map tile, then &#8629; or Space to open it</span></div>
+        </section>
+      </div>
+      <div class="qfoot">Press <kbd>ESC</kbd> to close</div>
+    </div>
+  </div>
+
+</div>
+<script>
+  // boot diagnostics: surface runtime errors in the document title for headless checks
+  window.addEventListener("error", (e) => {
+    document.title = "BOOTERROR line " + e.lineno + ": " + e.message;
+  });
+</script>
+<script src="integration/registry.js?v=2"></script>
+<script src="app.js?v=integration-7"></script>
+<script src="workspace.js?v=integration-4"></script>
+<div id="integration-boot-status" role="status" style="position:fixed;bottom:26px;right:12px;z-index:10000;padding:8px 12px;background:var(--ui-surface,#18212b);color:var(--ui-text,#e5edf5);font:12px monospace">正在加载市场与AI工作区…</div>
+<script>
+  function startTerminalIntegration() {
+  import('./integration/desk.mjs?v=10').then(() => {
+    document.getElementById('integration-boot-status')?.remove();
+  }).catch(error => {
+    const status = document.getElementById('integration-boot-status');
+    if (status) {
+      status.setAttribute('role','alert');
+      status.textContent = '市场与AI工作区未能启动，请刷新或重新运行 start.command。' + String(error?.message || '').slice(0,200);
+    }
+    console.error('Terminal integration startup failed', error);
+  });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startTerminalIntegration, {once:true});
+  else startTerminalIntegration();
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import {createPersistentPaperDrafts} from '../integration/persistent-paper-drafts.mjs';
+import {paperDraftScope,emptyPaperForm,savePaperDraft,readPaperDraft} from '../../src/paper-draft-buffer.js';
+function storage(){const m=new Map();return {getItem:k=>m.get(k)||null,setItem:(k,v)=>m.set(k,v),removeItem:k=>m.delete(k)};}
+test('refresh restores only scoped unsent fields and never order authority',()=>{const s=storage(),scope=paperDraftScope({userId:'alice',market:'stocks',symbol:'AAPL'}),buffer=createPersistentPaperDrafts(s);savePaperDraft(scope,{...emptyPaperForm(),accountId:'a',quantity:'7',rationale:'reason',approval_status:'approved'},buffer);const restored=createPersistentPaperDrafts(s);assert.equal(readPaperDraft(scope,'a',restored).quantity,'7');assert.equal(readPaperDraft(scope,'a',restored).approval_status,undefined);assert.equal(readPaperDraft(scope,'b',restored),null);assert.equal(readPaperDraft(paperDraftScope({userId:'bob',market:'stocks',symbol:'AAPL'}),'a',restored),null);restored.clear();assert.equal(createPersistentPaperDrafts(s).size(),0);});
+test('invalid authority fields and storage failure cannot partially replace the buffer',()=>{const s=storage(),b=createPersistentPaperDrafts(s),scope=paperDraftScope({userId:'a'}),form={...emptyPaperForm(),accountId:'x'};assert.throws(()=>b.writeBatch([[JSON.stringify([scope,'form','x']),{...form,approval_status:'approved'}]]));assert.equal(b.size(),0);s.setItem=()=>{throw Error('quota');};assert.throws(()=>savePaperDraft(scope,form,b));assert.equal(b.size(),0);});
+test('corrupt saved packets cannot restore authority or partially restore rows',()=>{
+ for(const raw of ['null','{','{"schema":1,"rows":[],"approval":"approved"}','{"schema":1,"rows":[["null",{}]]}']){const s=storage();s.setItem('terminal-unsent-paper-forms-v1',raw);assert.equal(createPersistentPaperDrafts(s).size(),0);}
+ const s=storage(),b=createPersistentPaperDrafts(s),scope=paperDraftScope({userId:'alice',market:'stocks',symbol:'AAPL'}),form={...emptyPaperForm(),accountId:'a',quantity:'5'};savePaperDraft(scope,form,b);
+ for(const rows of [null,{},[['bad']],[[JSON.stringify([scope,'form','a']),{...form,quantity:'9'}],['not-json',{}]]]){assert.throws(()=>b.writeBatch(rows));assert.equal(readPaperDraft(scope,'a',b).quantity,'5');assert.equal(readPaperDraft(scope,'a',createPersistentPaperDrafts(s)).quantity,'5');}
+ assert.equal(readPaperDraft(paperDraftScope({userId:'alice',market:'cex',symbol:'AAPL'}),'a',b),null);
+});

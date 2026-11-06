@@ -21,10 +21,14 @@ from app.models import Account
 from app.models import Asset
 from app.models import Position
 from app.models import Quote
+from app.services.asset_identity import asset_identity, find_asset
 
 
 def get_or_create_asset(db: Session, adapter_asset: AdapterAsset) -> Asset:
-    asset = db.scalar(select(Asset).where(Asset.symbol == adapter_asset.symbol))
+    identity = asset_identity(**{key: getattr(adapter_asset, key) for key in (
+        'symbol', 'asset_type', 'market', 'venue', 'currency', 'chain_id', 'contract_address',
+    )})
+    asset = find_asset(db, identity)
     if asset:
         return asset
 
@@ -127,10 +131,7 @@ def import_mock_positions(db: Session) -> dict:
 
 
 def update_mock_quotes(db: Session) -> dict:
-    for adapter_asset in MOCK_ASSETS.values():
-        get_or_create_asset(db, adapter_asset)
-
-    assets = {asset.symbol: asset for asset in db.scalars(select(Asset)).all()}
+    assets = {symbol: get_or_create_asset(db, value) for symbol, value in MOCK_ASSETS.items()}
     quotes = [create_quote(assets[symbol], adapter_quote) for symbol, adapter_quote in MOCK_QUOTES.items()]
 
     for quote in quotes:
@@ -212,15 +213,26 @@ def create_quote(asset: Asset, adapter_quote: AdapterQuote) -> Quote:
 
 
 def update_positions_from_quotes(db: Session, prices_by_symbol: dict[str, float]) -> None:
-    assets = {asset.id: asset for asset in db.scalars(select(Asset)).all()}
-    positions = db.scalars(select(Position)).all()
-
-    for position in positions:
-        asset = assets.get(position.asset_id)
-        if not asset or asset.symbol not in prices_by_symbol:
+    prices = {}
+    for symbol, price in prices_by_symbol.items():
+        spec = MOCK_ASSETS.get(symbol)
+        if spec is None:
             continue
+        identity = asset_identity(**{key: getattr(spec, key) for key in (
+            'symbol', 'asset_type', 'market', 'venue', 'currency', 'chain_id', 'contract_address',
+        )})
+        asset = find_asset(db, identity)
+        if asset is not None:
+            prices[asset.id] = price
+    update_positions_from_asset_quotes(db, prices)
 
-        market_price = Decimal(str(prices_by_symbol[asset.symbol]))
+
+def update_positions_from_asset_quotes(db: Session, prices_by_asset_id: dict[str, float]) -> None:
+    if not prices_by_asset_id:
+        return
+    positions = db.scalars(select(Position).where(Position.asset_id.in_(prices_by_asset_id))).all()
+    for position in positions:
+        market_price = Decimal(str(prices_by_asset_id[position.asset_id]))
         quantity = Decimal(str(position.quantity))
         average_cost = Decimal(str(position.average_cost))
         position.market_price = market_price

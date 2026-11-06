@@ -45,6 +45,7 @@ class AdapterQuote:
     ask: float | None = None
     source: str = "mock"
     as_of: datetime | None = None
+    currency: str | None = None
 
 
 @dataclass(frozen=True)
@@ -58,6 +59,7 @@ class AdapterCandle:
     close: float
     volume: float
     source: str = "mock"
+    currency: str | None = None
 
 
 @dataclass(frozen=True)

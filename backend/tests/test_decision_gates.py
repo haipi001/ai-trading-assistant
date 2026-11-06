@@ -1,3 +1,5 @@
+import pytest
+
 from fastapi.testclient import TestClient
 
 
@@ -526,3 +528,32 @@ def test_research_gate_blocks_snapshot_catalog_marked_not_usable(client: TestCli
     research_gate = gate_by_type(response.json()["gates"], "RESEARCH_GATE")
     assert research_gate["status"] == "BLOCKED"
     assert "data_catalog_not_usable_for_trading" in research_gate["blocking_reasons_json"]
+
+
+@pytest.mark.parametrize("limit,exposure,value,reason", [
+    ("max_single_position_pct", "current_position_pct", 0.3, "max_single_position_pct_exceeded"),
+    ("max_asset_class_pct", "asset_class_pct", 0.9, "max_asset_class_pct_exceeded"),
+    ("max_crypto_pct", "crypto_pct", 0.3, "max_crypto_pct_exceeded"),
+    ("max_single_exchange_pct", "exchange_pct", 0.6, "max_single_exchange_pct_exceeded"),
+    ("max_daily_loss_pct", "daily_loss_pct", 0.03, "max_daily_loss_pct_exceeded"),
+    ("max_monthly_drawdown_pct", "monthly_drawdown_pct", 0.09, "max_monthly_drawdown_pct_exceeded"),
+])
+def test_request_cannot_relax_saved_constitution_limit(client, limit, exposure, value, reason):
+    _, _, intent, snapshot_id = setup_gate_ready_order(client)
+    response = client.post("/decision-gates/evaluate", json=passing_gate_payload(
+        intent["id"], snapshot_id, **{limit: 1.0, exposure: value},
+    ))
+    assert response.status_code == 201
+    gate = gate_by_type(response.json()["gates"], "RISK_GATE")
+    assert gate["status"] != "PASSED"
+    assert reason in gate["blocking_reasons_json"]
+
+
+def test_request_can_tighten_saved_constitution_limit(client):
+    _, _, intent, snapshot_id = setup_gate_ready_order(client)
+    response = client.post("/decision-gates/evaluate", json=passing_gate_payload(
+        intent["id"], snapshot_id, max_single_position_pct=0.01,
+    ))
+    assert response.status_code == 201
+    gate = gate_by_type(response.json()["gates"], "RISK_GATE")
+    assert "max_single_position_pct_exceeded" in gate["blocking_reasons_json"]

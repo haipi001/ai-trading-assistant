@@ -37,7 +37,8 @@ from app.models import ScheduledJob
 from app.schemas.core import contains_secret_config_key
 from app.schemas.core import looks_like_inline_secret_reference
 from app.services.data_catalog import DataCatalogService
-from app.services.mock_import import update_positions_from_quotes
+from app.services.mock_import import update_positions_from_asset_quotes
+from app.services.asset_identity import asset_identity, find_asset
 
 
 class DataSourceError(ValueError):
@@ -1298,18 +1299,23 @@ class DataSourceService:
         normalized_symbols = self._normalize_symbols(symbols)
         imported_quotes: list[Quote] = []
         imported_payload: list[dict[str, Any]] = []
-        prices_by_symbol: dict[str, float] = {}
+        prices_by_asset_id: dict[str, float] = {}
         skipped: list[dict[str, str]] = []
 
         for symbol in normalized_symbols:
             try:
                 adapter_quote = adapter.get_quote(symbol)
+                if adapter_quote.symbol.strip().upper() != symbol:
+                    raise DataSourceProviderError("provider quote symbol does not match requested instrument")
+                if adapter_quote.currency and adapter_quote.currency.upper() != currency.strip().upper():
+                    raise DataSourceProviderError("provider quote currency does not match requested instrument")
                 asset = self._get_or_create_read_only_asset(
                     adapter_quote=adapter_quote,
                     asset_type=asset_type,
                     market=market,
                     venue=venue or connection.provider,
                     currency=currency,
+                    fixture_metadata=connection.provider == "mock_market_data",
                 )
                 quote = self._create_quote(asset, adapter_quote, connection)
             except Exception as exc:
@@ -1318,11 +1324,18 @@ class DataSourceService:
 
             self.db.add(quote)
             self.db.flush()
-            prices_by_symbol[asset.symbol] = float(quote.price)
+            prices_by_asset_id[asset.id] = float(quote.price)
             imported_quotes.append(quote)
             imported_payload.append(
                 {
+                    "asset_id": asset.id,
                     "symbol": asset.symbol,
+                    "asset_type": asset.asset_type,
+                    "market": asset.market,
+                    "chain_id": asset.chain_id,
+                    "contract_address": asset.contract_address,
+                    "venue": asset.venue,
+                    "currency": asset.currency,
                     "price": float(quote.price),
                     "bid": float(quote.bid) if quote.bid is not None else None,
                     "ask": float(quote.ask) if quote.ask is not None else None,
@@ -1350,7 +1363,7 @@ class DataSourceService:
             self.db.commit()
             raise DataSourceProviderError(f"no quotes imported: {connection.last_error}")
 
-        update_positions_from_quotes(self.db, prices_by_symbol)
+        update_positions_from_asset_quotes(self.db, prices_by_asset_id)
         snapshot_as_of = max((quote.as_of for quote in imported_quotes), default=datetime.now(timezone.utc))
         snapshot = DataSnapshot(
             snapshot_type="market_quotes",
@@ -1473,6 +1486,10 @@ class DataSourceService:
                 adapter_candles = adapter.get_candles(symbol, timeframe, limit)
                 if not adapter_candles:
                     raise ValueError("no candles returned")
+                if any(row.symbol.strip().upper() != symbol or row.timeframe != timeframe for row in adapter_candles):
+                    raise DataSourceProviderError("provider candles do not match requested instrument/timeframe")
+                if any(row.currency and row.currency.upper() != currency.strip().upper() for row in adapter_candles):
+                    raise DataSourceProviderError("provider candle currency does not match requested instrument")
                 asset = self._get_or_create_read_only_asset_from_symbol(
                     symbol=symbol,
                     source=connection.provider,
@@ -1514,7 +1531,12 @@ class DataSourceService:
 
             imported_payload.append(
                 {
+                    "asset_id": asset.id,
                     "symbol": asset.symbol,
+                    "asset_type": asset.asset_type,
+                    "market": asset.market,
+                    "venue": asset.venue,
+                    "currency": asset.currency,
                     "timeframe": timeframe,
                     "candles_imported": rows_imported,
                     "latest_timestamp": symbol_latest_as_of.isoformat(),
@@ -1978,7 +2000,7 @@ class DataSourceService:
                 .order_by(DataSnapshot.created_at.desc(), DataSnapshot.id.desc())
                 .limit(limit)
             )
-        query = query.where(DataSnapshot.snapshot_type.notin_(["research_chat_news_context","research_chat_market_context"]))
+        query = query.where(DataSnapshot.snapshot_type.notin_(["research_chat_news_context","research_chat_market_context","research_chat_onchain_context"]))
         return list(self.db.scalars(query).all())
 
     def list_quality_reports(self, source: str | None = None, limit: int = 10) -> list[DataQualityReport]:
@@ -2174,63 +2196,47 @@ class DataSourceService:
         return normalized
 
     def _get_or_create_read_only_asset(
-        self,
-        *,
-        adapter_quote: AdapterQuote,
-        asset_type: str,
-        market: str,
-        venue: str,
-        currency: str,
+        self, *, adapter_quote: AdapterQuote, asset_type: str, market: str,
+        venue: str, currency: str, chain_id: str | None = None, contract_address: str | None = None,
+        fixture_metadata: bool = False,
     ) -> Asset:
-        symbol = adapter_quote.symbol.upper()
-        asset = self.db.scalar(select(Asset).where(Asset.symbol == symbol).limit(1))
-        if asset:
+        symbol = adapter_quote.symbol.strip().upper()
+        mock_asset = MOCK_ASSETS.get(symbol) if fixture_metadata else None
+        if mock_asset:
+            if venue.upper() not in {"MOCK_MARKET_DATA", mock_asset.venue.upper()}:
+                raise DataSourceProviderError("mock instrument venue does not match requested instrument")
+            asset_type, market, venue, currency = (
+                mock_asset.asset_type, mock_asset.market, mock_asset.venue, mock_asset.currency,
+            )
+            chain_id, contract_address = mock_asset.chain_id, mock_asset.contract_address
+        identity = asset_identity(symbol=symbol, asset_type=asset_type, market=market, venue=venue,
+                                  currency=currency, chain_id=chain_id, contract_address=contract_address)
+        asset = find_asset(self.db, identity)
+        if asset is not None:
             return asset
-
-        mock_asset = MOCK_ASSETS.get(symbol)
         asset = Asset(
-            symbol=symbol,
-            name=mock_asset.name if mock_asset else symbol,
-            asset_type=mock_asset.asset_type if mock_asset else asset_type,
-            market=mock_asset.market if mock_asset else market,
-            venue=mock_asset.venue if mock_asset else venue,
-            currency=mock_asset.currency if mock_asset else currency,
-            chain_id=mock_asset.chain_id if mock_asset else None,
-            contract_address=mock_asset.contract_address if mock_asset else None,
-            tradable=False,
-            manual_enabled=False,
-            auto_enabled=False,
+            **identity, name=mock_asset.name if mock_asset else symbol,
+            tradable=False, manual_enabled=False, auto_enabled=False,
             risk_level=mock_asset.risk_level if mock_asset else "medium",
         )
         self.db.add(asset)
         self.db.flush()
         write_audit_log(
-            self.db,
-            action="data_source.asset_imported_read_only",
-            entity_type="Asset",
-            entity_id=asset.id,
-            payload_json={"symbol": asset.symbol, "provider": adapter_quote.source, "read_only": True},
+            self.db, action="data_source.asset_imported_read_only", entity_type="Asset", entity_id=asset.id,
+            payload_json={"symbol": asset.symbol, "identity": identity, "provider": adapter_quote.source, "read_only": True},
             actor_id="p1-data-source-service",
         )
         return asset
 
     def _get_or_create_read_only_asset_from_symbol(
-        self,
-        *,
-        symbol: str,
-        source: str,
-        asset_type: str,
-        market: str,
-        venue: str,
-        currency: str,
+        self, *, symbol: str, source: str, asset_type: str, market: str, venue: str, currency: str,
+        chain_id: str | None = None, contract_address: str | None = None,
     ) -> Asset:
         adapter_quote = AdapterQuote(symbol=symbol.upper(), price=0, source=source, as_of=datetime.now(timezone.utc))
         return self._get_or_create_read_only_asset(
-            adapter_quote=adapter_quote,
-            asset_type=asset_type,
-            market=market,
-            venue=venue,
-            currency=currency,
+            adapter_quote=adapter_quote, asset_type=asset_type, market=market, venue=venue, currency=currency,
+            chain_id=chain_id, contract_address=contract_address,
+            fixture_metadata=source == "mock_market_data",
         )
 
     def _persist_readonly_account_snapshot(
@@ -2351,16 +2357,8 @@ class DataSourceService:
             market=market,
             venue=venue,
             currency=currency,
+            chain_id=row.get("chain_id"), contract_address=row.get("contract_address"),
         )
-        if row.get("name"):
-            asset.name = str(row["name"])
-        if row.get("chain_id"):
-            asset.chain_id = str(row["chain_id"])
-        if row.get("contract_address"):
-            asset.contract_address = str(row["contract_address"])
-        asset.tradable = False
-        asset.manual_enabled = False
-        asset.auto_enabled = False
         return asset
 
     def _account_quality(

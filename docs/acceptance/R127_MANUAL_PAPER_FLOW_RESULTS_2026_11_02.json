@@ -1,0 +1,78 @@
+{
+  "date": "2026-11-02",
+  "goal_status": "active",
+  "backend_tests": {
+    "passed": 883,
+    "warnings": 1,
+    "seconds": 79.45,
+    "exit_code": 0,
+    "log": "/tmp/r127-manual-evidence-final.log"
+  },
+  "new_backend_cases": 23,
+  "frontend_model_scripts": 54,
+  "frontend_model_failures": 0,
+  "buttons": 615,
+  "form_controls": 253,
+  "build_seconds": 4.03,
+  "migration": {
+    "head": "20261102_0024",
+    "sqlite_guard": "passed",
+    "postgres_verified": false
+  },
+  "browser_proof": {
+    "draft_id": "cceebf95-caf7-4119-9c0a-925eb4b8b703",
+    "intent_id": "540160ed-e061-47a9-875f-706dc0ad5183",
+    "manual_snapshot_id": "b0c72f65-edb8-4112-967d-121b280fed1e",
+    "fill_id": "7ff48022-ef92-4c6f-87a8-fa6466ef36ae",
+    "fill_count": 1,
+    "quantity": 1,
+    "price": 225.12,
+    "notional": 225.12,
+    "fee": 0.022512,
+    "cash_effect": -225.142512,
+    "research_report_id": null,
+    "manual_evidence": true,
+    "report_count_seed_only": 2,
+    "sqlite_integrity": "ok",
+    "browser_refresh_restored": true,
+    "wrong_symbol_restore_refused": true,
+    "original_SOL_Binance_1h_returned": true
+  },
+  "browser_fixture_database": "isolated synthetic demo SQLite; initial two demo reports not used by manual path",
+  "temporary_backend_shutdown": {
+    "application_shutdown_complete": true,
+    "exit_code": 143,
+    "reason": "SIGTERM",
+    "port8001_listening": false
+  },
+  "screenshots": [
+    "output/r127-manual-paper-20261102/restored-manual-paper.png",
+    "output/r127-manual-paper-20261102/restored-manual-paper-receipt.png"
+  ],
+  "source_sha256": {
+    "backend/app/models/core.py": "42181a2127aba7780d07c1d488252a8b968dda7825fac7421c308cfcb33751a2",
+    "backend/app/models/__init__.py": "d67f05479d66df87b6d3f3b39dacb7137fa01c267dda28a4c89f55726e6cfb8c",
+    "backend/app/schemas/core.py": "ad7cfcfc07527e33fe91d7fb8c7cb44871975833a833811bc80b5f7acb10d220",
+    "backend/app/services/manual_trade_evidence.py": "bd16c7bab194f2cef9df3236de92e8000270181ff5431f2fb22cbe85f979e0ee",
+    "backend/app/services/decision_gates.py": "48b7dc735bbbebc82bfff390e55854016e8c7c5c354e69fe36b65c109cfdafd7",
+    "backend/app/api/paper_execution.py": "41666bf5f80e38f32dbaab0ccc6488fa9db8e7d20c83cf253016693a0ad39b45",
+    "backend/alembic/versions/20261102_0024_manual_trade_evidence.py": "496900ada929fa12e100db115859a43e13a976a10f10b4b673f0252294e30659",
+    "backend/tests/test_manual_trade_evidence.py": "744ae591d10e18066de8aa9560bf84424b01c59954fcfb541db64013a38877ad",
+    "backend/tests/test_trade_permissions.py": "a34516794ced8e6fbb5f53d642521cee838d77e7767002427e7c6713b0c2dec2",
+    "src/paper-order-workflow.js": "07a00d8394f7398de0e8848c9ab0a35839b5114578635a39f0be564a22d535bc",
+    "src/paper-order-ticket.jsx": "c8f4a297c46908e9340f95fd90d813fea46b8fa3816f5dfff9c6ded5810beac1",
+    "scripts/check-paper-order-workflow.mjs": "fa3d74c30458e8d94396a0217d9a7090ec857b606231ca4fb1ab5499cd22ac82"
+  },
+  "secret_scan": "passed",
+  "diff_check": "passed",
+  "external_llm": false,
+  "live_orders": false,
+  "remaining": [
+    "Paper limit only; live manual flow remains unimplemented",
+    "Real providers, OIDC and Postgres not verified",
+    "Concurrency/idempotency/failure recovery not complete",
+    "Production DB migration/install not performed",
+    "Detailed rejection/expiry UX remains to improve",
+    "Full 113-task acceptance incomplete"
+  ]
+}

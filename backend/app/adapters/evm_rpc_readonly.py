@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import re
 import ssl
+from decimal import Decimal, localcontext
 from typing import Any
 from urllib.request import Request
 from urllib.request import urlopen
@@ -61,7 +62,7 @@ _BALANCE_OF_SELECTOR = "0x70a08231"
 _ALLOWANCE_SELECTOR = "0xdd62ed3e"
 # ERC-20 "unlimited" approval sentinel (max uint256)
 UNLIMITED_ALLOWANCE = 2**256 - 1
-_ALLOWED_RPC_METHODS = frozenset({"eth_chainId", "eth_getBalance", "eth_call"})
+_ALLOWED_RPC_METHODS = frozenset({"eth_chainId", "eth_blockNumber", "eth_getBalance", "eth_call"})
 
 
 class EvmRpcError(ValueError):
@@ -120,7 +121,10 @@ class EvmRpcReadOnlyAdapter:
         )
 
     def chain_id(self) -> int:
-        return int(self._call("eth_chainId", []), 16)
+        raw = self._call("eth_chainId", [])
+        if not re.fullmatch(r'0x[0-9a-fA-F]{1,64}', raw):
+            raise EvmRpcError('invalid RPC chain identity')
+        return int(raw, 16)
 
     def verify_chain(self) -> int | None:
         """Fail-closed guard: confirm the node actually serves the chain we
@@ -142,6 +146,53 @@ class EvmRpcReadOnlyAdapter:
         checked = validate_evm_address(address)
         raw = self._call("eth_getBalance", [checked, "latest"])
         return int(raw, 16) / 10**18
+
+    def read_wallet_snapshot(self, address: str, contract_address: str | None = None) -> dict:
+        """Pin public balance reads to an observed height, keeping exact units.
+
+        This is an observation, not a finality or token-price assertion. Token
+        decimals are read from the same contract and block; ticker names are
+        deliberately not used to identify or value contracts.
+        """
+        holder = validate_evm_address(address)
+        contract = validate_evm_address(contract_address) if contract_address else None
+        if self.expected_chain_id is None:
+            raise EvmRpcError('a verified expected chain is required for a snapshot')
+        self.verify_chain()
+        block = self._call("eth_blockNumber", [])
+
+        def uint(raw):
+            try:
+                if not re.fullmatch(r'0x[0-9a-fA-F]{1,64}', raw):
+                    raise ValueError()
+                number = int(raw, 16)
+                if number < 0 or number >= 2**256:
+                    raise ValueError()
+                return number
+            except (ValueError, AttributeError) as exc:
+                raise EvmRpcError('invalid unsigned RPC value') from exc
+
+        height = uint(block)
+        if height > 2**53 - 1:
+            raise EvmRpcError('invalid block height')
+        tag = hex(height)
+
+        def units(raw, decimals):
+            with localcontext() as ctx:
+                ctx.prec = 100
+                return format(Decimal(uint(raw)) / (Decimal(10) ** decimals), 'f')
+
+        balances = [{'symbol': self.native_symbol, 'contract_address': None,
+                     'decimals': 18, 'amount': units(self._call('eth_getBalance', [holder, tag]), 18)}]
+        if contract:
+            decimals = uint(self._call('eth_call', [{'to': contract, 'data': '0x313ce567'}, tag]))
+            if decimals > 36:
+                raise EvmRpcError('token decimals must be between 0 and 36')
+            data = _BALANCE_OF_SELECTOR + holder[2:].lower().rjust(64, '0')
+            raw = self._call('eth_call', [{'to': contract, 'data': data}, tag])
+            balances.append({'symbol': 'ERC20', 'contract_address': contract.lower(),
+                             'decimals': decimals, 'amount': units(raw, decimals)})
+        return {'chain_id': str(self.expected_chain_id), 'block_number': height, 'balances': balances}
 
     def get_erc20_balance(self, token_address: str, holder_address: str, *, decimals: int = 18) -> float:
         token = validate_evm_address(token_address)

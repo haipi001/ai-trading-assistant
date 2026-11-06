@@ -1,0 +1,10 @@
+{
+  "generated_date": "2026-11-01",
+  "repo": "haipi001/ai-trading-assistant",
+  "baseline_commit": "9e774c232992bda309fdd22099114b5303a74f10",
+  "dev_task_count": 113,
+  "ui_coverage_count": 95,
+  "api_matrix_count": 25,
+  "schema_count": 5,
+  "scope": "documentation and contracts only, no code modification/live trading"
+}

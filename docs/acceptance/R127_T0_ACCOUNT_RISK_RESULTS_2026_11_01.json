@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-01",
+  "base_commit": "9e774c232992bda309fdd22099114b5303a74f10",
+  "uncommitted": true,
+  "backend": {
+    "passed": 735,
+    "warnings": 1,
+    "seconds": 57.28,
+    "exit_code": 0,
+    "environment": "existing Python3.13 venv; SQLite in-memory"
+  },
+  "new_risk_tests": 13,
+  "ui_static_preservation": "passed",
+  "secret_scan": "passed",
+  "diff_check": "passed",
+  "real_broker": "not called; unverified accounts blocked",
+  "limitations": [
+    "quote/position freshness",
+    "monthly drawdown and mark-to-market",
+    "atomic concurrent reservations",
+    "partial-fill remaining-order revaluation",
+    "approval version and TTL",
+    "Postgres/clean Python3.12/remote CI"
+  ],
+  "goal_status": "active",
+  "source_sha256": {
+    "backend/app/services/account_risk_context.py": "6cf7c9b069de177abc166a7b3aad710304a5c8c4fd90237fb25d1673808662be",
+    "backend/app/services/risk.py": "d1843cf9ca3ee00c8f4086df3b501aeb47ef6cb722fd8b54a2736de89eea207a",
+    "backend/app/services/decision_gates.py": "3c8a0d395454023ff35a5369239c537c377d953207c2aef44a559cd7ba4ec9bf",
+    "backend/app/services/paper_execution.py": "b1d40eabfbb031e53f7489560ea13d3556cd42b35092631671795778a97de5a2",
+    "backend/app/services/demo_seed.py": "00141e5b3f0cbbf3a651de851e76500f941c801c5abd882c2679b038719bd334",
+    "backend/app/schemas/core.py": "997af3ddb7fb2809f9266c114219a8a5318baef0e384efcf372d6720fc29e04f",
+    "backend/tests/test_server_account_risk.py": "d88a71b7b9d26af5965c8035abe1632681bf0ddcffaaddf4056375aa53ded015",
+    "backend/tests/test_paper_execution.py": "1f8c89bc9e85a15b24bfaa79c2d70d13aebb13902c8583404abcb08f4bbafa52",
+    "backend/tests/test_live_execution_safety.py": "c23443560b9d4bd8d9b1826922f5f20302695b49c433c700be9f9caa018d084b"
+  }
+}

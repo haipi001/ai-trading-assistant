@@ -10,7 +10,10 @@
     "preview": "vite preview --host 0.0.0.0",
     "test:chart-analysis": "node scripts/check-chart-analysis.mjs",
     "test:aicoin-routes": "node scripts/check-aicoin-routes.mjs",
-    "test:models": "node scripts/check-models.mjs"
+    "test:models": "node scripts/check-models.mjs",
+    "theme:terminal": "node scripts/build-terminal-theme.mjs",
+    "build:terminal": "npm run theme:terminal && vite build --config vite.terminal.config.mjs",
+    "build:public": "node scripts/build-public.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
@@ -22,6 +25,7 @@
     "@babel/generator": "7.29.7",
     "@babel/parser": "^7.28.5",
     "@vitejs/plugin-react": "^4.3.4",
+    "postcss": "8.5.19",
     "vite": "^6.0.7"
   }
 }

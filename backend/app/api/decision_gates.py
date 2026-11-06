@@ -1,3 +1,4 @@
+from app.core.auth import require_permission
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
@@ -14,7 +15,7 @@ from app.services.decision_gates import DecisionGateService
 router = APIRouter(prefix="/decision-gates", tags=["decision-gates"])
 
 
-@router.post("/evaluate", response_model=DecisionGateEvaluateResponse, status_code=201)
+@router.post("/evaluate", response_model=DecisionGateEvaluateResponse, status_code=201, dependencies=[Depends(require_permission("trade:preview"))])
 def evaluate_decision_gates(payload: DecisionGateEvaluateRequest, db: Session = Depends(get_db)) -> DecisionGateEvaluateResponse:
     service = DecisionGateService(db)
     try:
@@ -28,13 +29,13 @@ def evaluate_decision_gates(payload: DecisionGateEvaluateRequest, db: Session = 
     )
 
 
-@router.get("/order-intent/{order_intent_id}", response_model=list[DecisionGateRead])
+@router.get("/order-intent/{order_intent_id}", response_model=list[DecisionGateRead], dependencies=[Depends(require_permission("read"))])
 def get_order_intent_decision_gates(order_intent_id: str, db: Session = Depends(get_db)) -> list[DecisionGate]:
     service = DecisionGateService(db)
     return service.gate_timeline(order_intent_id)
 
 
-@router.post("/order-intent/{order_intent_id}/replay")
+@router.post("/order-intent/{order_intent_id}/replay", dependencies=[Depends(require_permission("trade:preview"))])
 def replay_order_intent_decision_gates(order_intent_id: str, db: Session = Depends(get_db)) -> dict:
     service = DecisionGateService(db)
     try:

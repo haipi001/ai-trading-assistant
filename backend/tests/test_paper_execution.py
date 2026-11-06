@@ -46,7 +46,7 @@ def create_strategy_playbook(client: TestClient) -> dict:
     response = client.post(
         "/strategy-playbooks",
         json={
-            "user_id": "human-user",
+            "user_id": "default-user",
             "name": "Paper review discipline",
             "strategy_type": "swing",
             "applicable_markets": ["US"],
@@ -245,15 +245,15 @@ def test_sell_paper_execution_realizes_fifo_tax_lot_pnl(client: TestClient) -> N
 def test_sell_paper_execution_blocks_insufficient_quantity(client: TestClient) -> None:
     asset = create_asset(client)
     account = create_account(client)
-    sell_draft = create_approved_draft(client, asset=asset, account=account, side="sell", quantity=1, notional=None, limit_price=120)
-
-    response = client.post(
-        f"/paper-executions/drafts/{sell_draft['id']}/execute",
-        json={"approver_id": "human-user", "fill_price": 120, "fee_bps": 0},
-    )
-
-    assert response.status_code == 422
-    assert "insufficient paper position quantity" in response.json()["detail"]
+    intent = create_intent(client, asset["id"], account["id"], side="sell", quantity=1, notional=None, limit_price=120)
+    response = client.post("/risk/check-order", json=risk_payload(intent["id"]))
+    assert response.status_code == 201
+    assert response.json()["hard_rule_passed"] is False
+    rule = next(item for item in response.json()["rules_json"]["rules"] if item["rule"] == "trusted_account_state")
+    assert "sell_exceeds_server_position" in rule["details"]["errors"]
+    draft = client.post(f"/orders/intents/{intent['id']}/draft", json=risk_payload(intent["id"]))
+    assert draft.status_code == 422
+    assert client.get("/paper-executions").json() == []
 
 
 def test_paper_cash_dividend_updates_cash_and_journal(client: TestClient) -> None:

@@ -3,6 +3,10 @@ import process from "node:process";
 import { parse } from "@babel/parser";
 
 const sourceFiles = [
+  "../src/ace-status.jsx",
+  "../src/paper-order-ticket.jsx",
+  "../src/workspace-sync-settings.jsx",
+  "../src/backend-session-settings.jsx",
   "../src/research-market-ui.jsx",
   "../src/news-notices.jsx",
   "../src/research-news-context.jsx",

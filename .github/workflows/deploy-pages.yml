@@ -15,7 +15,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  quality:
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
   build:
+    needs: quality
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,7 +31,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run test:interactions
-      - run: npm run build
+      - run: npm run build:public
         env:
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
       - uses: actions/configure-pages@v5

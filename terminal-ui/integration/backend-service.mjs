@@ -1,0 +1,7 @@
+import {createPersistentPaperDrafts} from './persistent-paper-drafts.mjs';
+import {createBackendClient} from './api.mjs';
+export const backend=createBackendClient({baseUrl:globalThis.document?.querySelector?.('meta[name="terminal-api-base"]')?.content||'http://127.0.0.1:8001'});
+// Same-origin feature panels share one in-memory session. No credential getter is exposed.
+window.TerminalBackend=Object.freeze({request:backend.request,login:token=>backend.login(token),logout:async()=>{const before=backend.identity();try{return await backend.logout();}finally{drafts.clear();if(backend.identity()===before)window.dispatchEvent(new CustomEvent('terminal:session-changed'));}},session:()=>backend.session(),identity:()=>backend.identity(),subscribe:listener=>backend.subscribe(listener),clearSession:()=>{const before=backend.identity();drafts.clear();backend.clearSession();if(backend.identity()===before)window.dispatchEvent(new CustomEvent('terminal:session-changed'));}});
+
+const drafts=createPersistentPaperDrafts({getItem:key=>sessionStorage.getItem(key),setItem:(key,value)=>sessionStorage.setItem(key,value),removeItem:key=>sessionStorage.removeItem(key)});window.TerminalDraftBuffer=drafts;let identity=backend.identity(),draftUser=backend.session()?.user_id;backend.subscribe(()=>{const next=backend.identity();if(next!==identity){identity=next;const user=backend.session()?.user_id;if(!user||draftUser&&draftUser!==user)drafts.clear();draftUser=user;window.dispatchEvent(new CustomEvent('terminal:session-changed'));}});

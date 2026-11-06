@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-02",
+  "frontend_model_scripts": 54,
+  "static_buttons": 615,
+  "static_controls": 252,
+  "build_seconds": 4.36,
+  "browser": "actual UI->API->isolated SQLite fixture Paper preview/approval/fill/recovery",
+  "paper_proof": {
+    "draft_id": "52249403-6a58-4e55-9881-b0f912c6334d",
+    "fill_id": "a4f18a49-0047-4134-b91d-627d9dac7cc0",
+    "quantity": 1,
+    "price": 225.12,
+    "notional": 225.12,
+    "fee": 0.022512,
+    "cash_effect": -225.142512,
+    "journal_count": 1,
+    "duplicate_fills": false
+  },
+  "source_sha256": {
+    "src/paper-order-workflow.js": "836ee707e1e2211a8ef9d245c0e10d7debe8543438a30018447b8b17110b3ac8",
+    "src/paper-order-ticket.jsx": "8ed456833f33957fe367f50c88424b0f14c364177e5049ac3d6ef0ca584b6f8a",
+    "src/main.jsx": "c2a3c7004314aac956258db5515c547408c5047fd7fd4d09b474d214b20fcdd6",
+    "src/professional-sidebar.css": "a0825b14f0fa16677f2f473c8613e7d6d397306ccbdbed119c8170202c7b6ff9",
+    "scripts/check-paper-order-workflow.mjs": "6bb142fdb8112809b4d7f300349f4341b89e3e138caf928fbe6aa4af8e87e4b4"
+  },
+  "live": false,
+  "external_llm": false,
+  "backend_tests_rerun": false,
+  "temporary_backend_shutdown": "verified",
+  "original_workspace_returned": true,
+  "goal_status": "active"
+}

@@ -27,6 +27,8 @@ class BrokerSandboxProofService:
         self.adapter = adapter
 
     def submit(self, *, actor: AuthenticatedUser, order_draft_id: str, idempotency_key: str) -> dict[str, Any]:
+        if "trade:submit" not in actor.permissions:
+            raise BrokerSandboxProofError("missing permission: trade:submit")
         self._operator(actor)
         draft = self.db.get(OrderDraft, order_draft_id)
         if draft is None:

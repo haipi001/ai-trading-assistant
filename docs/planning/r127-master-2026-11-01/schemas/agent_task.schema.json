@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-trading-os/agent_task",
+  "title": "agent_task",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "task_id",
+    "workspace_id",
+    "status",
+    "kind",
+    "subject_ref",
+    "context_snapshot_id",
+    "requested_by",
+    "roles",
+    "completed_roles",
+    "evidence_ids",
+    "updated_at",
+    "provider_mode"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "workspace_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "status": {
+      "type": "string",
+      "description": "持久化任务状态",
+      "enum": [
+        "QUEUED",
+        "RUNNING",
+        "WAITING_TOOL",
+        "WAITING_USER",
+        "COMPLETED",
+        "FAILED",
+        "CANCELLED",
+        "EXPIRED"
+      ]
+    },
+    "kind": {
+      "type": "string",
+      "description": "任务类型",
+      "enum": [
+        "research",
+        "monitor",
+        "explain",
+        "strategy_review",
+        "portfolio_review"
+      ]
+    },
+    "subject_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "context_snapshot_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "requested_by": {
+      "type": "string",
+      "description": "触发来源",
+      "enum": [
+        "user",
+        "rule",
+        "scheduled"
+      ]
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "参与角色"
+      }
+    },
+    "completed_roles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "已完成角色"
+      }
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    },
+    "started_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "provider_mode": {
+      "type": "string",
+      "description": "模型调用来源",
+      "enum": [
+        "mock",
+        "real_provider",
+        "replay"
+      ]
+    },
+    "error_code": {
+      "anyOf": [
+        {
+          "type": "string",
+          "description": "稳定错误码"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "cost_usd": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

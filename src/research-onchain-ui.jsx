@@ -1,0 +1,10 @@
+import React from 'react';
+export function ResearchOnchainControl({attachment,enabled,onChange,valid,disabled}){
+ if(!attachment)return null;
+ const p=attachment.preview,r=attachment.reference;
+ return <section className="research-onchain-context"><label><input type="checkbox" aria-label="附带链上只读材料" checked={enabled} onChange={event=>onChange(event.target.checked)} disabled={disabled||!valid}/>附带链上只读材料</label><p>发送将把所选公开钱包地址、余额及所选授权/协议记录交给已配置的模型。后端按引用重新核对归属与时效，不采用浏览器提供的余额。</p><p>{valid?'当前附件':'附件已失效，请回链上页重新选择'} · 链 {r.chain_id} · 区块 {p.block_number}<br/>{p.wallet_address}<br/>读取 {new Date(p.as_of).toLocaleString()} · 上下文 {r.context_version}<br/>授权 {p.allowance_count} 条 / 协议 {p.protocol_count} 条{p.records_omitted?' · 仅前20条摘录':''}</p><small>完整授权/协议索引与USD价格未接入。历史/示例记录不视为当前链上事实。</small></section>;
+}
+export function ResearchOnchainSources({result}){
+ const c=result?.provided_onchain;if(!c)return null;
+ return <section className="research-onchain-sources"><h4>本次链上材料 · 链 {c.chain_id} · 上下文 {c.context_version}</h4><p>{c.wallet_public_address}<br/>合约 {c.contract_address||'原生币 / 钱包记录'}<br/>来源快照 {c.source_snapshot_id} · 区块 {c.block_number}<br/>材料包 {result.onchain_context_snapshot_id}</p><ul>{c.entries.map(row=><li key={row.id}><b>[{row.id}] {row.kind} {result.cited_onchain_ids.includes(row.id)?'· 所列引用':''}</b><small>{row.source} · {new Date(row.as_of).toLocaleString()}{row.stale?' · 已陈旧':''}<br/>记录 {row.record_id}</small>{row.kind==='allowance'&&<p>合约 {row.contract_address||'未知'}<br/>spender {row.spender}<br/>记录额度 {row.amount} · 记录风险 {row.risk_level}<br/>仅解释已存授权，不提供撤销或签名操作。</p>}{row.kind==='protocol'&&<p>协议 {row.protocol} · {row.position_type}<br/>合约 {row.contract_address||'未知'}<br/>{row.symbol} · {row.usd_value===null?'未定价':row.usd_value+' USD（历史记录）'}</p>}{row.id==='W1'&&row.balances.map(balance=><p key={balance.contract_address||'native'}>{balance.contract_address||balance.symbol+' 原生币'} · {balance.amount}</p>)}</li>)}</ul><small>结构、身份及引用已校验；未作独立事实核验，不是可用于交易门禁的研究报告。材料冻结于请求时，索引缺项不表示风险不存在。</small></section>;
+}

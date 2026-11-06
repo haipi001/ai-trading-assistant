@@ -4,6 +4,7 @@ on:
     branches: [main, "codex/**"]
   pull_request:
   workflow_dispatch:
+  workflow_call:
 permissions:
   contents: read
 jobs:
@@ -19,11 +20,11 @@ jobs:
           node-version: "20"
           cache: npm
       - run: python -m venv backend/.venv
-      - run: backend/.venv/bin/pip install -e './backend[dev]'
+      - run: backend/.venv/bin/pip install -e './backend[dev,mcp]'
       - run: npm ci
       - run: cd backend && .venv/bin/python -m pytest -q
       - run: ./scripts/migration_guard.sh
-      - run: npm run test:interactions && npm run test:models && npm run build
+      - run: npm run test:interactions && npm run test:models && node --test terminal-ui/tests/*.test.mjs && npm run build:public
       - run: python scripts/secret_scan.py
   security-audit:
     runs-on: ubuntu-latest
@@ -35,7 +36,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: pip install -e './backend[dev]' pip-audit bandit
+      - run: pip install -e './backend[dev,mcp]' pip-audit bandit
       - run: pip-audit
       - run: bandit -r backend/app -lll
       - run: npm ci && npm audit --omit=dev --audit-level=high

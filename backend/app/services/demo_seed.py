@@ -117,6 +117,13 @@ class DemoSeedService:
         self._ensure_position(account, aapl, quantity=12, average_cost=180, market_price=225.12)
         self._ensure_position(account, nvda, quantity=4, average_cost=1120, market_price=1095.40)
         self._ensure_position(account, spy, quantity=6, average_cost=520.10, market_price=531.55)
+        # The walkthrough's 100k Paper portfolio must be backed by an explicit
+        # simulated cash ledger, not by risk request fields claiming equity.
+        invested = sum((Decimal(str(p.market_value)) for p in self.db.scalars(
+            select(Position).where(Position.account_id == account.id)).all()), Decimal("0"))
+        PaperExecutionService(self.db)._get_or_create_cash_position(
+            account, seed_if_missing=max(Decimal("0"), Decimal("100000") - invested))
+        self.db.commit()
         self._ensure_portfolio_snapshot()
 
         constitution = self._ensure_constitution()
@@ -126,6 +133,8 @@ class DemoSeedService:
         self._ensure_thesis(account, nvda, playbook)
         self._ensure_thesis(account, spy, playbook)
         policy = self._ensure_automation_policy(account, aapl, playbook)
+        nvda_policy = self._ensure_automation_policy(account, nvda, playbook)
+        self._ensure_research_report(snapshot_id=market_snapshot.id if market_snapshot else "demo-snapshot", asset=nvda)
         self._ensure_research_report(snapshot_id=market_snapshot.id if market_snapshot else "demo-snapshot", asset=aapl)
 
         pending_intent = self._ensure_order_intent(
@@ -191,7 +200,7 @@ class DemoSeedService:
             asset=nvda,
             thesis=None,
             playbook=playbook,
-            policy=policy,
+            policy=nvda_policy,
             side="sell",
             order_type="limit",
             quantity=1,
@@ -217,7 +226,7 @@ class DemoSeedService:
             asset=nvda,
             thesis=None,
             playbook=playbook,
-            policy=policy,
+            policy=nvda_policy,
             side="buy",
             order_type="market",
             quantity=1,
@@ -968,9 +977,9 @@ class DemoSeedService:
             data_snapshot_id=snapshot_id,
             asset_id=asset.id,
             input_facts={"asset": asset.symbol, "snapshot_id": snapshot_id},
-            summary="AAPL remains a high-quality compounding candidate inside the paper-only demo environment.",
-            bullish_case="Services mix and capital return keep the quality thesis intact.",
-            bearish_case="Margin pressure or weak device refresh could cap near-term upside.",
+            summary=f"{asset.symbol} deterministic research fixture inside the paper-only demo environment.",
+            bullish_case="Synthetic favorable scenario: business growth supports the fixture thesis.",
+            bearish_case="Synthetic adverse scenario: margin pressure could weaken the fixture thesis.",
             key_risks={"items": ["valuation", "macro slowdown"]},
             suggested_action="review_only",
             confidence=0.84,

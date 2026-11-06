@@ -1,0 +1,3 @@
+export function chartPeriod(value){const match=/^([1-9][0-9]{0,3})(S|M|H|D|W|MO)$/.exec(value);if(!match)throw Error('invalid_terminal_period');return match[1]+{S:'秒',M:'分',H:'时',D:'日',W:'周',MO:'月'}[match[2]];}
+export function terminalPeriod(value){if(value==='分时')return '1M';if(value==='季K')return '3MO';if(value==='年K')return '12MO';const match=/^([1-9][0-9]{0,3})(秒|分|时|日|周|月)$/.exec(value);if(!match)throw Error('invalid_chart_period');return match[1]+{秒:'S',分:'M',时:'H',日:'D',周:'W',月:'MO'}[match[2]];}
+export function terminalSelection(patch){if(typeof document!=='undefined'&&document.documentElement.hasAttribute('data-terminal-feature'))window.dispatchEvent(new CustomEvent('terminal:selection',{detail:patch}));}

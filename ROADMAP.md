@@ -1,6 +1,8 @@
 # ROADMAP.md — AI Trading OS v4 Master Roadmap
 
-当前后续开发目标与验收顺序见 [docs/DEVELOPMENT_GOALS_2026_07_16.md](docs/DEVELOPMENT_GOALS_2026_07_16.md)。该文档把历史阶段、已完成能力和真实待开发目标分开管理。
+2026-11-01 起，当前整体实施顺序以 [r127 整体规划](docs/planning/R127_OVERALL_PLAN_2026_11_01.md) 为准；保留现有 r127 UI，分 T0–T7 推进。原工程包、113 项执行任务和 95 项 UI 覆盖位于该规划目录。以下历史领域模型与安全原则继续适用。
+
+历史后续开发目标与验收顺序见 [docs/DEVELOPMENT_GOALS_2026_07_16.md](docs/DEVELOPMENT_GOALS_2026_07_16.md)。该文档把历史阶段、已完成能力和真实待开发目标分开管理。
 
 ## Product Direction
 

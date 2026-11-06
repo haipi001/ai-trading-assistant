@@ -1,0 +1,18 @@
+{
+  "passed": 749,
+  "warnings": 1,
+  "seconds": 49.16,
+  "exit_code": 0,
+  "new_cases": 8,
+  "environment": "existing Python3.13 venv; SQLite in-memory",
+  "ui_changed": false,
+  "live_enabled": false,
+  "goal_status": "active",
+  "source_sha256": {
+    "backend/app/services/approval_grants.py": "31524973630c36e8b0b01076f946c0d0ca29c107dbe323e3f11c147504c01837",
+    "backend/app/services/risk.py": "91d329e971a471babd5e54d28d3ff8e83646ee0def0e74c7e4c7d531262ad845",
+    "backend/app/services/paper_execution.py": "b1d3327df5176359bda64ecef658ca6d43a378001208095b425c8c4ec06800d6",
+    "backend/app/core/config.py": "c8c5759223aaca3caa49abadd9ae559eb15888dbcc801e656f862961845e6d1b",
+    "backend/tests/test_approval_grants.py": "7da168db59a2aa98521cab3f95dd644b9d4cf57835607a6b0517b75fee12dc89"
+  }
+}

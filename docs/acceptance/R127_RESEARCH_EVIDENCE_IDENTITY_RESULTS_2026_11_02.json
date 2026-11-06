@@ -1,0 +1,44 @@
+{
+  "date": "2026-11-02",
+  "goal_status": "active",
+  "backend_tests": {
+    "passed": 779,
+    "warnings": 1,
+    "seconds": 78.69,
+    "exit_code": 0,
+    "log": "/tmp/r127-research-identity-final.log"
+  },
+  "focused_tests": {
+    "passed": 15,
+    "warnings": 1,
+    "seconds": 4.09
+  },
+  "initial_regression": {
+    "passed": 766,
+    "failed": 11,
+    "resolution": "separate synthetic NVDA report instead of AAPL report reuse; no gate exemption"
+  },
+  "commands": [
+    "DATABASE_URL=sqlite+pysqlite:///:memory: /Users/lizekai/Documents/交易系统/ai-trading-os/backend/.venv/bin/python -m pytest -q backend/tests",
+    "python scripts/secret_scan.py",
+    "git diff --check"
+  ],
+  "source_sha256": {
+    "backend/app/services/decision_gates.py": "e6865c970d932ec64d4b5f15f14a77f19f08e92e0cb41cb21e4ed3ac5d14c826",
+    "backend/app/services/data_sources.py": "af92a2af84473e6a56876deb5c616aac47dfd30e155d37df7e0de81e1cc193e6",
+    "backend/app/services/demo_seed.py": "95f4e380caf857b6cf4db6a6e278d28b19fe64f9c404a73e4a6fe9716667a014",
+    "backend/tests/test_research_evidence_identity.py": "f6950217ab335ca06916fffc28fa6680c0b9a3e7ff399f6700ed71a3f3c3e9fe"
+  },
+  "secret_scan": "passed",
+  "diff_check": "passed",
+  "frontend_source_changed": false,
+  "browser_e2e_rerun": false,
+  "live": false,
+  "external_llm": false,
+  "limitations": [
+    "Historical symbol-only scope and unscoped reports remain supported",
+    "Asset import lookup still symbol-based; provider/venue mapping not independently verified",
+    "Research evidence is validated at gate evaluation; approval/execution research revalidation remains required",
+    "Full project task set and production readiness remain incomplete"
+  ]
+}

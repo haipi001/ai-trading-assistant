@@ -1,0 +1,15 @@
+html[data-terminal-color-mode] body{
+ --bg:var(--ui-bg);--panel:var(--ui-surface);--panel2:var(--ui-subtle);--line:var(--ui-line);--line2:var(--ui-line);
+ --txt:var(--ui-text);--dim:var(--ui-muted);--dim2:var(--ui-dim);--acc:var(--ui-accent);--acc2:var(--ui-accent);
+ --up:var(--ui-up);--dn:var(--ui-down);--hl:var(--ui-subtle);--sel:var(--ui-hover);
+}
+html[data-terminal-color-mode] .brand{background:var(--ui-accent);color:var(--ui-on-strong)}
+html[data-terminal-color-mode="dark"] .brand{color:#111820}
+html[data-terminal-color-mode] .brand .dot{background:currentColor}
+html[data-terminal-color-mode] :focus-visible{outline:2px solid var(--ui-accent);outline-offset:2px}
+html[data-terminal-color-mode] .integration-bar,html[data-terminal-color-mode] .integration-drawer{background:var(--ui-subtle);color:var(--ui-text);border-color:var(--ui-line)}
+html[data-terminal-color-mode] .integration-bar :is(input,select,button),html[data-terminal-color-mode] .integration-drawer :is(input,select,button){background:var(--ui-surface);color:var(--ui-text);border-color:var(--ui-line)}
+html[data-terminal-color-mode] .integration-status,html[data-terminal-color-mode] .integration-drawer h2{color:var(--ui-accent)}
+html[data-terminal-color-mode] a{color:var(--ui-accent);text-underline-offset:3px}
+html[data-terminal-color-mode] button{font-variant-numeric:tabular-nums}
+@media(prefers-reduced-motion:reduce){html[data-terminal-color-mode] *{scroll-behavior:auto!important}}

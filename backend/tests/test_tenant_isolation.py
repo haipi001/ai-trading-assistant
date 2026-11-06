@@ -136,3 +136,13 @@ def test_resource_id_lookup_cannot_cross_tenants(db: Session) -> None:
         assert db.get(Account, account_b_id) is None
     finally:
         reset_tenant(token)
+
+
+def test_cached_query_rebinds_tenant_for_each_request(db):
+    query = select(LocalUserConfig).order_by(LocalUserConfig.user_id)
+    for tenant in ['tenant-a', 'tenant-b', 'tenant-a', 'tenant-b']:
+        token = bind_tenant(tenant)
+        try:
+            assert [row.user_id for row in db.scalars(query).all()] == [tenant]
+        finally:
+            reset_tenant(token)
