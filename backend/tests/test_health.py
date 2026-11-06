@@ -1,12 +1,19 @@
-def test_health_endpoint_shape(client) -> None:
-    response = client.get("/health")
+import pytest
 
+
+@pytest.mark.parametrize('database',['ok','unavailable'])
+@pytest.mark.parametrize('redis',['ok','unavailable'])
+def test_health_endpoint_shape(client, monkeypatch, database, redis) -> None:
+    # This contract test must not depend on a developer's real database/Redis.
+    monkeypatch.setattr('app.api.health.check_database', lambda: database)
+    monkeypatch.setattr('app.api.health.check_redis', lambda: redis)
+    response = client.get('/health')
     assert response.status_code == 200
-    assert response.json().keys() == {"status", "service", "database", "redis"}
-    assert response.json()["status"] == "ok"
-    assert response.json()["service"] == "ai-trading-os-backend"
-    assert response.json()["database"] in {"ok", "unavailable"}
-    assert response.json()["redis"] in {"ok", "unavailable"}
+    assert response.json().keys() == {'status','service','database','redis'}
+    assert response.json()['status'] == ('ok' if database == 'ok' else 'degraded')
+    assert response.json()['service'] == 'ai-trading-os-backend'
+    assert response.json()['database'] == database
+    assert response.json()['redis'] == redis
 
 
 def test_readiness_fails_closed_when_required_database_is_unavailable(client, monkeypatch) -> None:
