@@ -98,7 +98,9 @@ try:
             try:
                 with urllib.request.urlopen(req,timeout=4) as response:
                     raw=response.read()
-                    return response.status,dict(response.headers),json.loads(raw) if raw else None
+                    content_type=response.headers.get('Content-Type','').lower()
+                    value=(json.loads(raw) if 'application/json' in content_type else raw.decode('utf-8')) if raw else None
+                    return response.status,dict(response.headers),value
             except urllib.error.HTTPError as error:
                 return error.code,dict(error.headers),json.loads(error.read())
         ready=wait_for(lambda: (value if (value:=request('/health/ready'))[0]==200 else None))

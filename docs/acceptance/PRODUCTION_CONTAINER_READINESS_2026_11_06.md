@@ -21,3 +21,5 @@
 本机基线构建会话83543最终exit1：files.pythonhosted.org包下载ReadTimeout，尚未启动应用；旧证据checks为空，不计通过。实际原进程已停止后才准备新构建，未因观察超时重启。Dockerfile增加PIP_DEFAULT_TIMEOUT=120/PIP_RETRIES=5，仅提高下载容错，不跳过TLS或依赖检查。
 
 新CI production-container任务使用干净checkout构建实际镜像，production模式连接隔离PostgreSQL16/Redis7，验证non-root、真实迁移及alembic check、无会话/伪造身份拒绝、公开站点CORS、Live/外部模型关闭、数据库故障503/恢复、零订单。脚本记录Git SHA、后端源码摘要、镜像ID，并在失败时保留经临时凭据精确脱敏的应用日志，再清理容器网络。该任务尚待首次云端实际结果；不能据脚本存在宣称通过。
+
+CI eb7c4fd实际新镜像已通过非root、PostgreSQL完整迁移与ready、容器内alembic check、匿名/伪造用户401。随后验收驱动在CORS OPTIONS标准纯文本OK响应上抛JSONDecodeError，失败是驱动无条件JSON解析造成，不能算整套通过。已按响应Content-Type解析：JSON仍严格校验，纯文本按UTF8读取，不放宽CORS状态/来源断言。下一次CI继续验证完整流程。
