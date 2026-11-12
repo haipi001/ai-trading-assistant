@@ -1,5 +1,5 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';
-import {identityCatalog,identitiesFor,verifiedIdentity,identityPatch,createIdentityCatalog} from '../integration/identity-catalog.mjs';
+import {identityCatalog,identitiesFor,verifiedIdentity,identityPatch,createIdentityCatalog,filterIdentityChoices} from '../integration/identity-catalog.mjs';
 const payload=(user='a')=>({user_id:user,execution_authorized:false,source:'owned_workspace_identities',accounts:[{id:'stock',label:'Stock Paper',markets:['stocks'],mode:'paper',paper_eligible:true},{id:'cex',label:'CEX Read',markets:['cex'],mode:'read_only',paper_eligible:false}],wallets:[{id:'eth',label:'ETH wallet',chain_id:'1'},{id:'base',label:'Base wallet',chain_id:'8453'},{id:'unknown',label:'Unknown chain',chain_id:null}]});
 test('catalog exposes only whitelisted metadata and separates account markets and wallet chains',()=>{
  const raw=payload();raw.accounts[0].secret='not-copied';const data=identityCatalog(raw);assert.equal(data.accounts[0].secret,undefined);
@@ -18,4 +18,19 @@ test('late catalog responses cannot replace a newer session or recover revoked c
 });
 test('catalog refresh revokes old verification before waiting and failed refresh does not reuse stale choices',async()=>{
  let fail=false,notifications=0;const client=createIdentityCatalog({request:async()=>{if(fail)throw Object.assign(Error('offline'),{status:503});return payload();},notify:()=>notifications++});await client.refresh();assert.ok(client.snapshot());fail=true;const pending=client.refresh();assert.equal(client.snapshot(),null);assert.equal(client.status().loading,true);await pending;assert.equal(client.snapshot(),null);assert.match(client.status().error,/不可用/);assert.ok(notifications>=4);
+});
+
+test('identity refresh loads all pages without publishing a partial account list',async()=>{
+ const calls=[];const first=payload();first.next_offset=500;
+ const second=payload();second.accounts=second.accounts.map(a=>({...a,id:a.id+'-second'}));second.wallets=[];second.next_offset=null;
+ const catalog=createIdentityCatalog({request:async path=>{calls.push(path);assert.equal(catalog.snapshot(),null);return calls.length===1?first:second;}});
+ await catalog.refresh();assert.equal(calls[1],'/api/v2/workspaces/session/options?offset=500');assert.equal(catalog.snapshot().accounts.length,first.accounts.length+second.accounts.length);
+});
+
+test('search keeps the selected identity without adding identities outside the current market',()=>{
+ const rows=[{id:'stock-a',label:'主账户',mode:'paper'},{id:'stock-b',label:'Long term',mode:'read_only'}];
+ assert.deepEqual(filterIdentityChoices(rows,'LONG','stock-a').map(x=>x.id),['stock-a','stock-b']);
+ assert.deepEqual(filterIdentityChoices(rows,'missing','stock-a').map(x=>x.id),['stock-a']);
+ assert.deepEqual(filterIdentityChoices(rows,'STOCK-B','foreign').map(x=>x.id),['stock-b']);
+ assert.equal(filterIdentityChoices(rows,'','').length,2);
 });

@@ -1,0 +1,47 @@
+{
+  "sha256": {
+    "backend/app/services/human_control.py": "f7aee6069bbe26fc8bacf2511076d6c09d3b7285c65fcbce44a995ecd8e52a9a",
+    "backend/app/services/research_paper_review_context.py": "f49aaa8fbf4f4007f3bdd891013880f6741f4614df1732f3a49024e67860cd09",
+    "backend/app/api/production.py": "b2d863974f51bab1b1312f0acfe0c24a2caf97cbbe9d0b614076f15502aa23fd",
+    "backend/app/services/data_sources.py": "1b5bf6fb55c537592c68ac3a3a549edbfce4d8e67ee4bf040560611e62f540bc",
+    "backend/tests/test_paper_review_research_chat.py": "af0224608be4a1b8fdc35ddebf55cc85e22acc9173fdeb2ff6dc0c1d37160d49",
+    "src/research-ai.js": "ddc686254a126393e39eae77d6794a530319c0003946e00199e42d779e87c074",
+    "src/research-ai-chat.jsx": "0e7266905676f2b28377507007fcfdd94a4db161be153f32007332eafc3dbd88",
+    "src/research-ai-chat.css": "10251deec8ab23620ce54a41c486a6fc400dfbba2d38189b0abe87100d1e25ec",
+    "src/research-paper-review.js": "1ad6777d4f27f4d0e1b8db4986776bbec3aebe2fabbd5c9ee5d4131b469a0c98",
+    "src/research-paper-review-ui.jsx": "2ab01e7e6fa567f84ee355a84dd28d2f2f1a878b36b172fcb810cb8fdb546291",
+    "src/paper-review-research-history.js": "d5654cdf657122931a862f0fa3956bbacc7037111a5823594c2039df6b01c171",
+    "src/paper-review-research-history.jsx": "69c2096702c0d17291dbb448413d012beafcaf6603fc73646e76f722f1badfc7",
+    "src/paper-review-material.js": "457f92590e1afbebfca2af023dd4e145c8fa73b6bd97806ffad8e70c8061819a",
+    "src/paper-review-material.jsx": "ee32894dc6755bea5b9853a41dee64f2454b2f3bf880cdd9f7efbe31b43e3d18",
+    "src/terminal-trading-policy.js": "ff14b793a4f3535f8868cde71448f506fd526038b39bbc6a04a4f806c82498f1",
+    "src/main.jsx": "91b1b5062f799cbdd4a99a3bbda300e559ace36371d1fa3f2273379855f7a5ec",
+    "terminal-ui/integration/ai-guide.mjs": "450293ff5aba16b413e6efa7ad81bc80b8006b9e8968ec3246bd0070e217068c",
+    "terminal-ui/tests/paper-review-chat.test.mjs": "e99a78e0b0e46a58d98f3abd75cb2616f7df32b523a5d2a2dc7553085c88c5c1",
+    "terminal-ui/tests/research-principal.test.mjs": "4af51cb7a7bf112815a6078634b26558fa078c769380c408da48264806c848d9",
+    "terminal-ui/tests/trading-policy.test.mjs": "adb18e6c76ba6165013536a6d238a67862bfc3364cdef4a579bdfeafc42ed1ec"
+  },
+  "backend_related_tests": "117 passed in 13.14s",
+  "terminal_tests_passed": 106,
+  "model_scripts_passed": 55,
+  "public_build_passed": true,
+  "local_terminal_build_passed": true,
+  "local_http_assets": [
+    {
+      "file": "features/assets/terminal-feature-BWhzRuwW.js",
+      "sha256": "be09f8733309f496e53e19be46eaab2f6d93747dc6ca341fd0eac64c1e9ce474",
+      "status": 200
+    }
+  ],
+  "frontend_runtime": {
+    "port": 8850,
+    "pid": 88744,
+    "session": 28874
+  },
+  "backend_8001_running": false,
+  "controlled_provider_only": true,
+  "browser_verified": false,
+  "paid_provider_verified": false,
+  "production_deployed": false,
+  "full_goal_complete": false
+}

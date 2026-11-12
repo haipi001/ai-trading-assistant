@@ -185,3 +185,47 @@ def test_partial_fill_revalidates_only_remaining_quantity_not_full_original_amou
     second = client.post(f"/paper-executions/drafts/{draft['id']}/execute", json={'fill_price':100,'fill_quantity':6,'fee_bps':0})
     assert second.status_code == 201, second.text
     assert second.json()['execution']['remaining_quantity'] == 0
+
+@pytest.mark.parametrize('changes,reason', [
+    ({'account_id': 'other-account'}, 'investment_thesis_account_mismatch'),
+    ({'user_id': 'foreign-user'}, 'investment_thesis_owner_mismatch'),
+])
+def test_linked_thesis_cannot_change_risk_owner_or_bypass_compatibility(client, changes, reason):
+    from app.models import Account, InvestmentThesis, OrderIntent
+    from app.services.account_risk_context import server_account_context
+    asset, account, intent = setup(client)
+    def evaluate(db):
+        owner = db.get(Account, account['id']).user_id
+        thesis = InvestmentThesis(user_id=owner,asset_id=asset['id'],account_id=account['id'],
+            entry_reason='Controlled test thesis',expected_horizon='1d',target_condition='review',
+            max_loss_tolerance_pct=.01,confidence=.5,source='manual',status='active')
+        db.add(thesis);db.flush()
+        order=db.get(OrderIntent,intent['id']);order.investment_thesis_id=thesis.id
+        for key,value in changes.items():setattr(thesis,key,value)
+        with db.no_autoflush:
+            result=server_account_context(db,order,{})
+        assert reason in result['_account_risk_errors']
+        assert result['user_id']==owner
+        db.rollback()
+    edit_db(evaluate)
+
+@pytest.mark.parametrize('entity,reason', [
+    ('budget', 'account_risk_budget_owner_mismatch'),
+    ('constitution', 'account_risk_constitution_owner_mismatch'),
+])
+def test_policy_cannot_replace_account_owner(client, entity, reason):
+    from app.models import Account, InvestmentConstitution, OrderIntent
+    from app.services.account_risk_context import server_account_context
+    from test_decision_gates import setup_gate_ready_order
+    _, account, intent, _ = setup_gate_ready_order(client)
+    def evaluate(db):
+        owner=db.get(Account,account['id']).user_id
+        budget=db.scalar(select(RiskBudget).where(RiskBudget.account_id==account['id']))
+        target=budget if entity=='budget' else db.get(InvestmentConstitution,budget.constitution_id)
+        target.user_id='foreign-user'
+        with db.no_autoflush:
+            result=server_account_context(db,db.get(OrderIntent,intent['id']),{})
+        assert reason in result['_account_risk_errors']
+        assert result['user_id']==owner
+        db.rollback()
+    edit_db(evaluate)

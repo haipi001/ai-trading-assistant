@@ -23,10 +23,10 @@ class BacktestRunsService:
     def __init__(self, db: Session):
         self.db = db
 
-    def list_runs(self, limit: int = 100) -> list[BacktestRun]:
+    def list_runs(self, limit: int = 100, user_id: str | None = None) -> list[BacktestRun]:
         return list(
             self.db.scalars(
-                select(BacktestRun).order_by(BacktestRun.created_at.desc(), BacktestRun.id.desc()).limit(limit)
+                select(BacktestRun).where(*([BacktestRun.user_id==user_id] if user_id is not None else [])).order_by(BacktestRun.created_at.desc(), BacktestRun.id.desc()).limit(limit)
             ).all()
         )
 

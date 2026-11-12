@@ -55,6 +55,7 @@ class PaperExecutionService:
     def __init__(self, db: Session):
         self.db = db
         self.replayed = False
+        self._owner_id = None
 
     def apply_cash_dividend(
         self,
@@ -66,6 +67,7 @@ class PaperExecutionService:
         note: str | None = None,
     ) -> tuple[PaperCorporateAction, TradeJournalEntry]:
         account, asset, position = self._paper_action_context(account_id, asset_id)
+        self._owner_id=account.user_id
         amount = to_decimal(amount_per_share)
         if amount <= 0:
             raise PaperExecutionBlockedError("paper cash dividend amount_per_share must be positive")
@@ -76,6 +78,7 @@ class PaperExecutionService:
         self._apply_cash_effect(cash_position, cash_effect)
 
         corporate_action = PaperCorporateAction(
+            user_id=account.user_id,
             account_id=account.id,
             asset_id=asset.id,
             action_type="cash_dividend",
@@ -95,6 +98,7 @@ class PaperExecutionService:
         self.db.flush()
 
         journal_entry = TradeJournalEntry(
+            user_id=account.user_id,
             asset_id=asset.id,
             account_id=account.id,
             title=f"Paper dividend {asset.symbol}",
@@ -147,6 +151,7 @@ class PaperExecutionService:
         note: str | None = None,
     ) -> tuple[PaperCorporateAction, TradeJournalEntry]:
         account, asset, position = self._paper_action_context(account_id, asset_id)
+        self._owner_id=account.user_id
         numerator = to_decimal(ratio_numerator)
         denominator = to_decimal(ratio_denominator)
         if numerator <= 0 or denominator <= 0:
@@ -174,6 +179,7 @@ class PaperExecutionService:
             adjusted_lot_ids.append(tax_lot.id)
 
         corporate_action = PaperCorporateAction(
+            user_id=account.user_id,
             account_id=account.id,
             asset_id=asset.id,
             action_type="stock_split",
@@ -195,6 +201,7 @@ class PaperExecutionService:
         self.db.flush()
 
         journal_entry = TradeJournalEntry(
+            user_id=account.user_id,
             asset_id=asset.id,
             account_id=account.id,
             title=f"Paper split {asset.symbol}",
@@ -270,9 +277,12 @@ class PaperExecutionService:
             account = self.db.scalar(select(Account).where(Account.id == intent.account_id).with_for_update())
             if account is None:
                 raise PaperExecutionBlockedError('order intent account is unavailable')
+            self._owner_id=account.user_id
             # The account lock is acquired first for every competing execution.
             draft = self.db.scalar(select(OrderDraft).where(OrderDraft.id == draft_id)
                                    .with_for_update().execution_options(populate_existing=True))
+            if not account.user_id or intent.user_id!=account.user_id or draft.user_id!=account.user_id:
+                raise PaperExecutionBlockedError('Paper account, intent and draft owner mismatch')
             if idempotency_key:
                 prior = self.db.scalar(select(Execution).where(Execution.order_draft_id == draft_id,
                                                                Execution.idempotency_key == idempotency_key))
@@ -285,12 +295,17 @@ class PaperExecutionService:
                     self.db.commit()
                     self.replayed = True
                     return receipt
-            return self._execute_draft_locked(draft, **requested, idempotency_key=idempotency_key,
+            receipt=self._execute_draft_locked(draft, **requested, idempotency_key=idempotency_key,
                                               request_fingerprint=fingerprint)
+            self.db.commit()
+            execution,journal,review,saved_draft,lots,realizations=receipt
+            for record in [execution,journal,review,saved_draft,*lots,*realizations]:
+                self.db.refresh(record)
+            return receipt
         except Exception as exc:
             # Preserve blocked gate evidence, but never commit any partial ledger
             # changes or audit claims that an aborted fill succeeded.
-            blocked = [dict(actor_type=item.actor_type, actor_id=item.actor_id, action=item.action,
+            blocked = [dict(user_id=item.user_id,actor_type=item.actor_type, actor_id=item.actor_id, action=item.action,
                             entity_type=item.entity_type, entity_id=item.entity_id, payload_json=item.payload_json)
                        for item in self.db.new if isinstance(item, AuditLog) and item.action in {
                            'research_evidence.blocked', 'decision_gate.revalidation_blocked'}]
@@ -308,9 +323,9 @@ class PaperExecutionService:
             raise
 
     def _persisted_receipt(self, execution: Execution, draft: OrderDraft) -> PaperExecutionReceipt:
-        review = self.db.scalar(select(PostTradeReview).where(PostTradeReview.execution_id == execution.id))
+        review = self.db.scalar(select(PostTradeReview).where(PostTradeReview.execution_id == execution.id,PostTradeReview.user_id == execution.user_id,PostTradeReview.order_draft_id == draft.id))
         journal = self.db.get(TradeJournalEntry, review.trade_journal_entry_id) if review else None
-        if review is None or journal is None:
+        if review is None or journal is None or journal.user_id!=execution.user_id or draft.user_id!=execution.user_id:
             raise PaperExecutionBlockedError('stored execution receipt incomplete; reconcile before retrying')
         realizations = list(self.db.scalars(select(PaperTaxLotRealization).where(PaperTaxLotRealization.execution_id == execution.id)).all())
         ids = [item.tax_lot_id for item in realizations]
@@ -374,6 +389,7 @@ class PaperExecutionService:
         execution_status = "filled" if self._is_effectively_zero(fill_context.remaining_quantity) else "partially_filled"
         sequence = (self.db.scalar(select(func.max(Execution.fill_sequence)).where(Execution.order_draft_id == draft.id)) or 0) + 1
         execution = Execution(
+            user_id=account.user_id,
             order_draft_id=draft.id, fill_sequence=sequence,
             idempotency_key=idempotency_key, request_fingerprint=request_fingerprint,
             position_id=paper_position.id,
@@ -439,6 +455,7 @@ class PaperExecutionService:
         draft.execution_status = "paper_filled" if execution.status == "filled" else "paper_partially_filled"
 
         journal_entry = TradeJournalEntry(
+            user_id=account.user_id,
             asset_id=asset.id,
             account_id=account.id,
             title=f"Paper {order_intent.side.upper()} {asset.symbol}",
@@ -465,7 +482,7 @@ class PaperExecutionService:
             execution_id=execution.id,
             trade_journal_entry_id=journal_entry.id,
             order_draft_id=draft.id,
-            user_id=execution.user_id,
+            user_id=account.user_id,
             status="pending",
             prompt_json=self._post_trade_prompt(
                 order_intent=order_intent,
@@ -559,15 +576,6 @@ class PaperExecutionService:
                     "tax_lot_realization_ids": [realization.id for realization in tax_lot_realizations],
                 },
             )
-        self.db.commit()
-        self.db.refresh(execution)
-        self.db.refresh(journal_entry)
-        self.db.refresh(post_trade_review)
-        self.db.refresh(draft)
-        for tax_lot in affected_tax_lots:
-            self.db.refresh(tax_lot)
-        for realization in tax_lot_realizations:
-            self.db.refresh(realization)
         return execution, journal_entry, post_trade_review, draft, affected_tax_lots, tax_lot_realizations
 
     def _ensure_paper_executable(self, draft: OrderDraft, account: Account) -> None:
@@ -755,6 +763,7 @@ class PaperExecutionService:
         if side.lower() == "buy":
             if position is None:
                 position = Position(
+                    user_id=account.user_id,
                     account_id=account.id,
                     asset_id=asset.id,
                     quantity=0,
@@ -816,6 +825,7 @@ class PaperExecutionService:
     ) -> PaperTaxLot:
         cost_basis = fill_notional + fee_amount
         tax_lot = PaperTaxLot(
+            user_id=account.user_id,
             account_id=account.id,
             asset_id=asset.id,
             source_execution_id=execution.id,
@@ -848,6 +858,7 @@ class PaperExecutionService:
 
         average_cost = to_decimal(position.average_cost)
         bootstrap_lot = PaperTaxLot(
+            user_id=account.user_id,
             account_id=account.id,
             asset_id=asset.id,
             source_execution_id=None,
@@ -908,6 +919,7 @@ class PaperExecutionService:
                 tax_lot.closed_at = datetime.now(timezone.utc)
 
             realization = PaperTaxLotRealization(
+                user_id=account.user_id,
                 execution_id=execution.id,
                 tax_lot_id=tax_lot.id,
                 quantity=consumed_quantity,
@@ -975,6 +987,7 @@ class PaperExecutionService:
             return cash_position
 
         cash_position = Position(
+            user_id=account.user_id,
             account_id=account.id,
             asset_id=cash_asset.id,
             quantity=seed_if_missing,
@@ -1118,6 +1131,7 @@ class PaperExecutionService:
     ) -> None:
         self.db.add(
             AuditLog(
+                user_id=self._owner_id or 'default-user',
                 actor_type="system",
                 actor_id="paper-execution-service",
                 action=action,

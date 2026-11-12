@@ -42,7 +42,7 @@ def create_constitution(client: TestClient) -> dict:
     response = client.post(
         "/investment-constitutions",
         json={
-            "user_id": "user-1",
+            "user_id": "default-user",
             "version": "v1",
             "name": "Gate test constitution",
             "investment_style": "disciplined",
@@ -71,7 +71,7 @@ def create_risk_budget(client: TestClient, constitution_id: str, account_id: str
     response = client.post(
         "/risk-budgets",
         json={
-            "user_id": "user-1",
+            "user_id": "default-user",
             "constitution_id": constitution_id,
             "account_id": account_id,
             "asset_class": "stock",
@@ -90,7 +90,7 @@ def create_thesis(client: TestClient, asset_id: str, account_id: str) -> dict:
     response = client.post(
         "/investment-theses",
         json={
-            "user_id": "user-1",
+            "user_id": "default-user",
             "asset_id": asset_id,
             "account_id": account_id,
             "entry_reason": "Revenue growth thesis remains active.",
@@ -181,7 +181,7 @@ def setup_gate_ready_order(client: TestClient, *, notional: float = 1_000, max_o
 def passing_gate_payload(order_intent_id: str, data_snapshot_id: str, **overrides) -> dict:
     payload = {
         "order_intent_id": order_intent_id,
-        "user_id": "user-1",
+        "user_id": "default-user",
         "data_snapshot_id": data_snapshot_id,
         "data_quality_status": "acceptable",
         "quality_report_required": True,
@@ -410,7 +410,7 @@ def create_playbook_with_rule(client: TestClient, *, rule_type: str, conditions:
     playbook_response = client.post(
         "/strategy-playbooks",
         json={
-            "user_id": "user-1",
+            "user_id": "default-user",
             "name": "Gate rule playbook",
             "strategy_type": "swing",
         },
@@ -437,7 +437,7 @@ def create_thesis_with_playbook(client: TestClient, asset_id: str, account_id: s
     response = client.post(
         "/investment-theses",
         json={
-            "user_id": "user-1",
+            "user_id": "default-user",
             "asset_id": asset_id,
             "account_id": account_id,
             "strategy_playbook_id": playbook_id,

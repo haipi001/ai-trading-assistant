@@ -1,0 +1,18 @@
+{
+  "sha256": {
+    "backend/tests/test_terminal_research_paper_loop.py": "f49f5ad1249bdccf98bfd78591982d81c975ebdab9f76f80d49f829b5b36d106",
+    "backend/tests/test_paper_review_edit.py": "e241d2bbd5f2f3a076447a2cb81368f3258566af3fd2b0d246d63de9977a1296",
+    "terminal-ui/scripts/serve-paper-fixture.py": "da556eea1abe0ccc6ab4605b86b6af44f2b61163cf01cd85d803d6427c32fd3a"
+  },
+  "tests_passed": 5,
+  "markets": [
+    "stocks",
+    "cex"
+  ],
+  "controlled_mock_only": true,
+  "browser_verified": false,
+  "real_account_verified": false,
+  "production_deployed": false,
+  "http_fixture_stopped": true,
+  "full_goal_complete": false
+}

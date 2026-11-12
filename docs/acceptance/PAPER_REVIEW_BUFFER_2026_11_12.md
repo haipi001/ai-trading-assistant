@@ -1,0 +1,11 @@
+# Manual Paper review session buffer
+
+The existing human review editor now stores only unsubmitted note text in sessionStorage. The key includes session identity, trading context identity, execution ID, review ID and server updated_at. A server revision change uses server notes or a buffer for that revision; it does not automatically apply stale notes. The 8000-character limit matches the manual editor. Storage failures remain visible. Only an explicitly requested, validated backend save clears its original buffer; buffering does not call a model, complete a review, create orders or alter approval state.
+
+Controlled helper tests verify identity/context/revision separation, 8000-character preservation, oversize rejection and malformed-storage handling. External terminal suite:132 passed; repository mirror:136 passed. Terminal production build passed with existing chunk-size warning. These are helper/build checks, not browser refresh or account-switch acceptance. sessionStorage is not encrypted permanent storage; closing the browser session may discard notes. Old revision buffers are retained within that session rather than silently merged into newer server records.
+
+## Credential boundary correction
+
+Code review found that getSessionIdentity can return a Bearer authorization string in direct-session mode. The original buffer key used that value. Buffer v2 instead uses getBackendSession().user_id; the context identity includes no credential. The live credential remains an in-memory comparison only. When the corresponding editor opens with its current session, a valid matching v1 note is copied to the v2 key and that v1 key is removed. This is not a verified cleanup of every previously opened editor or browser session. No browser token or stored note was read or printed during this change. Missing verified user identity now displays a no-recovery warning rather than suggesting persistence succeeded.
+
+A controlled fake-token migration test proves matching text retention and old-key removal. External tests:133 passed; mirror:137 passed. Final terminal build passed. Browser storage/refresh acceptance remains outstanding. The arbitrary script execution gap remains: the existing backend MA-cross engine is not equivalent to executing the editor script.

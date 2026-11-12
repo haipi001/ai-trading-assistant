@@ -1,5 +1,5 @@
 from typing import Literal
-from fastapi import APIRouter, Depends, HTTPException, Path
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
 from pydantic import BaseModel, Field, model_validator
 from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
@@ -11,13 +11,11 @@ from app.models import Account, AuditLog, TerminalWorkspace, Wallet
 from app.models.core import utc_now
 from app.adapters.evm_rpc_readonly import resolve_chain, EvmRpcError
 
+from app.services.account_identity import account_markets
+
 router = APIRouter(prefix='/api/v2/workspaces', tags=['workspaces'])
 
 
-def account_markets(account):
-    # Account types are existing domain metadata, not execution permissions.
-    return {'brokerage':['stocks'], 'broker':['stocks'],
-            'exchange':['cex'], 'exchange_account':['cex'], 'crypto_exchange':['cex']}.get(account.account_type, [])
 
 
 def wallet_chain_id(wallet):
@@ -137,12 +135,13 @@ def workspace_session_context(actor: AuthenticatedUser = Depends(require_permiss
 
 
 @router.get('/session/options')
-def workspace_identity_options(actor: AuthenticatedUser = Depends(require_permission('read')), db: Session = Depends(get_db)):
-    accounts=list(db.scalars(select(Account).where(Account.user_id==actor.user_id).order_by(Account.name,Account.id).limit(501)))
-    wallets=list(db.scalars(select(Wallet).where(Wallet.user_id==actor.user_id,Wallet.is_active.is_(True)).order_by(Wallet.id).limit(501)))
-    if len(accounts)>500 or len(wallets)>500:
-        raise HTTPException(413,'workspace identity list exceeds selection limit')
+def workspace_identity_options(offset: int = Query(default=0, ge=0), actor: AuthenticatedUser = Depends(require_permission('read')), db: Session = Depends(get_db)):
+    accounts=list(db.scalars(select(Account).where(Account.user_id==actor.user_id).order_by(Account.id).offset(offset).limit(501)))
+    wallets=list(db.scalars(select(Wallet).where(Wallet.user_id==actor.user_id,Wallet.is_active.is_(True)).order_by(Wallet.id).offset(offset).limit(501)))
+    has_more = len(accounts)>500 or len(wallets)>500
+    accounts, wallets = accounts[:500], wallets[:500]
     return {'user_id':actor.user_id,'execution_authorized':False,'source':'owned_workspace_identities',
+            'next_offset':offset+500 if has_more else None,
             'accounts':[{'id':a.id,'label':a.name,'account_type':a.account_type,'broker':a.broker,
                          'base_currency':a.base_currency,'mode':a.mode,'markets':account_markets(a),
                          'paper_eligible':a.mode=='paper' and not a.live_trading_enabled and bool(account_markets(a))} for a in accounts],
@@ -193,3 +192,37 @@ def save_workspace(payload: WorkspaceSave, workspace_id: str = Path(pattern=r'^[
         db.rollback()
         raise HTTPException(409,'workspace changed; reload before saving') from exc
     return read_workspace(workspace_id,actor,db)
+
+
+from app.services.strategy_research_material import StrategyMaterialPrepare,prepare_strategy_material,read_strategy_material
+
+@router.post('/research/strategy-material')
+def strategy_material_prepare(payload: StrategyMaterialPrepare, response: Response, actor: AuthenticatedUser=Depends(require_permission('readiness:write')), db: Session=Depends(get_db)):
+    response.headers['Cache-Control']='no-store'
+    return prepare_strategy_material(db,actor.user_id,payload)
+
+@router.get('/research/strategy-material/{snapshot_id}')
+def strategy_material_read(snapshot_id: str, response: Response, actor: AuthenticatedUser=Depends(require_permission('read')), db: Session=Depends(get_db)):
+    response.headers['Cache-Control']='no-store'
+    return read_strategy_material(db,actor.user_id,snapshot_id)
+
+
+@router.get('/research/strategy-history')
+def strategy_history(account_id: str, market: Literal['stocks','cex'], response: Response, actor: AuthenticatedUser=Depends(require_permission('read')), db: Session=Depends(get_db)):
+    from app.services.strategy_research_material import strategy_research_history
+    response.headers['Cache-Control']='no-store'
+    return strategy_research_history(db,actor.user_id,account_id,market)
+
+
+@router.get('/research/strategy-history/{snapshot_id}')
+def strategy_history_artifact(snapshot_id: str, response: Response, actor: AuthenticatedUser=Depends(require_permission('read')), db: Session=Depends(get_db)):
+    from app.services.strategy_research_material import strategy_research_artifact
+    response.headers['Cache-Control']='no-store'
+    return strategy_research_artifact(db,actor.user_id,snapshot_id)
+
+
+@router.get('/research/paper-trades')
+def workspace_paper_trades(account_id: str, market: Literal['stocks','cex'], response: Response, after: str | None = Query(default=None,min_length=1,max_length=128), actor: AuthenticatedUser=Depends(require_permission('read')), db: Session=Depends(get_db)):
+    from app.services.terminal_paper_history import paper_trade_history
+    response.headers['Cache-Control']='no-store'
+    return paper_trade_history(db,actor.user_id,account_id,market,after)

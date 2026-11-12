@@ -1,0 +1,32 @@
+{
+  "base_head": "f4a127ec2bd2fc08632414c0a95c674f3b183702",
+  "uncommitted": true,
+  "sha256": {
+    "backend/app/services/account_risk_context.py": "665e64d549c331ff609d8fd7b502845c9c269204524bbc4992806658e7ec78a1",
+    "backend/app/services/demo_seed.py": "b28853c6ec6978d5886c42f53b7fe41e0a9f51b9069178edca151306973597d6",
+    "backend/app/services/daily_use.py": "e97cbd7c146e2e2122adc1dcdfe72888a4af3dd7ced10398c0af8e6d36b4d7cb",
+    "backend/tests/test_server_account_risk.py": "e60bb980b96134bb17f28b869859721634d7d59ab45f057c139a095d6785c9e1",
+    "backend/tests/test_demo_seed.py": "c653677122d6e4f96ad7eb3f203289f790eb72c04008a7857c11e813166a7e9e",
+    "backend/tests/test_decision_gates.py": "916835d9967b8393a7bd2709a54b0d938b367f95b4023560f6bac38a2189f493",
+    "backend/tests/test_risk_approval.py": "99e5215d4192dcd86516b307b93eacc332b20a9056961f300912c3affb28eee5",
+    "backend/tests/test_decision_gate_revalidation.py": "701475d6760c1e12f606bd44721c8b75df05ee253b921a20a04ad6e40efc61c6",
+    "backend/tests/test_daily_use.py": "07b7a7c7860dd68eee429e00dcd4338f6ac0ede4f69ab156299be2255cb62d33",
+    "backend/tests/test_domain_api.py": "78c8a284fa37f8298909475aef9a88aa4fe0273cbe8c43c43581274923324fce",
+    "backend/tests/test_theses.py": "c9770ad44122fc9c7a819db88cc09817399fe6a537cf7af573fabfda1a60a41a",
+    "backend/tests/test_decision_narratives.py": "a736b4985993e734266656906ade1f5386a7e86f663ebd936ad4e4e2be1a3451",
+    "backend/tests/test_stage_5_11_readiness.py": "fced7e2682bb8d767826cfe2a974b8b19521255304cf47b89efcc27f9236b6c9",
+    "backend/tests/test_research_traceability.py": "10f7ab144d1cf5017db1131e4d377d115714637cf5e30c9379f8ac5a4751ee66",
+    "backend/tests/test_v4_safe_slices_7_8_9.py": "f2ded45aecc388958e201456c58fe5dfa2ee797df756b55ba2aee5a6dcb98f97"
+  },
+  "production_verified": false,
+  "browser_verified": false,
+  "real_account_verified": false,
+  "live_execution_enabled": false,
+  "full_goal_complete": false,
+  "validation": {
+    "backend_full": "973 passed in 115.68s",
+    "terminal_tests": "84 passed",
+    "public_build": "passed; retained legacy/; existing bundle-size warning",
+    "source_hashes_revalidated": true
+  }
+}

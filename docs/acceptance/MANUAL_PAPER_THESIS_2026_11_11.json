@@ -1,0 +1,18 @@
+{
+  "sha256": {
+    "backend/app/api/theses.py": "34b02632ec83b1cb7df7e6a547c07a7519bc48243020a5baa47a784820e7b250",
+    "backend/tests/test_manual_paper_thesis.py": "cd574ceb9f9d4bb9a5a0302cfd14630418af45bf8dde821bf1b2ecdc40b4ecb6",
+    "backend/tests/test_paper_research_frontend_contract.py": "24267168c6737c294966606a2241e39257395e1265ba8bd6011013fef94c1532",
+    "backend/tests/test_terminal_research_paper_loop.py": "49478a172020fb6ee7982d6ae257eb17c1c95c4122f8c04b0ef3afda2228dfb5",
+    "src/paper-thesis.js": "5fe675c6ba4a8db2e7952c7e218c46fb57c076c14d1494bbbc2e70b7dfbf2c92",
+    "src/paper-thesis-editor.jsx": "ec79a4fbc644fa0bcbee61659c8e6bda04341e15a9e1a7822efa06c42c73c546",
+    "src/paper-order-ticket.jsx": "f06b67da3fba33216b4f2a0613838ffdd76144a1abf992d4ad2fbf717d439479"
+  },
+  "backend_tests_passed": 27,
+  "terminal_tests_passed": 95,
+  "terminal_build_passed": true,
+  "real_managed_owner_and_viewer_tested": true,
+  "browser_verified": false,
+  "production_deployed": false,
+  "full_goal_complete": false
+}

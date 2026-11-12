@@ -45,7 +45,7 @@ def test_stage_5_11_readiness_blocks_unprepared_order_intent(client: TestClient)
 def test_stage_5_11_readiness_surfaces_ready_order_draft_without_execution(client: TestClient) -> None:
     asset = create_asset(client)
     account = create_account(client)
-    playbook = create_strategy_playbook(client, user_id="human-user")
+    playbook = create_strategy_playbook(client, user_id="default-user")
     thesis = create_thesis(client, asset["id"], playbook["id"])
     intent_response = client.post(
         "/orders/intents",
@@ -84,7 +84,7 @@ def test_stage_5_11_readiness_surfaces_ready_order_draft_without_execution(clien
     draft = draft_response.json()
     behavior_response = client.post(
         "/behavior/evaluate-order",
-        json={"order_intent_id": intent["id"], "user_id": "human-user"},
+        json={"order_intent_id": intent["id"], "user_id": "default-user"},
     )
     assert behavior_response.status_code == 201
     workflow_response = client.post(
@@ -100,7 +100,7 @@ def test_stage_5_11_readiness_surfaces_ready_order_draft_without_execution(clien
     )
     assert workflow_response.status_code == 201
 
-    response = client.get("/workflows/stage-5-11-readiness?user_id=human-user&limit=10")
+    response = client.get("/workflows/stage-5-11-readiness?user_id=default-user&limit=10")
 
     assert response.status_code == 200
     queue = response.json()

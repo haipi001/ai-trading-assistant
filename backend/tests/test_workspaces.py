@@ -203,3 +203,27 @@ def test_market_workspaces_preserve_inactive_panels_and_validate_hidden_lock_own
     view['panels'][3]['panel_id']=2
     assert client.put('/api/v2/workspaces/market-layouts',json=value).status_code==422
     assert client.get('/api/v2/workspaces/market-layouts').json()['version']==1
+
+
+def test_identity_options_paginate_more_than_500_owned_accounts(client):
+    from app.main import app
+    from app.db.session import get_db
+    from app.models import Account
+    session=app.dependency_overrides[get_db]()
+    db=next(session)
+    try:
+        db.add_all([Account(id=f'page-{i:04d}',user_id='pagination-test',name=f'Account {i}',account_type='brokerage',broker='mock',base_currency='USD',mode='paper') for i in range(503)])
+        db.commit()
+    finally:
+        session.close()
+    headers={'X-AI-Trading-User':'pagination-test'}
+    first=client.get('/api/v2/workspaces/session/options',headers=headers)
+    assert first.status_code==200
+    assert len(first.json()['accounts'])==500
+    assert first.json()['next_offset']==500
+    second=client.get('/api/v2/workspaces/session/options?offset=500',headers=headers)
+    assert second.status_code==200
+    assert len(second.json()['accounts'])==3
+    assert second.json()['next_offset'] is None
+    assert not ({a['id'] for a in first.json()['accounts']} & {a['id'] for a in second.json()['accounts']})
+    assert client.get('/api/v2/workspaces/session/options?offset=-1',headers=headers).status_code==422

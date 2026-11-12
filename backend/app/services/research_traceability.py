@@ -45,6 +45,7 @@ class ResearchTraceabilityService:
 
         report, thesis = self._report_and_thesis(report_id, thesis_id, user_id)
         checkpoint = ThesisCheckpoint(
+            user_id=user_id,
             thesis_id=thesis.id,
             checkpoint_type="research_evidence_review",
             observed_facts_json={
@@ -109,7 +110,7 @@ class ResearchTraceabilityService:
 
     def decision_context(self, *, report_id: str, user_id: str) -> dict[str, Any]:
         report = self.db.get(ResearchReport, report_id)
-        if report is None:
+        if report is None or report.user_id != user_id:
             raise ResearchTraceabilityError("research report not found")
         thesis_query = select(InvestmentThesis).where(InvestmentThesis.user_id == user_id)
         if report.asset_id is not None:
@@ -122,7 +123,7 @@ class ResearchTraceabilityService:
         accounts = list(
             self.db.scalars(
                 select(Account)
-                .where(Account.live_trading_enabled.is_(False))
+                .where(Account.live_trading_enabled.is_(False), Account.user_id == user_id)
                 .order_by(Account.mode.desc(), Account.name.asc(), Account.id.asc())
                 .limit(100)
             ).all()
@@ -189,7 +190,7 @@ class ResearchTraceabilityService:
 
         report, thesis = self._report_and_thesis(report_id, thesis_id, user_id)
         account = self.db.get(Account, account_id)
-        if account is None:
+        if account is None or account.user_id != user_id:
             raise ResearchTraceabilityError("account not found")
         checkpoint = self._review_checkpoint(report.id, thesis.id)
         if checkpoint is None:
@@ -200,6 +201,7 @@ class ResearchTraceabilityService:
             f"Human-reviewed research plan based on report {report.id}; thesis checkpoint {checkpoint.id}."
         )
         intent = OrderIntent(
+            user_id=user_id,
             source_type="research_report",
             source_id=report.id,
             asset_id=thesis.asset_id,
@@ -267,7 +269,7 @@ class ResearchTraceabilityService:
     def _report_and_thesis(self, report_id: str, thesis_id: str, user_id: str) -> tuple[ResearchReport, InvestmentThesis]:
         report = self.db.get(ResearchReport, report_id)
         thesis = self.db.get(InvestmentThesis, thesis_id)
-        if report is None:
+        if report is None or report.user_id != user_id:
             raise ResearchTraceabilityError("research report not found")
         if thesis is None or thesis.user_id != user_id:
             raise ResearchTraceabilityError("thesis not found")
@@ -362,6 +364,7 @@ def intent_payload(intent: OrderIntent) -> dict[str, Any]:
 def gate_payload(gate: DecisionGate) -> dict[str, Any]:
     return {
         "id": gate.id,
+        "order_intent_id": gate.order_intent_id,
         "gate_type": gate.gate_type,
         "status": gate.status,
         "score": float(gate.score or 0),

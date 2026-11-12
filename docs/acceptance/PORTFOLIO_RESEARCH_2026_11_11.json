@@ -1,0 +1,815 @@
+{
+  "status": "passed",
+  "fixture": "controlled Provider and ledger records; no external model or live balances",
+  "checks": [
+    "stocks:ok:persist_restore",
+    "stocks:ai-fail:persist_restore",
+    "stocks:ai-invalid:persist_restore",
+    "cex:ok:persist_restore",
+    "cex:ai-fail:persist_restore",
+    "cex:ai-invalid:persist_restore",
+    "delayed_reply_keeps_original_ledger_and_changed_source_cannot_be_reused"
+  ],
+  "artifacts": [
+    {
+      "row": {
+        "snapshot_id": "753f3d9b-acbd-4573-afb9-4ef1aaf438d3",
+        "request_id": "chat-066b6c17-90ff-4cb8-b472-9b0cb657dd5f",
+        "created_at": "2026-11-11T08:04:15.852298",
+        "reply_status": "ok",
+        "account_id": "fixture-stocks-ledger",
+        "market": "stocks",
+        "context_version": 42
+      },
+      "artifact": {
+        "snapshot_id": "753f3d9b-acbd-4573-afb9-4ef1aaf438d3",
+        "provided_portfolio": {
+          "schema_version": 1,
+          "reference": {
+            "schema_version": 1,
+            "snapshot_id": "d6b46d0a-985d-4194-a986-2b4468e9e829",
+            "account_id": "fixture-stocks-ledger",
+            "market": "stocks",
+            "context_version": 42
+          },
+          "account_id": "fixture-stocks-ledger",
+          "market": "stocks",
+          "context_version": 42,
+          "source_snapshot_id": "d6b46d0a-985d-4194-a986-2b4468e9e829",
+          "source": "application_ledger",
+          "captured_at": "2026-11-11T08:04:15.830403+00:00",
+          "server_retrieved": true,
+          "independently_verified": false,
+          "valuation_freshness": "unknown",
+          "ledger_revision": "c5ee7ec6682e67d6df434190b1aaef0422601be17eb37509af1513af35e99f4d",
+          "account": {
+            "account_id": "fixture-stocks-ledger",
+            "account_type": "brokerage",
+            "mode": "paper",
+            "base_currency": "USD"
+          },
+          "entries": [
+            {
+              "id": "H1",
+              "kind": "account_ledger",
+              "source": "application_ledger",
+              "account": {
+                "account_id": "fixture-stocks-ledger",
+                "account_type": "brokerage",
+                "mode": "paper",
+                "base_currency": "USD"
+              },
+              "total_position_count": 1,
+              "included_count": 1,
+              "truncated": false
+            },
+            {
+              "id": "H2",
+              "kind": "position_ledger",
+              "source": "application_ledger",
+              "record_id": "fixture-position-stocks",
+              "instrument": {
+                "asset_id": "fixture-AAPL-ledger",
+                "symbol": "AAPL",
+                "asset_type": "stock",
+                "market": "US",
+                "venue": "NASDAQ",
+                "currency": "USD",
+                "chain_id": null,
+                "contract_address": null
+              },
+              "quantity": "1.25",
+              "recorded_average_cost": "0",
+              "recorded_market_price": "0",
+              "recorded_market_value": "0",
+              "record_updated_at": "2026-11-11T08:03:45.077434+00:00",
+              "quote_as_of": null,
+              "valuation_verified": false
+            }
+          ],
+          "total_position_count": 1,
+          "included_count": 1,
+          "truncated": false,
+          "limitations": "Owned application-ledger records only, not a broker/exchange balance refresh or independently verified valuation. Record update time is not quote time. Zero/default values are not proof of zero exposure. At most 20 position records; no cross-account totals, FX conversion, live P&L or return calculation. Quantity precision is the stored ledger precision. No secrets or execution authority.",
+          "content_hash": "63df3ff4b7c8d551e34287ce76e94a7be9697d1f3feb684850668797fd67050c"
+        },
+        "provided_news": null,
+        "news_context_snapshot_id": null,
+        "execution_available": false,
+        "request_id": "chat-066b6c17-90ff-4cb8-b472-9b0cb657dd5f",
+        "question": "Controlled account-ledger review, not live balances.",
+        "workspace_labels": {
+          "page": "assets",
+          "symbol": ""
+        },
+        "provider": "deepseek",
+        "provider_mode": "bring_your_own",
+        "model": "controlled-ui-fixture-no-network",
+        "reply_status": "ok",
+        "validated_reply": {
+          "status": "ok",
+          "cited_portfolio_ids": [
+            "H1",
+            "H2"
+          ],
+          "cited_onchain_ids": [],
+          "suggested_action": "检查来源和未知项，不执行交易",
+          "confidence": 0.1,
+          "cited_news_ids": [],
+          "cited_market_ids": [],
+          "summary": "受控验收响应（未调用外部模型）。仅解释所选只读证据。 [H1] [H2]",
+          "bullish_case": "受控材料不足以形成看多结论",
+          "bearish_case": "授权与协议记录可能陈旧，不能推出当前完整风险",
+          "key_risks": [
+            "受控数据，非真实模型分析",
+            "节点观测不代表最终性或独立验证"
+          ],
+          "limitations": "Controlled local provider; no network, no trading report promotion"
+        }
+      }
+    },
+    {
+      "row": {
+        "snapshot_id": "1995ce87-54bb-457f-970e-dc4097adaf68",
+        "request_id": "chat-0af8e263-ad1d-4205-a172-b9b9d85663c1",
+        "created_at": "2026-11-11T08:04:15.878964",
+        "reply_status": "failed",
+        "account_id": "fixture-stocks-ledger",
+        "market": "stocks",
+        "context_version": 42
+      },
+      "artifact": {
+        "snapshot_id": "1995ce87-54bb-457f-970e-dc4097adaf68",
+        "provided_portfolio": {
+          "schema_version": 1,
+          "reference": {
+            "schema_version": 1,
+            "snapshot_id": "d6b46d0a-985d-4194-a986-2b4468e9e829",
+            "account_id": "fixture-stocks-ledger",
+            "market": "stocks",
+            "context_version": 42
+          },
+          "account_id": "fixture-stocks-ledger",
+          "market": "stocks",
+          "context_version": 42,
+          "source_snapshot_id": "d6b46d0a-985d-4194-a986-2b4468e9e829",
+          "source": "application_ledger",
+          "captured_at": "2026-11-11T08:04:15.830403+00:00",
+          "server_retrieved": true,
+          "independently_verified": false,
+          "valuation_freshness": "unknown",
+          "ledger_revision": "c5ee7ec6682e67d6df434190b1aaef0422601be17eb37509af1513af35e99f4d",
+          "account": {
+            "account_id": "fixture-stocks-ledger",
+            "account_type": "brokerage",
+            "mode": "paper",
+            "base_currency": "USD"
+          },
+          "entries": [
+            {
+              "id": "H1",
+              "kind": "account_ledger",
+              "source": "application_ledger",
+              "account": {
+                "account_id": "fixture-stocks-ledger",
+                "account_type": "brokerage",
+                "mode": "paper",
+                "base_currency": "USD"
+              },
+              "total_position_count": 1,
+              "included_count": 1,
+              "truncated": false
+            },
+            {
+              "id": "H2",
+              "kind": "position_ledger",
+              "source": "application_ledger",
+              "record_id": "fixture-position-stocks",
+              "instrument": {
+                "asset_id": "fixture-AAPL-ledger",
+                "symbol": "AAPL",
+                "asset_type": "stock",
+                "market": "US",
+                "venue": "NASDAQ",
+                "currency": "USD",
+                "chain_id": null,
+                "contract_address": null
+              },
+              "quantity": "1.25",
+              "recorded_average_cost": "0",
+              "recorded_market_price": "0",
+              "recorded_market_value": "0",
+              "record_updated_at": "2026-11-11T08:03:45.077434+00:00",
+              "quote_as_of": null,
+              "valuation_verified": false
+            }
+          ],
+          "total_position_count": 1,
+          "included_count": 1,
+          "truncated": false,
+          "limitations": "Owned application-ledger records only, not a broker/exchange balance refresh or independently verified valuation. Record update time is not quote time. Zero/default values are not proof of zero exposure. At most 20 position records; no cross-account totals, FX conversion, live P&L or return calculation. Quantity precision is the stored ledger precision. No secrets or execution authority.",
+          "content_hash": "63df3ff4b7c8d551e34287ce76e94a7be9697d1f3feb684850668797fd67050c"
+        },
+        "provided_news": null,
+        "news_context_snapshot_id": null,
+        "execution_available": false,
+        "request_id": "chat-0af8e263-ad1d-4205-a172-b9b9d85663c1",
+        "question": "Controlled account-ledger review, not live balances.",
+        "workspace_labels": {
+          "page": "assets",
+          "symbol": ""
+        },
+        "provider": "deepseek",
+        "provider_mode": "bring_your_own",
+        "model": "controlled-ui-fixture-no-network",
+        "reply_status": "failed",
+        "validated_reply": null
+      }
+    },
+    {
+      "row": {
+        "snapshot_id": "b621fcf8-34d7-47f3-8cc4-e21c6d68e949",
+        "request_id": "chat-ead2bcbe-9569-4b1d-93b9-62d09f3c9a0c",
+        "created_at": "2026-11-11T08:04:15.902448",
+        "reply_status": "failed",
+        "account_id": "fixture-stocks-ledger",
+        "market": "stocks",
+        "context_version": 42
+      },
+      "artifact": {
+        "snapshot_id": "b621fcf8-34d7-47f3-8cc4-e21c6d68e949",
+        "provided_portfolio": {
+          "schema_version": 1,
+          "reference": {
+            "schema_version": 1,
+            "snapshot_id": "d6b46d0a-985d-4194-a986-2b4468e9e829",
+            "account_id": "fixture-stocks-ledger",
+            "market": "stocks",
+            "context_version": 42
+          },
+          "account_id": "fixture-stocks-ledger",
+          "market": "stocks",
+          "context_version": 42,
+          "source_snapshot_id": "d6b46d0a-985d-4194-a986-2b4468e9e829",
+          "source": "application_ledger",
+          "captured_at": "2026-11-11T08:04:15.830403+00:00",
+          "server_retrieved": true,
+          "independently_verified": false,
+          "valuation_freshness": "unknown",
+          "ledger_revision": "c5ee7ec6682e67d6df434190b1aaef0422601be17eb37509af1513af35e99f4d",
+          "account": {
+            "account_id": "fixture-stocks-ledger",
+            "account_type": "brokerage",
+            "mode": "paper",
+            "base_currency": "USD"
+          },
+          "entries": [
+            {
+              "id": "H1",
+              "kind": "account_ledger",
+              "source": "application_ledger",
+              "account": {
+                "account_id": "fixture-stocks-ledger",
+                "account_type": "brokerage",
+                "mode": "paper",
+                "base_currency": "USD"
+              },
+              "total_position_count": 1,
+              "included_count": 1,
+              "truncated": false
+            },
+            {
+              "id": "H2",
+              "kind": "position_ledger",
+              "source": "application_ledger",
+              "record_id": "fixture-position-stocks",
+              "instrument": {
+                "asset_id": "fixture-AAPL-ledger",
+                "symbol": "AAPL",
+                "asset_type": "stock",
+                "market": "US",
+                "venue": "NASDAQ",
+                "currency": "USD",
+                "chain_id": null,
+                "contract_address": null
+              },
+              "quantity": "1.25",
+              "recorded_average_cost": "0",
+              "recorded_market_price": "0",
+              "recorded_market_value": "0",
+              "record_updated_at": "2026-11-11T08:03:45.077434+00:00",
+              "quote_as_of": null,
+              "valuation_verified": false
+            }
+          ],
+          "total_position_count": 1,
+          "included_count": 1,
+          "truncated": false,
+          "limitations": "Owned application-ledger records only, not a broker/exchange balance refresh or independently verified valuation. Record update time is not quote time. Zero/default values are not proof of zero exposure. At most 20 position records; no cross-account totals, FX conversion, live P&L or return calculation. Quantity precision is the stored ledger precision. No secrets or execution authority.",
+          "content_hash": "63df3ff4b7c8d551e34287ce76e94a7be9697d1f3feb684850668797fd67050c"
+        },
+        "provided_news": null,
+        "news_context_snapshot_id": null,
+        "execution_available": false,
+        "request_id": "chat-ead2bcbe-9569-4b1d-93b9-62d09f3c9a0c",
+        "question": "Controlled account-ledger review, not live balances.",
+        "workspace_labels": {
+          "page": "assets",
+          "symbol": ""
+        },
+        "provider": "deepseek",
+        "provider_mode": "bring_your_own",
+        "model": "controlled-ui-fixture-no-network",
+        "reply_status": "failed",
+        "validated_reply": null
+      }
+    },
+    {
+      "row": {
+        "snapshot_id": "c50796a5-d0a2-4215-a670-836bd2cb1562",
+        "request_id": "chat-25d7f287-25e1-42b6-85cd-c3c77bdc44b0",
+        "created_at": "2026-11-11T08:04:15.931280",
+        "reply_status": "ok",
+        "account_id": "fixture-cex-ledger",
+        "market": "cex",
+        "context_version": 42
+      },
+      "artifact": {
+        "snapshot_id": "c50796a5-d0a2-4215-a670-836bd2cb1562",
+        "provided_portfolio": {
+          "schema_version": 1,
+          "reference": {
+            "schema_version": 1,
+            "snapshot_id": "de00f325-2344-410d-a12c-cc9a469a3732",
+            "account_id": "fixture-cex-ledger",
+            "market": "cex",
+            "context_version": 42
+          },
+          "account_id": "fixture-cex-ledger",
+          "market": "cex",
+          "context_version": 42,
+          "source_snapshot_id": "de00f325-2344-410d-a12c-cc9a469a3732",
+          "source": "application_ledger",
+          "captured_at": "2026-11-11T08:04:15.918699+00:00",
+          "server_retrieved": true,
+          "independently_verified": false,
+          "valuation_freshness": "unknown",
+          "ledger_revision": "37ba0a4bc82476697fcf872c84fb0feb284810d65e2e7685449535ac886a9dac",
+          "account": {
+            "account_id": "fixture-cex-ledger",
+            "account_type": "exchange",
+            "mode": "paper",
+            "base_currency": "USDT"
+          },
+          "entries": [
+            {
+              "id": "H1",
+              "kind": "account_ledger",
+              "source": "application_ledger",
+              "account": {
+                "account_id": "fixture-cex-ledger",
+                "account_type": "exchange",
+                "mode": "paper",
+                "base_currency": "USDT"
+              },
+              "total_position_count": 1,
+              "included_count": 1,
+              "truncated": false
+            },
+            {
+              "id": "H2",
+              "kind": "position_ledger",
+              "source": "application_ledger",
+              "record_id": "fixture-position-cex",
+              "instrument": {
+                "asset_id": "fixture-ETH-ledger",
+                "symbol": "ETH",
+                "asset_type": "crypto",
+                "market": "GLOBAL",
+                "venue": "币安",
+                "currency": "USDT",
+                "chain_id": null,
+                "contract_address": null
+              },
+              "quantity": "1.25",
+              "recorded_average_cost": "0",
+              "recorded_market_price": "0",
+              "recorded_market_value": "0",
+              "record_updated_at": "2026-11-11T08:03:45.077736+00:00",
+              "quote_as_of": null,
+              "valuation_verified": false
+            }
+          ],
+          "total_position_count": 1,
+          "included_count": 1,
+          "truncated": false,
+          "limitations": "Owned application-ledger records only, not a broker/exchange balance refresh or independently verified valuation. Record update time is not quote time. Zero/default values are not proof of zero exposure. At most 20 position records; no cross-account totals, FX conversion, live P&L or return calculation. Quantity precision is the stored ledger precision. No secrets or execution authority.",
+          "content_hash": "c7c40566bc0572da78419183ff898fdb0cd3c94a802f66d984f1ef89d2e57ba2"
+        },
+        "provided_news": null,
+        "news_context_snapshot_id": null,
+        "execution_available": false,
+        "request_id": "chat-25d7f287-25e1-42b6-85cd-c3c77bdc44b0",
+        "question": "Controlled account-ledger review, not live balances.",
+        "workspace_labels": {
+          "page": "assets",
+          "symbol": ""
+        },
+        "provider": "deepseek",
+        "provider_mode": "bring_your_own",
+        "model": "controlled-ui-fixture-no-network",
+        "reply_status": "ok",
+        "validated_reply": {
+          "status": "ok",
+          "cited_portfolio_ids": [
+            "H1",
+            "H2"
+          ],
+          "cited_onchain_ids": [],
+          "suggested_action": "检查来源和未知项，不执行交易",
+          "confidence": 0.1,
+          "cited_news_ids": [],
+          "cited_market_ids": [],
+          "summary": "受控验收响应（未调用外部模型）。仅解释所选只读证据。 [H1] [H2]",
+          "bullish_case": "受控材料不足以形成看多结论",
+          "bearish_case": "授权与协议记录可能陈旧，不能推出当前完整风险",
+          "key_risks": [
+            "受控数据，非真实模型分析",
+            "节点观测不代表最终性或独立验证"
+          ],
+          "limitations": "Controlled local provider; no network, no trading report promotion"
+        }
+      }
+    },
+    {
+      "row": {
+        "snapshot_id": "64b41bf0-ea45-4d51-ac56-c200e4dac797",
+        "request_id": "chat-09678b6f-5705-43bb-9251-f916ade79594",
+        "created_at": "2026-11-11T08:04:15.948547",
+        "reply_status": "failed",
+        "account_id": "fixture-cex-ledger",
+        "market": "cex",
+        "context_version": 42
+      },
+      "artifact": {
+        "snapshot_id": "64b41bf0-ea45-4d51-ac56-c200e4dac797",
+        "provided_portfolio": {
+          "schema_version": 1,
+          "reference": {
+            "schema_version": 1,
+            "snapshot_id": "de00f325-2344-410d-a12c-cc9a469a3732",
+            "account_id": "fixture-cex-ledger",
+            "market": "cex",
+            "context_version": 42
+          },
+          "account_id": "fixture-cex-ledger",
+          "market": "cex",
+          "context_version": 42,
+          "source_snapshot_id": "de00f325-2344-410d-a12c-cc9a469a3732",
+          "source": "application_ledger",
+          "captured_at": "2026-11-11T08:04:15.918699+00:00",
+          "server_retrieved": true,
+          "independently_verified": false,
+          "valuation_freshness": "unknown",
+          "ledger_revision": "37ba0a4bc82476697fcf872c84fb0feb284810d65e2e7685449535ac886a9dac",
+          "account": {
+            "account_id": "fixture-cex-ledger",
+            "account_type": "exchange",
+            "mode": "paper",
+            "base_currency": "USDT"
+          },
+          "entries": [
+            {
+              "id": "H1",
+              "kind": "account_ledger",
+              "source": "application_ledger",
+              "account": {
+                "account_id": "fixture-cex-ledger",
+                "account_type": "exchange",
+                "mode": "paper",
+                "base_currency": "USDT"
+              },
+              "total_position_count": 1,
+              "included_count": 1,
+              "truncated": false
+            },
+            {
+              "id": "H2",
+              "kind": "position_ledger",
+              "source": "application_ledger",
+              "record_id": "fixture-position-cex",
+              "instrument": {
+                "asset_id": "fixture-ETH-ledger",
+                "symbol": "ETH",
+                "asset_type": "crypto",
+                "market": "GLOBAL",
+                "venue": "币安",
+                "currency": "USDT",
+                "chain_id": null,
+                "contract_address": null
+              },
+              "quantity": "1.25",
+              "recorded_average_cost": "0",
+              "recorded_market_price": "0",
+              "recorded_market_value": "0",
+              "record_updated_at": "2026-11-11T08:03:45.077736+00:00",
+              "quote_as_of": null,
+              "valuation_verified": false
+            }
+          ],
+          "total_position_count": 1,
+          "included_count": 1,
+          "truncated": false,
+          "limitations": "Owned application-ledger records only, not a broker/exchange balance refresh or independently verified valuation. Record update time is not quote time. Zero/default values are not proof of zero exposure. At most 20 position records; no cross-account totals, FX conversion, live P&L or return calculation. Quantity precision is the stored ledger precision. No secrets or execution authority.",
+          "content_hash": "c7c40566bc0572da78419183ff898fdb0cd3c94a802f66d984f1ef89d2e57ba2"
+        },
+        "provided_news": null,
+        "news_context_snapshot_id": null,
+        "execution_available": false,
+        "request_id": "chat-09678b6f-5705-43bb-9251-f916ade79594",
+        "question": "Controlled account-ledger review, not live balances.",
+        "workspace_labels": {
+          "page": "assets",
+          "symbol": ""
+        },
+        "provider": "deepseek",
+        "provider_mode": "bring_your_own",
+        "model": "controlled-ui-fixture-no-network",
+        "reply_status": "failed",
+        "validated_reply": null
+      }
+    },
+    {
+      "row": {
+        "snapshot_id": "9eca840b-1e13-451f-9529-b9bcac96395e",
+        "request_id": "chat-2e5c8661-614a-43d5-a3b3-0b3fee0107ce",
+        "created_at": "2026-11-11T08:04:15.965378",
+        "reply_status": "failed",
+        "account_id": "fixture-cex-ledger",
+        "market": "cex",
+        "context_version": 42
+      },
+      "artifact": {
+        "snapshot_id": "9eca840b-1e13-451f-9529-b9bcac96395e",
+        "provided_portfolio": {
+          "schema_version": 1,
+          "reference": {
+            "schema_version": 1,
+            "snapshot_id": "de00f325-2344-410d-a12c-cc9a469a3732",
+            "account_id": "fixture-cex-ledger",
+            "market": "cex",
+            "context_version": 42
+          },
+          "account_id": "fixture-cex-ledger",
+          "market": "cex",
+          "context_version": 42,
+          "source_snapshot_id": "de00f325-2344-410d-a12c-cc9a469a3732",
+          "source": "application_ledger",
+          "captured_at": "2026-11-11T08:04:15.918699+00:00",
+          "server_retrieved": true,
+          "independently_verified": false,
+          "valuation_freshness": "unknown",
+          "ledger_revision": "37ba0a4bc82476697fcf872c84fb0feb284810d65e2e7685449535ac886a9dac",
+          "account": {
+            "account_id": "fixture-cex-ledger",
+            "account_type": "exchange",
+            "mode": "paper",
+            "base_currency": "USDT"
+          },
+          "entries": [
+            {
+              "id": "H1",
+              "kind": "account_ledger",
+              "source": "application_ledger",
+              "account": {
+                "account_id": "fixture-cex-ledger",
+                "account_type": "exchange",
+                "mode": "paper",
+                "base_currency": "USDT"
+              },
+              "total_position_count": 1,
+              "included_count": 1,
+              "truncated": false
+            },
+            {
+              "id": "H2",
+              "kind": "position_ledger",
+              "source": "application_ledger",
+              "record_id": "fixture-position-cex",
+              "instrument": {
+                "asset_id": "fixture-ETH-ledger",
+                "symbol": "ETH",
+                "asset_type": "crypto",
+                "market": "GLOBAL",
+                "venue": "币安",
+                "currency": "USDT",
+                "chain_id": null,
+                "contract_address": null
+              },
+              "quantity": "1.25",
+              "recorded_average_cost": "0",
+              "recorded_market_price": "0",
+              "recorded_market_value": "0",
+              "record_updated_at": "2026-11-11T08:03:45.077736+00:00",
+              "quote_as_of": null,
+              "valuation_verified": false
+            }
+          ],
+          "total_position_count": 1,
+          "included_count": 1,
+          "truncated": false,
+          "limitations": "Owned application-ledger records only, not a broker/exchange balance refresh or independently verified valuation. Record update time is not quote time. Zero/default values are not proof of zero exposure. At most 20 position records; no cross-account totals, FX conversion, live P&L or return calculation. Quantity precision is the stored ledger precision. No secrets or execution authority.",
+          "content_hash": "c7c40566bc0572da78419183ff898fdb0cd3c94a802f66d984f1ef89d2e57ba2"
+        },
+        "provided_news": null,
+        "news_context_snapshot_id": null,
+        "execution_available": false,
+        "request_id": "chat-2e5c8661-614a-43d5-a3b3-0b3fee0107ce",
+        "question": "Controlled account-ledger review, not live balances.",
+        "workspace_labels": {
+          "page": "assets",
+          "symbol": ""
+        },
+        "provider": "deepseek",
+        "provider_mode": "bring_your_own",
+        "model": "controlled-ui-fixture-no-network",
+        "reply_status": "failed",
+        "validated_reply": null
+      }
+    },
+    {
+      "row": {
+        "snapshot_id": "b695b738-c82a-46fb-9bbe-39abb26c2c98",
+        "request_id": "chat-605ec544-cc7d-4a0e-b90c-00631f765ec6",
+        "created_at": "2026-11-11T08:04:15.990473",
+        "reply_status": "ok",
+        "account_id": "fixture-stocks-ledger",
+        "market": "stocks",
+        "context_version": 43
+      },
+      "artifact": {
+        "snapshot_id": "b695b738-c82a-46fb-9bbe-39abb26c2c98",
+        "provided_portfolio": {
+          "schema_version": 1,
+          "reference": {
+            "schema_version": 1,
+            "snapshot_id": "33b45b6e-0773-44ae-ae43-838f1ef13bb0",
+            "account_id": "fixture-stocks-ledger",
+            "market": "stocks",
+            "context_version": 43
+          },
+          "account_id": "fixture-stocks-ledger",
+          "market": "stocks",
+          "context_version": 43,
+          "source_snapshot_id": "33b45b6e-0773-44ae-ae43-838f1ef13bb0",
+          "source": "application_ledger",
+          "captured_at": "2026-11-11T08:04:15.976386+00:00",
+          "server_retrieved": true,
+          "independently_verified": false,
+          "valuation_freshness": "unknown",
+          "ledger_revision": "c5ee7ec6682e67d6df434190b1aaef0422601be17eb37509af1513af35e99f4d",
+          "account": {
+            "account_id": "fixture-stocks-ledger",
+            "account_type": "brokerage",
+            "mode": "paper",
+            "base_currency": "USD"
+          },
+          "entries": [
+            {
+              "id": "H1",
+              "kind": "account_ledger",
+              "source": "application_ledger",
+              "account": {
+                "account_id": "fixture-stocks-ledger",
+                "account_type": "brokerage",
+                "mode": "paper",
+                "base_currency": "USD"
+              },
+              "total_position_count": 1,
+              "included_count": 1,
+              "truncated": false
+            },
+            {
+              "id": "H2",
+              "kind": "position_ledger",
+              "source": "application_ledger",
+              "record_id": "fixture-position-stocks",
+              "instrument": {
+                "asset_id": "fixture-AAPL-ledger",
+                "symbol": "AAPL",
+                "asset_type": "stock",
+                "market": "US",
+                "venue": "NASDAQ",
+                "currency": "USD",
+                "chain_id": null,
+                "contract_address": null
+              },
+              "quantity": "1.25",
+              "recorded_average_cost": "0",
+              "recorded_market_price": "0",
+              "recorded_market_value": "0",
+              "record_updated_at": "2026-11-11T08:03:45.077434+00:00",
+              "quote_as_of": null,
+              "valuation_verified": false
+            }
+          ],
+          "total_position_count": 1,
+          "included_count": 1,
+          "truncated": false,
+          "limitations": "Owned application-ledger records only, not a broker/exchange balance refresh or independently verified valuation. Record update time is not quote time. Zero/default values are not proof of zero exposure. At most 20 position records; no cross-account totals, FX conversion, live P&L or return calculation. Quantity precision is the stored ledger precision. No secrets or execution authority.",
+          "content_hash": "466c441adee8462638403acb4fb2857573d72d81cc9ea7bc01d80926eb29e6a5"
+        },
+        "provided_news": null,
+        "news_context_snapshot_id": null,
+        "execution_available": false,
+        "request_id": "chat-605ec544-cc7d-4a0e-b90c-00631f765ec6",
+        "question": "Controlled delayed ledger snapshot",
+        "workspace_labels": {
+          "page": "assets",
+          "symbol": ""
+        },
+        "provider": "deepseek",
+        "provider_mode": "bring_your_own",
+        "model": "controlled-ui-fixture-no-network",
+        "reply_status": "ok",
+        "validated_reply": {
+          "status": "ok",
+          "cited_portfolio_ids": [
+            "H1",
+            "H2"
+          ],
+          "cited_onchain_ids": [],
+          "suggested_action": "检查来源和未知项，不执行交易",
+          "confidence": 0.1,
+          "cited_news_ids": [],
+          "cited_market_ids": [],
+          "summary": "受控验收响应（未调用外部模型）。仅解释所选只读证据。 [H1] [H2]",
+          "bullish_case": "受控材料不足以形成看多结论",
+          "bearish_case": "授权与协议记录可能陈旧，不能推出当前完整风险",
+          "key_risks": [
+            "受控数据，非真实模型分析",
+            "节点观测不代表最终性或独立验证"
+          ],
+          "limitations": "Controlled local provider; no network, no trading report promotion"
+        }
+      }
+    }
+  ],
+  "zero_execution_checks": {
+    "order_intents": 0,
+    "order_drafts": 0,
+    "executions": 0
+  },
+  "external_model_called": false,
+  "runtime_source_hashes": {
+    "ai-trading-assistant/backend/app/services/research_portfolio_context.py": "8bfd30dc624130d94df92034287e18f169d320b45bf5696b0a51cfd833d7ba7f",
+    "ai-trading-assistant/backend/app/services/human_control.py": "da49bc1c8a7de0e38a004867341a3cc751538cffe3000fb430c8b137d006dbb7",
+    "ai-trading-assistant/backend/app/api/production.py": "ce063162d63d5793145fe3366ebc14a412a8ed0150364301559ca010cc9d1cec",
+    "ai-trading-assistant/src/research-portfolio.js": "e1d475e0b63f21d33b3a79c785080b59f92c746e9e04cc4fa17b6f7ce0d73db5",
+    "ai-trading-assistant/src/portfolio-research-artifact.js": "071e5ff62a6d425d999fb0e2fd555bfbf2c5316e160561ad974dba6465dd3e8d",
+    "terminal-ui/scripts/serve-onchain-fixture.py": "1e57dfe6d3dba49ae7c42710120d3aec33876b4e619ab8743a040fc1f494c169"
+  },
+  "frontend_validation": {
+    "status": "passed",
+    "actual_http_artifacts": 7,
+    "validators": [
+      "portfolioContext",
+      "portfolioHistoryList",
+      "portfolioHistoryArtifact"
+    ]
+  },
+  "tests": {
+    "related_backend": {
+      "passed": 113,
+      "failed": 0
+    },
+    "terminal": {
+      "passed": 77,
+      "failed": 0
+    },
+    "model_scripts": {
+      "passed": 55,
+      "failed": 0
+    },
+    "ui_static_guard": {
+      "navigation_contracts": 3,
+      "retained_controls": 845,
+      "runtime_verified": false
+    },
+    "secret_scan": "passed"
+  },
+  "build": {
+    "command": "npm run build:public",
+    "status": "passed",
+    "legacy_retained": true,
+    "warning": "existing large-chunk warning"
+  },
+  "scope": "single selected owned application-ledger account; not live balances or independently verified prices",
+  "not_verified": [
+    "native browser click/refresh/theme/language acceptance",
+    "real broker/exchange balance source",
+    "paid model",
+    "cross-account aggregation",
+    "full objective or production delivery"
+  ]
+}

@@ -139,7 +139,7 @@ def test_deep_review_queue_surfaces_thesis_draft_and_paper_next_actions(client: 
     thesis = create_thesis(client, asset["id"], playbook["id"])
     draft = create_approved_draft(client, asset=asset, account=account, quantity=1, notional=None, limit_price=100)
 
-    response = client.get("/workflows/deep-review-queue?user_id=human-user&limit=20")
+    response = client.get("/workflows/deep-review-queue?user_id=default-user&limit=20")
 
     assert response.status_code == 200
     queue = response.json()

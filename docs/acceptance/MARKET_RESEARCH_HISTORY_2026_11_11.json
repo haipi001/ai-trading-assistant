@@ -1,0 +1,43 @@
+{
+  "status": "controlled_tests_passed_not_full_delivery",
+  "date": "2026-11-11",
+  "scope": "stock/CEX raw-chart research history persistence and read-only retrieval",
+  "backend": {
+    "command": ".venv/bin/pytest tests/test_market_research_history.py tests/test_market_history_http.py tests/test_research_market_context.py tests/test_research_onchain_context.py tests/test_onchain_history_http.py tests/test_local_secrets_and_llm_credentials.py -q",
+    "passed": 86,
+    "failed": 0
+  },
+  "terminal": {
+    "command": "node --test terminal-ui/tests/*.test.mjs",
+    "passed": 56,
+    "failed": 0
+  },
+  "models": {
+    "command": "npm run test:models",
+    "scripts_passed": 55,
+    "failed": 0
+  },
+  "build": {
+    "command": "npm run build:terminal",
+    "status": "passed",
+    "warning": "existing large-chunk warning"
+  },
+  "coverage": [
+    "stock and CEX actual FastAPI chat/list/detail routes with controlled Provider",
+    "success and failed reply persistence across fresh HTTP requests",
+    "anonymous rejection and verified user isolation despite spoofed local user header",
+    "foreign or missing linked news rejected",
+    "legacy incomplete records remain unknown instead of successful",
+    "bounded 20-item lists and market/symbol filtering",
+    "client checks source identity, request ID, citations, safe URLs and failed-state invariants"
+  ],
+  "not_verified": [
+    "browser clicks/screenshots/refresh workflow",
+    "external paid model",
+    "current production backend or deployment",
+    "real market-source independent verification",
+    "full goal migration and per-page AI acceptance"
+  ],
+  "external_provider_called": false,
+  "live_execution_enabled": false
+}

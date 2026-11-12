@@ -229,7 +229,7 @@ def test_data_mode_change_requires_confirmation_and_preserves_audit_history(clie
     assert changed.status_code == 200
     payload = changed.json()
     assert payload["data_mode"] == "read_only"
-    assert payload["simulation_data_user_id"] == "demo-user"
+    assert payload["simulation_data_user_id"] == "mode-switch-user"
     assert payload["simulation_excluded_from_real_evidence"] is True
     assert [(item["from"], item["to"]) for item in payload["mode_history"]] == [(None, "simulation"), ("simulation", "read_only")]
 

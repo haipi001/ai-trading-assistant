@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-11",
+  "status": "implementation_and_controlled_tests_not_full_delivery",
+  "registry": {
+    "pages": 68,
+    "action_contracts": 204,
+    "review_required": 128,
+    "adapter_unavailable": 76,
+    "note": "review_required includes 68 data-gap actions; it is neither available evidence nor a completed specialized artifact"
+  },
+  "tests": {
+    "terminal": {
+      "passed": 67,
+      "failed": 0,
+      "command": "node --test terminal-ui/tests/*.test.mjs"
+    },
+    "backend": {
+      "passed": 87,
+      "failed": 0,
+      "scope": "market/onchain research, history, LLM status/credentials routes"
+    },
+    "models": {
+      "scripts_passed": 55,
+      "failed": 0
+    },
+    "ui_preservation": {
+      "navigation_contracts": 3,
+      "controls_retained": 845,
+      "scope": "static source guard only"
+    },
+    "secret_scan": "passed"
+  },
+  "build": "npm run build:public passed; old legacy export retained; existing large-chunk warning",
+  "actual_http_module_status": 200,
+  "rejection_coverage": [
+    "wrong parent or origin",
+    "wrong feature/panel/account/symbol/venue/timeframe/version",
+    "forged required sources or auto-submit",
+    "unchecked or additional undeclared materials",
+    "demo/mismatched chart material",
+    "onchain Paper mode",
+    "viewer model permission despite saved configuration"
+  ],
+  "limitations": [
+    "browser clicks and screenshots not verified: browser connection timeout",
+    "unavailable data adapters remain unavailable; generic gap review is not data analysis",
+    "specialized editable filters/parameters/script patches/orders are not created by research replies",
+    "native simulated pages prepare gap questions locally and direct to business pages",
+    "no real model called, no live trading or deployment",
+    "full objective remains active"
+  ],
+  "source_hashes": {
+    "terminal-ui/integration/page-ai-actions.mjs": "86866e4e0a199ac0c419627707ffba50f5999f2abcb34a796f316f5160189fe0",
+    "terminal-ui/integration/registry.js": "5280a6b70f3d8113c85265ffb4532dd65d6af8c7a7860acab9f2911c8d27ccc0",
+    "terminal-ui/integration/desk.mjs": "e68f670ea7db1d4025730e9ba0fb4e18fda5dae9b94c4595b482fdf1fc78b66c",
+    "terminal-ui/integration/panel-host.mjs": "dd7f437f4cef30853677ce966f4801d0346ff107bba4c0082ff102545db42b43",
+    "ai-trading-assistant/src/terminal-feature.jsx": "a194fc17a228e769d67846200ce0b9fc28ec6e1e0eab3388a1759accd6c6555b",
+    "ai-trading-assistant/src/research-ai-chat.jsx": "fa2c284e8fbbff92086308c82b97cd49c6387b3e8f481c028bf8f11e57dbb57d",
+    "ai-trading-assistant/backend/app/services/human_control.py": "87909eed73ac42cd8dd832caf42cd65880df177ca2e336916e71ec3e6213feb7"
+  }
+}

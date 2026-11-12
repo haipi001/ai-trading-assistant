@@ -2917,6 +2917,7 @@ class PostTradeReviewRead(ORMModel):
 
 
 class PostTradeReviewUpdate(BaseModel):
+    expected_updated_at: datetime | None = None
     status: str | None = None
     review_json: dict[str, Any] | None = None
 

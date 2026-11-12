@@ -1,0 +1,33 @@
+.body{grid-template-columns:212px minmax(0,1fr) 48px;transition:grid-template-columns .2s ease}.body.menu-collapsed{grid-template-columns:0 minmax(0,1fr) 48px}.body>.rail{min-width:0;transition:transform .2s ease}.menu-collapsed>.rail{transform:translateX(-100%);visibility:hidden}.body>main{min-width:0}.shell-tool-rail{display:flex;flex-direction:column;align-items:center;gap:14px;padding:12px 4px;background:var(--panel);border-left:1px solid var(--line2);overflow:auto}.shell-tool-rail button{width:38px;min-height:44px;padding:0;border:0;background:transparent;color:var(--dim);font:22px var(--mono);cursor:pointer;border-radius:5px}.shell-tool-rail button:hover,.shell-tool-rail button:focus-visible{color:var(--txt);background:var(--panel2)}.shell-tool-rail button:nth-child(6){font-size:12px;font-weight:bold}.shell-tool-rail button:last-child{border-top:1px solid var(--line2);border-radius:0;margin-top:8px;padding-top:12px}.integration-drawer{right:48px!important;box-shadow:-8px 0 28px #0002}#appearance-toggle{display:none}.shell-tool-status{position:fixed;right:58px;bottom:35px;max-width:360px;padding:12px;background:var(--panel);color:var(--txt);border:1px solid var(--line2);z-index:90}#language-toggle{min-width:58px}#menu-toggle{min-width:30px}.bar{gap:8px}.cmdwrap{min-width:80px}#cmd{min-width:0}@media(max-width:760px){.body{grid-template-columns:180px minmax(0,1fr) 44px}.body.menu-collapsed{grid-template-columns:0 minmax(0,1fr) 44px}.bar .brand{font-size:10px;letter-spacing:.05em}.bar .meta{gap:5px}.bar #clock{display:none}.shell-tool-rail{padding-inline:2px}.integration-drawer{right:44px!important;width:min(420px,calc(100vw - 44px))}}@media(prefers-reduced-motion:reduce){.body,.body>.rail{transition:none}}
+
+.shell-tool-rail button.active{background:var(--panel2);color:var(--acc);box-shadow:inset 2px 0 var(--acc)}#shell-color-toggle{white-space:nowrap;font-size:11px}
+
+.shell-tool-rail button:nth-last-child(-n+3){font-size:16px}.shell-tool-rail button:last-child{margin-top:0;padding-top:0;border:0}
+
+.shell-tool-drawer{position:fixed;top:44px;right:48px;bottom:24px;width:min(460px,calc(100vw - 48px));display:flex;flex-direction:column;background:var(--panel);color:var(--txt);border:1px solid var(--line2);box-shadow:-12px 0 36px #0003;z-index:80}
+.shell-tool-drawer>header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line2)}
+.shell-tool-drawer>header button{width:30px;height:30px;font-size:22px;background:var(--panel2);border:1px solid var(--line2);color:var(--txt);cursor:pointer}
+.shell-tool-context{font:11px/1.6 var(--mono);padding:10px 14px;color:var(--dim);background:var(--panel2);border-bottom:1px solid var(--line2)}
+.shell-tool-drawer iframe{width:100%;flex:1;min-height:0;border:0;background:var(--panel)}
+#integration-boot-status{max-width:calc(100vw - 24px);overflow-wrap:anywhere}
+@media(max-width:760px){.shell-tool-drawer{right:44px;width:calc(100vw - 44px)}}
+
+.body>.rail{transition:transform .2s ease,visibility 0s}.body.menu-collapsed>.rail{transition:transform .2s ease,visibility 0s .2s}@media(prefers-reduced-motion:reduce){.body>.rail,.body.menu-collapsed>.rail{transition:none}}
+
+/* Keep drawer controls beside the navigation they operate. */
+.body{position:relative}
+.rail>.rail-hd:first-child{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:38px;padding:6px 10px}
+#menu-collapse{font-size:11px;letter-spacing:0;padding:3px 7px;white-space:nowrap;color:var(--txt);border:1px solid var(--line2);background:var(--panel2);cursor:pointer}
+#menu-toggle{min-width:62px;white-space:nowrap}
+#menu-reopen{position:absolute;top:7px;left:8px;z-index:25;height:28px;padding:0 9px;font:11px var(--mono);color:var(--acc);border:1px solid var(--acc);background:var(--panel);cursor:pointer;white-space:nowrap}
+#menu-reopen[hidden]{display:none}
+.menu-collapsed>#main>.workspace-nav{padding-left:110px}
+#menu-collapse:hover,#menu-reopen:hover{background:var(--panel2)}
+
+/* Visible text controls in both color modes. */
+#menu-toggle{min-width:104px;min-height:32px;padding:4px 10px;color:var(--txt);border:1px solid var(--acc);background:var(--panel2);font-weight:600}
+#menu-collapse{min-height:28px;padding:4px 9px;border-color:var(--acc)}
+#menu-toggle:focus-visible,#menu-collapse:focus-visible,#menu-reopen:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+
+/* Keep the drawer handle visible while browsing long function lists. */
+.rail>.rail-hd:first-child{position:sticky;top:0;z-index:3;background:var(--panel);border-bottom:1px solid var(--line2)}

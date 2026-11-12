@@ -22,7 +22,56 @@ from app.api.production import production_user
 from app.core.auth import AuthenticatedUser
 from app.services.data_catalog import DataTrustGateError
 
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Annotated
+from app.core.auth import require_permission
+from app.models import Account, Asset, AuditLog, InvestmentThesis
+from app.services.account_identity import account_markets
+
 router = APIRouter(prefix="/theses", tags=["theses"])
+
+class ManualPaperThesisRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True, allow_inf_nan=False)
+    asset_id: str = Field(min_length=1,max_length=128)
+    account_id: str = Field(min_length=1,max_length=128)
+    entry_reason: str = Field(min_length=8,max_length=4000)
+    key_drivers: list[Annotated[str, Field(min_length=1,max_length=500)]] = Field(min_length=1,max_length=20)
+    invalidation_conditions: list[Annotated[str, Field(min_length=1,max_length=500)]] = Field(min_length=1,max_length=20)
+    expected_horizon: str = Field(min_length=1,max_length=64)
+    target_condition: str = Field(min_length=8,max_length=2000)
+    max_loss_tolerance_pct: float = Field(gt=0,le=1,strict=True)
+    confidence: float = Field(ge=0,le=1,strict=True)
+
+
+class ManualPaperThesisResponse(BaseModel):
+    thesis: InvestmentThesisRead
+    execution_available: bool = False
+
+
+@router.post("/manual-paper",response_model=ManualPaperThesisResponse,status_code=201)
+def create_manual_paper_thesis(payload: ManualPaperThesisRequest,
+    actor: AuthenticatedUser = Depends(require_permission("proposal:create")),
+    db: Session = Depends(get_db)):
+    account = db.get(Account,payload.account_id)
+    asset = db.get(Asset,payload.asset_id)
+    if account is None or account.user_id != actor.user_id or asset is None:
+        raise HTTPException(404,detail="account or asset not found")
+    market = "stocks" if asset.asset_type in {"stock","etf"} else "cex" if asset.asset_type == "crypto" else None
+    if account.mode != "paper" or account.live_trading_enabled or market not in account_markets(account) or asset.chain_id or asset.contract_address:
+        raise HTTPException(422,detail="manual Paper thesis requires compatible Paper account and stock/ETF or CEX asset")
+    thesis = InvestmentThesis(user_id=actor.user_id,asset_id=asset.id,account_id=account.id,
+        entry_reason=payload.entry_reason,key_drivers_json={"items":payload.key_drivers},
+        invalidation_conditions_json={"items":payload.invalidation_conditions},
+        expected_horizon=payload.expected_horizon,target_condition=payload.target_condition,
+        max_loss_tolerance_pct=payload.max_loss_tolerance_pct,confidence=payload.confidence,
+        position_plan_json={"execution_available":False,"human_authored":True},source="terminal_manual",status="active")
+    db.add(thesis);db.flush()
+    db.add(AuditLog(user_id=actor.user_id,actor_type="user",actor_id=actor.user_id,
+        action="terminal.manual_thesis.created",entity_type="InvestmentThesis",entity_id=thesis.id,
+        payload_json={"account_id":account.id,"asset_id":asset.id,"source":"human","execution_available":False}))
+    db.commit();db.refresh(thesis)
+    return ManualPaperThesisResponse(thesis=thesis,execution_available=False)
+
 
 
 @router.post("/capture", response_model=InvestmentThesisRead, status_code=201)

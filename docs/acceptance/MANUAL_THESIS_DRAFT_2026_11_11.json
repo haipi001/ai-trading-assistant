@@ -1,0 +1,15 @@
+{
+  "sha256": {
+    "src/paper-draft-buffer.js": "b8155fde1d27a8e330eaaa6ebf4a9571a9c6dc45d02434866054cbbe702ffbbc",
+    "src/paper-thesis-editor.jsx": "c28f2f7472cea010ec6653f1a8bd5ff372433a6b95bf26a2500d309dbf4364c5",
+    "src/paper-order-ticket.jsx": "e5592ff7c889e1c32ba32d943b78de92bf195380882343f788be827914eb9c41",
+    "terminal-ui/integration/manual-thesis-draft.mjs": "f5130298bce4282e4bd72b7b5f993aefe1a8eeef4442cefee1dc1db20c8cd4fd",
+    "terminal-ui/integration/persistent-paper-drafts.mjs": "8935e09ffe15f1ae8e15e33d8b00041f8d53554e92287579e75e89a6a284fb3d",
+    "terminal-ui/tests/manual-thesis-draft.test.mjs": "62c79b598b4e6a909b64aa69c1fec8f6b1e4535bc3e8afb7f877bd125511d055"
+  },
+  "terminal_tests_passed": 98,
+  "model_scripts_passed": 55,
+  "terminal_build_passed": true,
+  "browser_verified": false,
+  "full_goal_complete": false
+}

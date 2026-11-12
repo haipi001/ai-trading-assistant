@@ -1,10 +1,12 @@
+import {checkedManualThesisDraft} from './manual-thesis-draft.mjs';
 const KEY='terminal-unsent-paper-forms-v1';
 const fields=['evidenceMode','accountId','assetId','reportId','thesisId','side','quantity','price','rationale'];
 function checked(key,value){
  if(typeof key!=='string'||key.length>2000)throw Error('票据范围键无效');
  const parts=JSON.parse(key);if(!Array.isArray(parts)||typeof parts[0]!=='string')throw Error('票据范围键无效');
  const scope=JSON.parse(parts[0]);
- if(!Array.isArray(scope)||scope.length!==6||scope.some(v=>typeof v!=='string'||v.length>128)||!Array.isArray(parts)||!['form','last'].includes(parts[1])||!value||typeof value!=='object'||Array.isArray(value))throw Error('票据草稿格式无效');
+ if(!Array.isArray(scope)||scope.length!==6||scope.some(v=>typeof v!=='string'||v.length>128)||!Array.isArray(parts)||!['form','last','thesis'].includes(parts[1])||!value||typeof value!=='object'||Array.isArray(value))throw Error('票据草稿格式无效');
+ if(parts[1]==='thesis'){if(parts.length!==4)throw Error('人工假设范围键无效');return [key,checkedManualThesisDraft(value,parts[2],parts[3])];}
  if(parts[1]==='last'){if(parts.length!==2||Object.keys(value).some(k=>k!=='accountId')||typeof value.accountId!=='string'||value.accountId.length>128)throw Error('票据账户格式无效');}
  else{if(parts.length!==3||parts[2]!==value.accountId||Object.keys(value).some(k=>!fields.includes(k))||fields.some(k=>typeof value[k]!=='string'||value[k].length>(k==='rationale'?4000:128))||!['manual','report'].includes(value.evidenceMode)||!['buy','sell'].includes(value.side))throw Error('票据字段格式无效');}
  return [key,structuredClone(value)];

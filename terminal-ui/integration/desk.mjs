@@ -1,3 +1,5 @@
+import {pageAIGuide} from './ai-guide.mjs';
+import {pageAIPolicy,preparePageAIAction,pageAIContextMatches,PAGE_AI_SOURCES,PAGE_AI_ARTIFACT_LABELS} from './page-ai-actions.mjs';
 import {focusedPanelContext,panelLocks,restorePanelLocks} from './panel-host.mjs?v=5';
 import {installWorkspaceControls} from './workspace-controls.mjs?v=2';
 import {backend} from './backend-service.mjs';
@@ -30,7 +32,48 @@ $('desk-market').onchange=e=>{try{marketWorkspaces.switchTo(e.target.value);$('d
 for(const [id,field] of Object.entries({'desk-instrument':'instrumentId','desk-venue':'venue','desk-chain':'chainId','desk-contract':'contractAddress','desk-timeframe':'timeframe','desk-execution':'executionMode'}))$(id).onchange=e=>{try{if(field==='executionMode'&&e.target.value==='PAPER'&&!verifiedIdentity(state.current,identities.snapshot()).paperEligible)throw Error('请先选择已校验的兼容Paper账户');state=updateContext(state,{[field]:e.target.value});persist();render();}catch(error){render();$('desk-status').textContent=error.message;}};
 $('desk-ai').onclick=()=>{drawer.hidden=!drawer.hidden;$('desk-ai').setAttribute('aria-expanded',String(!drawer.hidden));};$('desk-close').onclick=()=>{drawer.hidden=true;$('desk-ai').setAttribute('aria-expanded','false');$('desk-ai').focus();};
 function updateResearchContext(){const c=focusedPanelContext()||state.current,catalog=identities.snapshot(),account=catalog?.accounts.find(a=>a.id===c.accountId),wallet=catalog?.wallets.find(w=>w.id===c.walletId);$('desk-snapshot').textContent=[MARKETS[c.market].label,c.instrumentId||'未选择标的',c.venue||'未选择场所',c.chainId?'链 '+c.chainId:'',c.contractAddress,c.timeframe,c.accountId?'账户 '+(account?.label||'待校验')+' · '+c.accountId.slice(0,8):'未选择账户',c.walletId?'钱包 '+(wallet?.label||'待校验')+' · '+c.walletId.slice(0,8):'',(c.executionMode==='PAPER'?'Paper 模拟':'只读')+' · 上下文 '+c.contextVersion].filter(Boolean).join(' · ');}
-function actions(){updateResearchContext();const title=document.querySelector('.qcell.focus .qfn')?.textContent||$('phTitle')?.textContent||'HELP';const code=title.trim().split(' ')[0];const specific={GP:'分析周期与技术形态',DEPTH:'检查流动性与价差',TOP:'梳理新闻事件与来源',N:'核对标的相关新闻',PORT:'检查资产集中度',ORD:'解释订单状态与风险',FA:'分析财务与估值',OPT:'分析期权情景风险',ALRT:'拟定监控规则'};const host=$('desk-actions');host.replaceChildren();const frame=document.querySelector('.qcell.focus iframe[data-terminal-feature]')||document.querySelector('#view:not(.quadmode) iframe[data-terminal-feature]');const feature=(window.TERMINAL_FEATURES||[]).find(item=>item.code===frame?.dataset.terminalFeature);for(const label of feature?.aiActions||['总结本页',specific[code]||'解释本页字段与数据需求','检查风险与缺失数据']){const button=document.createElement('button');button.textContent=label;button.onclick=()=>{window.dispatchEvent(new CustomEvent('terminal:research-request',{detail:{question:label+'。请仅依据当前工作区真实可用材料，区分事实与推断，说明缺失数据、来源及时间限制。'}}));$('desk-prompt').textContent=JSON.stringify({action:label,page:title,context:focusedPanelContext()||structuredClone(state.current),evidence:[],status:'已准备研究问题；业务面板内可审阅材料并发送，尚未发起模型调用'},null,2);};host.append(button);}}
+let preparedPageAction=null,latestResearchDelivery=null;
+window.addEventListener('terminal:research-delivery',event=>{if(event.detail?.requestId!==latestResearchDelivery)return;$('desk-prompt').textContent+=event.detail.status==='received'?'\n目标业务页面已接收研究准备；仍需审阅材料并手动发送。':event.detail.status==='timeout'?'\n目标页面未在期限内确认接收，请检查页面后重新准备；未自动重发。':'\n目标页面未接受研究准备，请重新选择当前页面动作。';latestResearchDelivery=null;});
+const actionFailures={adapter_unavailable:'这类资料尚未接入AI，不能据此生成分析。',business_panel_required:'请先打开资料页，并在业务面板中选择有效材料。',market_incompatible:'此动作不适用于当前市场，请先切换兼容市场。'};
+function currentPage(){
+ const frame=document.querySelector('.qcell.focus iframe[data-terminal-feature]')||document.querySelector('#view:not(.quadmode) iframe[data-terminal-feature]');
+ const feature=(window.TERMINAL_FEATURES||[]).find(item=>item.code===frame?.dataset.terminalFeature);
+ const title=document.querySelector('.qcell.focus .qfn')?.textContent||$('phTitle')?.textContent||'HELP';
+ const code=title.trim().split(' ')[0];return feature||(window.TERMINAL_FEATURES||[]).find(item=>item.code===code)||{code:/^[A-Z]{1,12}$/.test(code)?code:'HELP',page:'terminal',tab:title,label:title};
+}
+const nativeGuide=document.createElement('section');nativeGuide.className='native-ai-guide';nativeGuide.setAttribute('aria-label','本页AI研究助手');document.querySelector('.panel-hd')?.after(nativeGuide);
+function renderNativeGuide(feature,context){
+ nativeGuide.hidden=feature.page!=='terminal';if(nativeGuide.hidden)return;
+ const guide=pageAIGuide(feature,context);nativeGuide.replaceChildren();
+ const mark=document.createElement('b');mark.textContent='AI';
+ const copy=document.createElement('div'),title=document.createElement('strong'),note=document.createElement('small');
+ title.textContent=guide.title+' · 研究助手';note.textContent=guide.status+' · 自动匹配资料要求，演示数值不作为证据';copy.append(title,note);
+ const open=document.createElement('a');open.href='#'+guide.destination;open.textContent='进入研究资料页';
+ const details=document.createElement('button');details.type='button';details.textContent='查看本页研究流程';details.onclick=()=>{drawer.hidden=false;$('desk-ai').setAttribute('aria-expanded','true');$('desk-actions').scrollIntoView({block:'nearest'});};
+ nativeGuide.append(mark,copy,open,details);
+}
+function actions(){
+ updateResearchContext();const feature=currentPage(),context=focusedPanelContext()||state.current,policy=pageAIPolicy(feature),host=$('desk-actions');host.replaceChildren();renderNativeGuide(feature,context);
+ if(preparedPageAction&&(!pageAIContextMatches(preparedPageAction.context,context)||preparedPageAction.featureCode!==feature.code)){latestResearchDelivery=null;preparedPageAction=null;$('desk-prompt').textContent='来自此前页面或账户的研究准备已失效，请重新选择本页动作。';}
+ for(const action of policy.actions){
+  const section=document.createElement('section'),button=document.createElement('button');button.textContent=action.label;
+  const issue=!policy.supportedMarkets.includes(context.market)?'market_incompatible':action.availability==='review_required'?'':action.availability;
+  button.disabled=Boolean(issue);button.title=issue?actionFailures[issue]:'准备问题与材料选择，仍需在研究面板中审阅并手动发送';
+  const description=document.createElement('p');description.textContent=action.requiredSources.length?'需要：'+action.requiredSources.map(key=>PAGE_AI_SOURCES[key].label+(PAGE_AI_SOURCES[key].note?'：'+PAGE_AI_SOURCES[key].note:'')).join('；'):'仅整理数据需求，不读取或推断未提供的页面内容。';if(issue)description.textContent+=' '+actionFailures[issue];
+  const note=document.createElement('small');note.textContent='预期产物：'+PAGE_AI_ARTIFACT_LABELS[action.artifact]+'。'+action.limitations;
+  const link=document.createElement('a');link.href='#'+action.destination;link.textContent='打开资料页';
+  button.onclick=()=>{
+   try{const current=currentPage();if(current.code!==feature.code)throw Error('page_changed');preparedPageAction=preparePageAIAction(current,action.id,focusedPanelContext()||state.current);
+    const delivery={question:preparedPageAction.question,pageAction:preparedPageAction};
+    window.dispatchEvent(new CustomEvent('terminal:research-request',{detail:delivery}));
+    if(feature.page!=='terminal'&&delivery.delivery!=='forwarded')throw Error('research_delivery_failed');
+    latestResearchDelivery=delivery.requestId||null;
+    $('desk-prompt').textContent=JSON.stringify({动作:preparedPageAction.label,当前产物:'经校验的研究回复；专门参数/脚本/订单产物仍需业务审阅',资料:preparedPageAction.requiredSources.map(key=>PAGE_AI_SOURCES[key].label),上下文:preparedPageAction.context,状态:feature.page==='terminal'?'仅准备资料需求；请先打开资料页，再在业务面板选择动作。原生演示数据未发送。':'已向当前业务面板发送研究准备，尚未调用模型；请在面板核对材料并手动发送'},null,2);
+   }catch{latestResearchDelivery=null;preparedPageAction=null;$('desk-prompt').textContent='页面、市场或账户已变化，研究准备未发送，请重新选择。';}
+  };
+  section.append(button,description,note,document.createElement('br'),link);host.append(section);
+ }
+}
 const viewNode=$('view');if(viewNode)new MutationObserver(actions).observe(viewNode,{childList:true});document.addEventListener('click',actions);render();actions();
 
 installWorkspaceControls({host:drawer,getState:()=>structuredClone(state),applyState:applyWorkspaceState,getMarketWorkspaces:()=>marketWorkspaces.snapshot(),applyMarketWorkspaces:value=>marketWorkspaces.replace(value)});
@@ -39,5 +82,7 @@ window.addEventListener('terminal:context-edit',event=>{try{state=updateContext(
 
 window.addEventListener('terminal:focus-context',actions);
 
-window.addEventListener('terminal:session-changed',()=>{marketWorkspaces.clearIdentities();state=updateContext(state,{accountId:'',walletId:'',executionMode:'READ_ONLY'});state.memories=Object.fromEntries(Object.entries(state.memories).map(([market,value])=>[market,{...value,accountId:'',walletId:'',executionMode:'READ_ONLY'}]));persist();render();});
+window.addEventListener('terminal:session-changed',()=>{latestResearchDelivery=null;preparedPageAction=null;$('desk-prompt').textContent='登录会话已变化，请重新准备研究动作。';marketWorkspaces.clearIdentities();state=updateContext(state,{accountId:'',walletId:'',executionMode:'READ_ONLY'});state.memories=Object.fromEntries(Object.entries(state.memories).map(([market,value])=>[market,{...value,accountId:'',walletId:'',executionMode:'READ_ONLY'}]));persist();render();});
 installIdentityControls({bar,getState:()=>state,update:patch=>{state=updateContext(state,patch);persist();render();}});
+
+window.addEventListener("terminal:tool-created",()=>window.dispatchEvent(new CustomEvent("terminal:context",{detail:structuredClone(state.current)})));

@@ -1,0 +1,730 @@
+{
+  "status": "passed",
+  "fixture": "controlled local Provider; synthetic CSV; no external model",
+  "checks": [
+    "stock:ok:persist_and_recover",
+    "stock:ai-fail:persist_and_recover",
+    "stock:ai-invalid:persist_and_recover",
+    "spot:ok:persist_and_recover",
+    "spot:ai-fail:persist_and_recover",
+    "spot:ai-invalid:persist_and_recover",
+    "pending_source_frozen_before_reply_and_keeps_original_market",
+    "execution_routes_absent"
+  ],
+  "artifacts": [
+    {
+      "row": {
+        "snapshot_id": "e1cfa8f0-7393-43e2-8ca7-70bee1440990",
+        "created_at": "2026-11-11T06:24:18.762101",
+        "reply_status": "ok",
+        "request_id": "chat-0c368226-7e3a-4a46-8ca5-8fb52169fde2",
+        "symbol": "AAPL",
+        "venue": "Controlled NASDAQ",
+        "market_type": "stock",
+        "quote_currency": "USD",
+        "timeframe": "1m",
+        "kind": "csv"
+      },
+      "artifact": {
+        "snapshot_id": "e1cfa8f0-7393-43e2-8ca7-70bee1440990",
+        "request_id": "chat-0c368226-7e3a-4a46-8ca5-8fb52169fde2",
+        "provided_market": {
+          "schema": 1,
+          "origin": "browser_chart",
+          "data_semantics": "raw_ohlcv",
+          "kind": "csv",
+          "market_type": "stock",
+          "symbol": "AAPL",
+          "venue": "Controlled NASDAQ",
+          "quote_currency": "USD",
+          "timeframe": "1m",
+          "source_label": "Controlled acceptance OHLCV; synthetic, not live prices",
+          "observed_at": null,
+          "captured_at": "2026-11-11T06:24:18.732733+00:00",
+          "volume_available": true,
+          "replay_cutoff": null,
+          "bars": [
+            {
+              "time": 100,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            },
+            {
+              "time": 160,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            },
+            {
+              "time": 220,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            }
+          ],
+          "statistics": {
+            "first_open": 10,
+            "last_close": 11,
+            "sample_high": 12,
+            "sample_low": 9,
+            "sample_change_pct": 10.000000000000009,
+            "sample_volume": 6
+          },
+          "volume_unit": "source_raw",
+          "received_at": "2026-11-11T06:24:18.739933+00:00",
+          "source_age_seconds": null,
+          "last_bar_period_end": 240,
+          "bars_stale": false,
+          "stale": true,
+          "source_verified": false,
+          "limitations": "Browser-provided raw OHLCV, structurally validated but not independently retrieved/verified by this server. Only the primary chart and supplied sample are included, not all panes, chart transformations, indicators, drawings, current account positions or order flow. Capture/receive time does not establish quote freshness. CSV/exchange labels are user chart labels; replay is historical only. When volume_available is false, volume zeroes are placeholders and must not be analyzed.",
+          "content_hash": "6d8283cce0b9b2624f5209736a55cfe79f1fabf9825c01a9269b39853737b65b"
+        },
+        "reply_status": "ok",
+        "validated_reply": {
+          "status": "ok",
+          "cited_onchain_ids": [],
+          "suggested_action": "检查来源和未知项，不执行交易",
+          "confidence": 0.1,
+          "cited_news_ids": [],
+          "cited_market_ids": [
+            "M1"
+          ],
+          "summary": "受控验收响应（未调用外部模型）。仅解释所选只读证据。 [M1]",
+          "bullish_case": "受控材料不足以形成看多结论",
+          "bearish_case": "授权与协议记录可能陈旧，不能推出当前完整风险",
+          "key_risks": [
+            "受控数据，非真实模型分析",
+            "节点观测不代表最终性或独立验证"
+          ],
+          "limitations": "Controlled local provider; no network, no trading report promotion"
+        },
+        "provided_news": null,
+        "news_context_snapshot_id": null,
+        "workspace_labels": {
+          "page": "market",
+          "symbol": "AAPL"
+        },
+        "question": "Controlled acceptance: describe the selected historical sample only.",
+        "response_style": "brief",
+        "provider": "deepseek",
+        "provider_mode": "bring_your_own",
+        "model": "controlled-ui-fixture-no-network",
+        "execution_available": false
+      }
+    },
+    {
+      "row": {
+        "snapshot_id": "b37c7005-42f2-4262-aa9c-5ac100bdc33a",
+        "created_at": "2026-11-11T06:24:18.802296",
+        "reply_status": "failed",
+        "request_id": "chat-008e8b7a-dfb8-4d5c-9e66-afe9c0fa599b",
+        "symbol": "AAPL",
+        "venue": "Controlled NASDAQ",
+        "market_type": "stock",
+        "quote_currency": "USD",
+        "timeframe": "1m",
+        "kind": "csv"
+      },
+      "artifact": {
+        "snapshot_id": "b37c7005-42f2-4262-aa9c-5ac100bdc33a",
+        "request_id": "chat-008e8b7a-dfb8-4d5c-9e66-afe9c0fa599b",
+        "provided_market": {
+          "schema": 1,
+          "origin": "browser_chart",
+          "data_semantics": "raw_ohlcv",
+          "kind": "csv",
+          "market_type": "stock",
+          "symbol": "AAPL",
+          "venue": "Controlled NASDAQ",
+          "quote_currency": "USD",
+          "timeframe": "1m",
+          "source_label": "Controlled acceptance OHLCV; synthetic, not live prices",
+          "observed_at": null,
+          "captured_at": "2026-11-11T06:24:18.789974+00:00",
+          "volume_available": true,
+          "replay_cutoff": null,
+          "bars": [
+            {
+              "time": 100,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            },
+            {
+              "time": 160,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            },
+            {
+              "time": 220,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            }
+          ],
+          "statistics": {
+            "first_open": 10,
+            "last_close": 11,
+            "sample_high": 12,
+            "sample_low": 9,
+            "sample_change_pct": 10.000000000000009,
+            "sample_volume": 6
+          },
+          "volume_unit": "source_raw",
+          "received_at": "2026-11-11T06:24:18.794725+00:00",
+          "source_age_seconds": null,
+          "last_bar_period_end": 240,
+          "bars_stale": false,
+          "stale": true,
+          "source_verified": false,
+          "limitations": "Browser-provided raw OHLCV, structurally validated but not independently retrieved/verified by this server. Only the primary chart and supplied sample are included, not all panes, chart transformations, indicators, drawings, current account positions or order flow. Capture/receive time does not establish quote freshness. CSV/exchange labels are user chart labels; replay is historical only. When volume_available is false, volume zeroes are placeholders and must not be analyzed.",
+          "content_hash": "b522b224b8e8b32770137549ef63ae2fc05add4ea5d9fa718b4c28c8cc449a1d"
+        },
+        "reply_status": "failed",
+        "validated_reply": null,
+        "provided_news": null,
+        "news_context_snapshot_id": null,
+        "workspace_labels": {
+          "page": "market",
+          "symbol": "AAPL"
+        },
+        "question": "Controlled acceptance: describe the selected historical sample only.",
+        "response_style": "brief",
+        "provider": "deepseek",
+        "provider_mode": "bring_your_own",
+        "model": "controlled-ui-fixture-no-network",
+        "execution_available": false
+      }
+    },
+    {
+      "row": {
+        "snapshot_id": "090eed27-9932-4a8e-8bcf-a31780c8746b",
+        "created_at": "2026-11-11T06:24:18.829331",
+        "reply_status": "failed",
+        "request_id": "chat-3028d08f-9292-4f51-8a45-17873d9ab9ac",
+        "symbol": "AAPL",
+        "venue": "Controlled NASDAQ",
+        "market_type": "stock",
+        "quote_currency": "USD",
+        "timeframe": "1m",
+        "kind": "csv"
+      },
+      "artifact": {
+        "snapshot_id": "090eed27-9932-4a8e-8bcf-a31780c8746b",
+        "request_id": "chat-3028d08f-9292-4f51-8a45-17873d9ab9ac",
+        "provided_market": {
+          "schema": 1,
+          "origin": "browser_chart",
+          "data_semantics": "raw_ohlcv",
+          "kind": "csv",
+          "market_type": "stock",
+          "symbol": "AAPL",
+          "venue": "Controlled NASDAQ",
+          "quote_currency": "USD",
+          "timeframe": "1m",
+          "source_label": "Controlled acceptance OHLCV; synthetic, not live prices",
+          "observed_at": null,
+          "captured_at": "2026-11-11T06:24:18.821138+00:00",
+          "volume_available": true,
+          "replay_cutoff": null,
+          "bars": [
+            {
+              "time": 100,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            },
+            {
+              "time": 160,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            },
+            {
+              "time": 220,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            }
+          ],
+          "statistics": {
+            "first_open": 10,
+            "last_close": 11,
+            "sample_high": 12,
+            "sample_low": 9,
+            "sample_change_pct": 10.000000000000009,
+            "sample_volume": 6
+          },
+          "volume_unit": "source_raw",
+          "received_at": "2026-11-11T06:24:18.822813+00:00",
+          "source_age_seconds": null,
+          "last_bar_period_end": 240,
+          "bars_stale": false,
+          "stale": true,
+          "source_verified": false,
+          "limitations": "Browser-provided raw OHLCV, structurally validated but not independently retrieved/verified by this server. Only the primary chart and supplied sample are included, not all panes, chart transformations, indicators, drawings, current account positions or order flow. Capture/receive time does not establish quote freshness. CSV/exchange labels are user chart labels; replay is historical only. When volume_available is false, volume zeroes are placeholders and must not be analyzed.",
+          "content_hash": "3e76980bc1da8c36ad7a9e899bb2025c70de19fd8e9f5ca922319a57772325e6"
+        },
+        "reply_status": "failed",
+        "validated_reply": null,
+        "provided_news": null,
+        "news_context_snapshot_id": null,
+        "workspace_labels": {
+          "page": "market",
+          "symbol": "AAPL"
+        },
+        "question": "Controlled acceptance: describe the selected historical sample only.",
+        "response_style": "brief",
+        "provider": "deepseek",
+        "provider_mode": "bring_your_own",
+        "model": "controlled-ui-fixture-no-network",
+        "execution_available": false
+      }
+    },
+    {
+      "row": {
+        "snapshot_id": "d18cfd81-ecd0-42cd-b525-139d5d91db3c",
+        "created_at": "2026-11-11T06:24:18.852732",
+        "reply_status": "ok",
+        "request_id": "chat-8b99149c-731b-4a0d-a2ae-d1f88af2e780",
+        "symbol": "ETH",
+        "venue": "Controlled CEX",
+        "market_type": "spot",
+        "quote_currency": "USDT",
+        "timeframe": "1m",
+        "kind": "csv"
+      },
+      "artifact": {
+        "snapshot_id": "d18cfd81-ecd0-42cd-b525-139d5d91db3c",
+        "request_id": "chat-8b99149c-731b-4a0d-a2ae-d1f88af2e780",
+        "provided_market": {
+          "schema": 1,
+          "origin": "browser_chart",
+          "data_semantics": "raw_ohlcv",
+          "kind": "csv",
+          "market_type": "spot",
+          "symbol": "ETH",
+          "venue": "Controlled CEX",
+          "quote_currency": "USDT",
+          "timeframe": "1m",
+          "source_label": "Controlled acceptance OHLCV; synthetic, not live prices",
+          "observed_at": null,
+          "captured_at": "2026-11-11T06:24:18.843194+00:00",
+          "volume_available": true,
+          "replay_cutoff": null,
+          "bars": [
+            {
+              "time": 100,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            },
+            {
+              "time": 160,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            },
+            {
+              "time": 220,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            }
+          ],
+          "statistics": {
+            "first_open": 10,
+            "last_close": 11,
+            "sample_high": 12,
+            "sample_low": 9,
+            "sample_change_pct": 10.000000000000009,
+            "sample_volume": 6
+          },
+          "volume_unit": "source_raw",
+          "received_at": "2026-11-11T06:24:18.846313+00:00",
+          "source_age_seconds": null,
+          "last_bar_period_end": 240,
+          "bars_stale": false,
+          "stale": true,
+          "source_verified": false,
+          "limitations": "Browser-provided raw OHLCV, structurally validated but not independently retrieved/verified by this server. Only the primary chart and supplied sample are included, not all panes, chart transformations, indicators, drawings, current account positions or order flow. Capture/receive time does not establish quote freshness. CSV/exchange labels are user chart labels; replay is historical only. When volume_available is false, volume zeroes are placeholders and must not be analyzed.",
+          "content_hash": "cb0f39d747e1ed77ea605f4a276406373c10f5555e7aef043261929ed265b6eb"
+        },
+        "reply_status": "ok",
+        "validated_reply": {
+          "status": "ok",
+          "cited_onchain_ids": [],
+          "suggested_action": "检查来源和未知项，不执行交易",
+          "confidence": 0.1,
+          "cited_news_ids": [],
+          "cited_market_ids": [
+            "M1"
+          ],
+          "summary": "受控验收响应（未调用外部模型）。仅解释所选只读证据。 [M1]",
+          "bullish_case": "受控材料不足以形成看多结论",
+          "bearish_case": "授权与协议记录可能陈旧，不能推出当前完整风险",
+          "key_risks": [
+            "受控数据，非真实模型分析",
+            "节点观测不代表最终性或独立验证"
+          ],
+          "limitations": "Controlled local provider; no network, no trading report promotion"
+        },
+        "provided_news": null,
+        "news_context_snapshot_id": null,
+        "workspace_labels": {
+          "page": "market",
+          "symbol": "ETH"
+        },
+        "question": "Controlled acceptance: describe the selected historical sample only.",
+        "response_style": "brief",
+        "provider": "deepseek",
+        "provider_mode": "bring_your_own",
+        "model": "controlled-ui-fixture-no-network",
+        "execution_available": false
+      }
+    },
+    {
+      "row": {
+        "snapshot_id": "72c9bacb-d125-42fd-a3cb-33b4a31a2d49",
+        "created_at": "2026-11-11T06:24:18.875907",
+        "reply_status": "failed",
+        "request_id": "chat-49134a9b-6b71-41ba-8e6f-2926f1e3b315",
+        "symbol": "ETH",
+        "venue": "Controlled CEX",
+        "market_type": "spot",
+        "quote_currency": "USDT",
+        "timeframe": "1m",
+        "kind": "csv"
+      },
+      "artifact": {
+        "snapshot_id": "72c9bacb-d125-42fd-a3cb-33b4a31a2d49",
+        "request_id": "chat-49134a9b-6b71-41ba-8e6f-2926f1e3b315",
+        "provided_market": {
+          "schema": 1,
+          "origin": "browser_chart",
+          "data_semantics": "raw_ohlcv",
+          "kind": "csv",
+          "market_type": "spot",
+          "symbol": "ETH",
+          "venue": "Controlled CEX",
+          "quote_currency": "USDT",
+          "timeframe": "1m",
+          "source_label": "Controlled acceptance OHLCV; synthetic, not live prices",
+          "observed_at": null,
+          "captured_at": "2026-11-11T06:24:18.866444+00:00",
+          "volume_available": true,
+          "replay_cutoff": null,
+          "bars": [
+            {
+              "time": 100,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            },
+            {
+              "time": 160,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            },
+            {
+              "time": 220,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            }
+          ],
+          "statistics": {
+            "first_open": 10,
+            "last_close": 11,
+            "sample_high": 12,
+            "sample_low": 9,
+            "sample_change_pct": 10.000000000000009,
+            "sample_volume": 6
+          },
+          "volume_unit": "source_raw",
+          "received_at": "2026-11-11T06:24:18.869512+00:00",
+          "source_age_seconds": null,
+          "last_bar_period_end": 240,
+          "bars_stale": false,
+          "stale": true,
+          "source_verified": false,
+          "limitations": "Browser-provided raw OHLCV, structurally validated but not independently retrieved/verified by this server. Only the primary chart and supplied sample are included, not all panes, chart transformations, indicators, drawings, current account positions or order flow. Capture/receive time does not establish quote freshness. CSV/exchange labels are user chart labels; replay is historical only. When volume_available is false, volume zeroes are placeholders and must not be analyzed.",
+          "content_hash": "51714e0dccc738705edc977c3aac9bbb9a91888236babc8ae7f26518151d7d24"
+        },
+        "reply_status": "failed",
+        "validated_reply": null,
+        "provided_news": null,
+        "news_context_snapshot_id": null,
+        "workspace_labels": {
+          "page": "market",
+          "symbol": "ETH"
+        },
+        "question": "Controlled acceptance: describe the selected historical sample only.",
+        "response_style": "brief",
+        "provider": "deepseek",
+        "provider_mode": "bring_your_own",
+        "model": "controlled-ui-fixture-no-network",
+        "execution_available": false
+      }
+    },
+    {
+      "row": {
+        "snapshot_id": "355b567d-89c3-4243-a1fd-5302cf2d0ff4",
+        "created_at": "2026-11-11T06:24:18.900855",
+        "reply_status": "failed",
+        "request_id": "chat-798809e1-087a-4dcb-a6ea-4ed72a80085f",
+        "symbol": "ETH",
+        "venue": "Controlled CEX",
+        "market_type": "spot",
+        "quote_currency": "USDT",
+        "timeframe": "1m",
+        "kind": "csv"
+      },
+      "artifact": {
+        "snapshot_id": "355b567d-89c3-4243-a1fd-5302cf2d0ff4",
+        "request_id": "chat-798809e1-087a-4dcb-a6ea-4ed72a80085f",
+        "provided_market": {
+          "schema": 1,
+          "origin": "browser_chart",
+          "data_semantics": "raw_ohlcv",
+          "kind": "csv",
+          "market_type": "spot",
+          "symbol": "ETH",
+          "venue": "Controlled CEX",
+          "quote_currency": "USDT",
+          "timeframe": "1m",
+          "source_label": "Controlled acceptance OHLCV; synthetic, not live prices",
+          "observed_at": null,
+          "captured_at": "2026-11-11T06:24:18.890017+00:00",
+          "volume_available": true,
+          "replay_cutoff": null,
+          "bars": [
+            {
+              "time": 100,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            },
+            {
+              "time": 160,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            },
+            {
+              "time": 220,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            }
+          ],
+          "statistics": {
+            "first_open": 10,
+            "last_close": 11,
+            "sample_high": 12,
+            "sample_low": 9,
+            "sample_change_pct": 10.000000000000009,
+            "sample_volume": 6
+          },
+          "volume_unit": "source_raw",
+          "received_at": "2026-11-11T06:24:18.894539+00:00",
+          "source_age_seconds": null,
+          "last_bar_period_end": 240,
+          "bars_stale": false,
+          "stale": true,
+          "source_verified": false,
+          "limitations": "Browser-provided raw OHLCV, structurally validated but not independently retrieved/verified by this server. Only the primary chart and supplied sample are included, not all panes, chart transformations, indicators, drawings, current account positions or order flow. Capture/receive time does not establish quote freshness. CSV/exchange labels are user chart labels; replay is historical only. When volume_available is false, volume zeroes are placeholders and must not be analyzed.",
+          "content_hash": "9f3d17821b931f8d5cc9ca2e72fea611c2953174ab802c4eefb9fa12b231f27b"
+        },
+        "reply_status": "failed",
+        "validated_reply": null,
+        "provided_news": null,
+        "news_context_snapshot_id": null,
+        "workspace_labels": {
+          "page": "market",
+          "symbol": "ETH"
+        },
+        "question": "Controlled acceptance: describe the selected historical sample only.",
+        "response_style": "brief",
+        "provider": "deepseek",
+        "provider_mode": "bring_your_own",
+        "model": "controlled-ui-fixture-no-network",
+        "execution_available": false
+      }
+    },
+    {
+      "row": {
+        "snapshot_id": "8de88777-d5c0-4a52-b051-7978bcbac436",
+        "created_at": "2026-11-11T06:24:18.924822",
+        "reply_status": "ok",
+        "request_id": "chat-dab2597c-6cac-4339-8040-bafdf1b2cea2",
+        "symbol": "ETH",
+        "venue": "Controlled CEX",
+        "market_type": "spot",
+        "quote_currency": "USDT",
+        "timeframe": "1m",
+        "kind": "csv"
+      },
+      "artifact": {
+        "snapshot_id": "8de88777-d5c0-4a52-b051-7978bcbac436",
+        "request_id": "chat-dab2597c-6cac-4339-8040-bafdf1b2cea2",
+        "provided_market": {
+          "schema": 1,
+          "origin": "browser_chart",
+          "data_semantics": "raw_ohlcv",
+          "kind": "csv",
+          "market_type": "spot",
+          "symbol": "ETH",
+          "venue": "Controlled CEX",
+          "quote_currency": "USDT",
+          "timeframe": "1m",
+          "source_label": "Controlled acceptance OHLCV; synthetic, not live prices",
+          "observed_at": null,
+          "captured_at": "2026-11-11T06:24:18.910396+00:00",
+          "volume_available": true,
+          "replay_cutoff": null,
+          "bars": [
+            {
+              "time": 100,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            },
+            {
+              "time": 160,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            },
+            {
+              "time": 220,
+              "open": 10,
+              "high": 12,
+              "low": 9,
+              "close": 11,
+              "volume": 2
+            }
+          ],
+          "statistics": {
+            "first_open": 10,
+            "last_close": 11,
+            "sample_high": 12,
+            "sample_low": 9,
+            "sample_change_pct": 10.000000000000009,
+            "sample_volume": 6
+          },
+          "volume_unit": "source_raw",
+          "received_at": "2026-11-11T06:24:18.916236+00:00",
+          "source_age_seconds": null,
+          "last_bar_period_end": 240,
+          "bars_stale": false,
+          "stale": true,
+          "source_verified": false,
+          "limitations": "Browser-provided raw OHLCV, structurally validated but not independently retrieved/verified by this server. Only the primary chart and supplied sample are included, not all panes, chart transformations, indicators, drawings, current account positions or order flow. Capture/receive time does not establish quote freshness. CSV/exchange labels are user chart labels; replay is historical only. When volume_available is false, volume zeroes are placeholders and must not be analyzed.",
+          "content_hash": "8de01505d69fb43f7cdbf05a8793402514cf970a56578864e3b1edc4eadfeec4"
+        },
+        "reply_status": "ok",
+        "validated_reply": {
+          "status": "ok",
+          "cited_onchain_ids": [],
+          "suggested_action": "检查来源和未知项，不执行交易",
+          "confidence": 0.1,
+          "cited_news_ids": [],
+          "cited_market_ids": [
+            "M1"
+          ],
+          "summary": "受控验收响应（未调用外部模型）。仅解释所选只读证据。 [M1]",
+          "bullish_case": "受控材料不足以形成看多结论",
+          "bearish_case": "授权与协议记录可能陈旧，不能推出当前完整风险",
+          "key_risks": [
+            "受控数据，非真实模型分析",
+            "节点观测不代表最终性或独立验证"
+          ],
+          "limitations": "Controlled local provider; no network, no trading report promotion"
+        },
+        "provided_news": null,
+        "news_context_snapshot_id": null,
+        "workspace_labels": {
+          "page": "market",
+          "symbol": "ETH"
+        },
+        "question": "Controlled acceptance: describe the selected historical sample only.",
+        "response_style": "brief",
+        "provider": "deepseek",
+        "provider_mode": "bring_your_own",
+        "model": "controlled-ui-fixture-no-network",
+        "execution_available": false
+      }
+    }
+  ],
+  "external_model_called": false,
+  "execution_routes_available": false,
+  "frontend_contract_validation": {
+    "actual_http_artifacts": 7,
+    "status": "passed",
+    "validator": "src/market-research-history.js"
+  },
+  "source_hashes": {
+    "ai-trading-assistant/backend/app/services/human_control.py": "207698101235a6aa7e84b990800eeb14ea56aaad005e665ae93444aeea823f94",
+    "ai-trading-assistant/backend/app/api/production.py": "e71d24969a8334d619bece6f13d14fb994fc72cb61670fe81b61da971204f283",
+    "ai-trading-assistant/src/market-research-history.js": "6efa28d1bcaafd73bda548dd25d5937df3537fd4ff0412426a4c31059fac4ea4",
+    "terminal-ui/scripts/serve-onchain-fixture.py": "940739c46001da930818f8e6ade9eb964da3e8650a4fc5f12dd577b5314b947b",
+    "terminal-ui/scripts/check-market-history-http.py": "e1777f459593d93550c31039f5ef815856be3fad2245d22da6c0157c31d9a608"
+  },
+  "zero_execution_checks": {
+    "order_intents": 0,
+    "order_drafts": 0,
+    "executions": 0
+  },
+  "not_verified": [
+    "browser interaction or screenshots",
+    "real market source",
+    "external model",
+    "production deployment",
+    "full objective completion"
+  ]
+}

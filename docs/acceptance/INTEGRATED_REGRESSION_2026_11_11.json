@@ -1,0 +1,40 @@
+{
+  "base_head": "f4a127ec2bd2fc08632414c0a95c674f3b183702",
+  "uncommitted": true,
+  "sha256": {
+    "backend/app/api/theses.py": "34b02632ec83b1cb7df7e6a547c07a7519bc48243020a5baa47a784820e7b250",
+    "backend/app/api/paper_execution.py": "0d7c2f4641916c72f1cea3ddab7cda0e27880e4f09b7c91a520857294d986265",
+    "backend/app/schemas/core.py": "ef2a2ee5f419aff5dfc205b06507ca6791b1b567bdfe071a1abca0b4bfebd6a4",
+    "backend/app/services/research_traceability.py": "fe65f4ffbd87ec8cbcad9c752ae0cd8d4418d7e6dd5d473f317876dff87adbe7",
+    "backend/app/services/account_risk_context.py": "665e64d549c331ff609d8fd7b502845c9c269204524bbc4992806658e7ec78a1",
+    "backend/app/services/demo_seed.py": "b28853c6ec6978d5886c42f53b7fe41e0a9f51b9069178edca151306973597d6",
+    "backend/app/services/daily_use.py": "e97cbd7c146e2e2122adc1dcdfe72888a4af3dd7ced10398c0af8e6d36b4d7cb",
+    "backend/tests/test_manual_paper_thesis.py": "cd574ceb9f9d4bb9a5a0302cfd14630418af45bf8dde821bf1b2ecdc40b4ecb6",
+    "backend/tests/test_paper_research_frontend_contract.py": "24267168c6737c294966606a2241e39257395e1265ba8bd6011013fef94c1532",
+    "backend/tests/test_terminal_research_paper_loop.py": "49478a172020fb6ee7982d6ae257eb17c1c95c4122f8c04b0ef3afda2228dfb5",
+    "src/paper-order-ticket.jsx": "e5592ff7c889e1c32ba32d943b78de92bf195380882343f788be827914eb9c41",
+    "src/paper-draft-buffer.js": "b8155fde1d27a8e330eaaa6ebf4a9571a9c6dc45d02434866054cbbe702ffbbc",
+    "src/paper-thesis.js": "5fe675c6ba4a8db2e7952c7e218c46fb57c076c14d1494bbbc2e70b7dfbf2c92",
+    "src/paper-thesis-editor.jsx": "c28f2f7472cea010ec6653f1a8bd5ff372433a6b95bf26a2500d309dbf4364c5",
+    "src/paper-research-review.js": "4f3c03c85a386afb2043a85b101118abc4bde3eca70d66f19b7d5eebc2fb44e5",
+    "src/paper-research-review.jsx": "899d80611e45841e93f9f89b0e3005d814258ae72a085462fff795679fb273b6",
+    "src/paper-review.js": "01974d189a5f55527545c12653499b5e88aa0fc74afc58479ddef635839cc545",
+    "src/paper-review-editor.jsx": "deb8dd28e553f534fdb1819e42d85c3be81ff5ed69be3e4781e67e93b93535f4",
+    "terminal-ui/integration/manual-thesis-draft.mjs": "f5130298bce4282e4bd72b7b5f993aefe1a8eeef4442cefee1dc1db20c8cd4fd",
+    "terminal-ui/integration/persistent-paper-drafts.mjs": "8935e09ffe15f1ae8e15e33d8b00041f8d53554e92287579e75e89a6a284fb3d"
+  },
+  "backend_full": "991 passed in 258.71s",
+  "terminal_tests_last_verified": 98,
+  "model_scripts_last_verified": 55,
+  "public_build_passed": true,
+  "extended_secret_scan": {
+    "checked_text_files": 853,
+    "included_untracked_and_public_export": true,
+    "findings": []
+  },
+  "http_module_source_match_verified": true,
+  "browser_verified": false,
+  "real_account_verified": false,
+  "production_deployed": false,
+  "full_goal_complete": false
+}

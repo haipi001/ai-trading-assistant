@@ -8,7 +8,11 @@ export function paperOrderIntent(form) {
   return {source_type:'manual',asset_id:form.assetId,account_id:form.accountId,side:form.side,order_type:'limit',quantity,limit_price:price,
     rationale:form.rationale.trim(),user_rationale:form.rationale.trim(),...(form.thesisId?{investment_thesis_id:form.thesisId}:{}),evidence_json:mode==='report'?{report_id:form.reportId}:{}};
 }
-export async function previewPaperOrder(request,form,report){
+export function paperThesisMatches(thesis,form){
+ return Boolean(thesis&&thesis.id===form.thesisId&&thesis.asset_id===form.assetId&&(!thesis.account_id||thesis.account_id===form.accountId)&&thesis.status==='active');
+}
+export async function previewPaperOrder(request,form,report,theses=[]){
+  if(form.thesisId&&!theses.some(thesis=>paperThesisMatches(thesis,form)))throw invalid('投资假设不属于当前标的和账户，或已失效，请重新选择');
   const body=paperOrderIntent(form);
   const manual=(form.evidenceMode||(form.reportId?'report':'manual'))==='manual';
   if(!manual&&(!report?.data_snapshot_id||report.id!==form.reportId))throw invalid('研究证据已失效，请重新选择');

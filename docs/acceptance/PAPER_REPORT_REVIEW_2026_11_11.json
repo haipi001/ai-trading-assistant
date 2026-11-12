@@ -1,0 +1,21 @@
+{
+  "sha256": {
+    "src/paper-research-review.js": "4f3c03c85a386afb2043a85b101118abc4bde3eca70d66f19b7d5eebc2fb44e5",
+    "src/paper-research-review.jsx": "e6d4808d60d5d4b11fc630ce5539728818d6a99b1b1d23c3c909ea6b8518c21c",
+    "src/paper-order-ticket.jsx": "ce154a7a142b23a015692cc9b73628a9b3b53d8936cc912637278f9afd3f0f52",
+    "backend/app/services/research_traceability.py": "fe65f4ffbd87ec8cbcad9c752ae0cd8d4418d7e6dd5d473f317876dff87adbe7",
+    "backend/tests/test_paper_research_frontend_contract.py": "6e15f13ad2f98b0e46e4991f4b60df3938796efc41b8eedaebe9d76bad71b7a6",
+    "terminal-ui/tests/paper-research-review.test.mjs": "ca36e5e920da9f9c40b6f425fbda57c4cea39aea2703daca52aad434e7852f3e"
+  },
+  "backend_tests_passed": 12,
+  "terminal_tests_passed": 92,
+  "model_scripts_passed": 55,
+  "terminal_build_passed": true,
+  "actual_backend_dto_frontend_contract_verified": [
+    "stocks",
+    "cex"
+  ],
+  "browser_verified": false,
+  "production_deployed": false,
+  "full_goal_complete": false
+}

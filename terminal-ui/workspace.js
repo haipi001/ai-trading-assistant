@@ -7,7 +7,7 @@
     'Personal workspace': [['PORT','Portfolio'],['TRD','Trade blotter'],['ORD','Order monitor'],['ALRT','Price alerts'],['SET','Settings & profiles'],['HELP','Command reference'],['WORK','Workspace & accessibility'],['CONN','Data & connections'],['PLUG','Components & integrations'],['ABOUT','About & UI coverage']]
   };
   for (const feature of window.TERMINAL_FEATURES || []) {
-    const name = '业务工作区 · ' + feature.page;
+    const name = window.TERMINAL_FEATURE_GROUPS?.[feature.page]?.label || '扩展工具';
     (groups[name] ||= []).push([feature.code, feature.label]);
   }
   const execute = value => {

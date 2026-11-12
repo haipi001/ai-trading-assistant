@@ -149,13 +149,24 @@ def server_account_context(db: Session, intent: OrderIntent, requested: dict, *,
     user_id = account.user_id
     if intent.investment_thesis_id:
         thesis = db.get(InvestmentThesis, intent.investment_thesis_id)
-        if thesis: user_id = thesis.user_id
+        if thesis is None:
+            errors.append('investment_thesis_unavailable')
+        else:
+            if thesis.user_id != account.user_id:
+                errors.append('investment_thesis_owner_mismatch')
+            if thesis.account_id and thesis.account_id != account.id:
+                errors.append('investment_thesis_account_mismatch')
     budget = db.scalar(select(RiskBudget).where(RiskBudget.asset_class == asset.asset_type,
         (RiskBudget.account_id == account.id) | ((RiskBudget.account_id.is_(None)) & (RiskBudget.user_id == user_id)))
         .order_by(RiskBudget.account_id.desc(), RiskBudget.updated_at.desc(), RiskBudget.id.desc()).limit(1))
     if budget:
-        user_id = budget.user_id
+        if budget.user_id != account.user_id:
+            errors.append('account_risk_budget_owner_mismatch')
         constitution = db.get(InvestmentConstitution, budget.constitution_id)
+        if constitution is None:
+            errors.append('account_risk_constitution_unavailable')
+        elif constitution.user_id != account.user_id:
+            errors.append('account_risk_constitution_owner_mismatch')
         if constitution is not None and not constitution.is_active:
             errors.append('account_risk_constitution_inactive')
     else:

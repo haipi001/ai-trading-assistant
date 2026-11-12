@@ -1,3 +1,5 @@
+import {emptyManualThesisForm,checkedManualThesisDraft} from '../terminal-ui/integration/manual-thesis-draft.mjs';
+export {emptyManualThesisForm};
 const fields=['evidenceMode','accountId','assetId','reportId','thesisId','side','quantity','price','rationale'];
 const fallback=new Map();
 const fallbackBuffer={read:key=>fallback.has(key)?structuredClone(fallback.get(key)):null,writeBatch:rows=>{if(new Set([...fallback.keys(),...rows.map(([key])=>key)]).size>100)throw Error('票据暂存已满');for(const [key,value] of rows)fallback.set(key,structuredClone(value));}};
@@ -15,3 +17,12 @@ export function readPaperDraft(scope,accountId,store=buffer()){
 }
 
 export function paperDraftStorageStatus(){return buffer().status?.()||'';}
+
+export function saveManualThesisDraft(scope,accountId,assetId,form,outcome='draft',store=buffer()){
+ const value=checkedManualThesisDraft({...form,accountId,assetId,outcome},accountId,assetId);
+ store.writeBatch([[JSON.stringify([scope,'thesis',accountId,assetId]),value]]);
+}
+export function readManualThesisDraft(scope,accountId,assetId,store=buffer()){
+ const value=store.read(JSON.stringify([scope,'thesis',accountId,assetId]));
+ return value?checkedManualThesisDraft(value,accountId,assetId):null;
+}

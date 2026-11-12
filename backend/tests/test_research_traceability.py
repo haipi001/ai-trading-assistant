@@ -58,5 +58,5 @@ def test_research_report_links_thesis_plan_and_gate_evidence(client: TestClient)
     readiness = client.get("/complete-product/readiness/items/4", headers=headers).json()
     assert "research_to_order_traceability_incomplete" not in readiness["blockers"]
     assert readiness["progress_pct"] >= 80
-    default_readiness = client.get("/complete-product/readiness/items/4").json()
+    default_readiness = client.get("/complete-product/readiness/items/4", headers={"X-AI-Trading-User":"another-user"}).json()
     assert "research_to_order_traceability_incomplete" in default_readiness["blockers"]

@@ -35,7 +35,6 @@ from app.schemas.core import contains_secret_config_key
 from app.services.data_sources import DataSourceService
 from app.services.data_catalog import DataCatalogService
 from app.services.demo_seed import DemoSeedService
-from app.services.demo_seed import DEMO_USER_ID
 from app.core.auth import AuthenticatedUser
 from app.core.auth import ROLE_PERMISSIONS
 from app.core.config import get_settings
@@ -140,7 +139,7 @@ class DailyUseService:
             ).limit(1)
         )
         state = config.value_json if config is not None else {}
-        demo = DemoSeedService(self.db).build_status()
+        demo = DemoSeedService(self.db, user_id=user_id).build_status()
         initialized = bool(state.get("initialized"))
         setup_tasks = self._local_start_setup_tasks(user_id=user_id, state=state, demo_seeded=demo.seeded)
         ready = onboarding["status"] == "ready" and initialized and not setup_tasks
@@ -153,7 +152,7 @@ class DailyUseService:
             "demo_seeded": demo.seeded,
             "mode_changed_at": state.get("mode_changed_at"),
             "mode_history": list(state.get("mode_history") or []),
-            "simulation_data_user_id": state.get("simulation_data_user_id") or DEMO_USER_ID,
+            "simulation_data_user_id": state.get("simulation_data_user_id") or user_id,
             "simulation_excluded_from_real_evidence": state.get("simulation_excluded_from_real_evidence", True),
             "beta_entry_gate": beta_gate,
             "onboarding": onboarding,
@@ -185,7 +184,7 @@ class DailyUseService:
             raise DailyUseError("changing data mode requires SWITCH_DATA_MODE confirmation")
 
         if data_mode == "simulation":
-            DemoSeedService(self.db).seed()
+            DemoSeedService(self.db, user_id=user_id).seed()
         from app.services.product_completion import ProductCompletionService
 
         ProductCompletionService(self.db).initialize_daily_loop(actor=AuthenticatedUser(
@@ -220,7 +219,7 @@ class DailyUseService:
                 "to": data_mode,
                 "changed_at": changed_at.isoformat(),
                 "confirmed": not mode_changed or payload.get("mode_change_confirmation") == "SWITCH_DATA_MODE",
-                "demo_data_scope": DEMO_USER_ID if data_mode == "simulation" else None,
+                "demo_data_scope": user_id if data_mode == "simulation" else None,
             })
         self.upsert_local_config(
             config_key="local_start",
@@ -233,7 +232,7 @@ class DailyUseService:
                 "initialized_at": existing_state.get("initialized_at") or changed_at.isoformat(),
                 "mode_changed_at": changed_at.isoformat() if mode_changed else existing_state.get("mode_changed_at"),
                 "mode_history": mode_history[-20:],
-                "simulation_data_user_id": DEMO_USER_ID,
+                "simulation_data_user_id": user_id,
                 "simulation_excluded_from_real_evidence": True,
                 "execution_available": False,
             },

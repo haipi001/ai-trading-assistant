@@ -622,3 +622,28 @@ def test_backtest_portfolio_rejects_negative_rebalance(client: TestClient) -> No
     assert started.json()["status"] == "blocked"
     assert "invalid_rebalance_every" in results["blocking_reasons"]
     assert results["execution_available"] is False
+
+
+def test_saved_backtest_list_is_private_bounded_and_not_cached(client):
+    asset=create_asset(client);playbook=create_playbook(client)
+    created=client.post('/backtest-runs',json={'strategy_playbook_id':playbook['id'],'name':'Saved review','date_from':'2026-01-01','date_to':'2026-01-08','initial_capital':100,'parameters_json':{'asset_id':asset['id']}})
+    assert created.status_code==201
+    response=client.get('/backtest-runs?limit=100')
+    assert response.status_code==200 and response.headers['cache-control']=='no-store'
+    assert created.json()['id'] in {run['id'] for run in response.json()}
+    assert client.get('/backtest-runs',headers={'X-AI-Trading-User':'other'}).json()==[]
+    assert client.get('/backtest-runs?limit=0').status_code==422
+    assert client.get('/backtest-runs?limit=101').status_code==422
+
+
+def test_saved_backtest_research_packet_is_private_and_not_cached(client):
+    playbook=create_playbook(client)
+    created=client.post('/backtest-runs',json={'strategy_playbook_id':playbook['id'],'name':'Research packet','date_from':'2026-01-01','date_to':'2026-01-08','initial_capital':100,'parameters_json':{}})
+    run_id=created.json()['id']
+    response=client.post(f'/backtest-runs/{run_id}/research-packet')
+    assert response.status_code==200,response.text
+    assert response.headers['cache-control']=='no-store'
+    assert response.json()['execution_available'] is False
+    assert response.json()['order_creation_allowed'] is False
+    assert client.post(f'/backtest-runs/{run_id}/research-packet',headers={'X-AI-Trading-User':'foreign'}).status_code==404
+    assert client.get('/orders/drafts').json()==[]

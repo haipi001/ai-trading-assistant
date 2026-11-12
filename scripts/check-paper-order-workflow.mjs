@@ -46,3 +46,13 @@ const restored=paperRestoredEvidence({id:'intent',evidence_json:{}},{decision_ga
 assert.deepEqual(restored,{evidenceMode:'report',reportId:'original-report'});
 assert.deepEqual(paperRestoredEvidence({id:'intent',evidence_json:{manual_snapshot_id:'manual'}},{},[]),{evidenceMode:'manual',reportId:''});
 console.log('Paper restoration: exact saved research gate, not latest unrelated report; manual evidence remains distinct');
+const thesis={id:'thesis-a',asset_id:'btc',account_id:'paper',status:'active'};
+const thesisForm={...form,thesisId:thesis.id};
+for(const changed of [{account_id:'foreign-account'},{asset_id:'other-asset'},{status:'invalidated'},{id:'other-thesis'}]){
+ let attempted=0;
+ await assert.rejects(previewPaperOrder(async()=>{attempted++;},thesisForm,report,[{...thesis,...changed}]),error=>error.local===true);
+ assert.equal(attempted,0);
+}
+calls=[];await previewPaperOrder(request,thesisForm,report,[thesis]);assert.equal(calls[0].options.body.investment_thesis_id,thesis.id);
+calls=[];await previewPaperOrder(request,thesisForm,report,[{...thesis,account_id:null}]);assert.equal(calls.length,3);
+console.log('Paper thesis: wrong account/asset/status/reference block before intent creation; compatible and account-neutral active theses retain explicit gate flow');

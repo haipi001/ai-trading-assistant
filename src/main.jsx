@@ -1,3 +1,15 @@
+import {getSessionIdentity as strategySessionIdentity} from './backend-session.js';
+import {tradingContextIdentity as strategyContextIdentity} from './terminal-trading-policy.js';
+import {strategyAttachmentMatches} from './research-strategy.js';
+import {StrategyMaterialPreview} from './strategy-material.jsx';
+import {useStrategyEditor} from './use-strategy-editor.jsx';
+import {strategyDraftScope} from './strategy-draft-scope.js';
+import {useStrategyDrafts} from './use-strategy-drafts.jsx';
+import {strategyParameterReview} from './strategy-parameter-review.js';
+import {localStrategyLabel,toggleLocalStrategy} from './local-strategy-state.js';
+import {paperReviewAttachmentMatches} from './research-paper-review.js';
+import {PageAIGuide} from './page-ai-guide.jsx';
+import {validatePageAIIntent} from '../terminal-ui/integration/page-ai-actions.mjs';
 import {TerminalOnchainWorkspace} from './terminal-onchain.jsx';
 import {requestEmbeddedAppearance} from './terminal-appearance.js';
 import {chartPeriod,terminalPeriod,terminalSelection} from './terminal-selection.js';
@@ -227,7 +239,7 @@ function useStoredState(key, initialValue) {
 }
 
 export function App({ embedded = false, terminalTarget = null, terminalContext = null } = {}) {
-  const initialWorkspace = useMemo(readLastWorkspace, []);
+  const initialWorkspace = useMemo(() => embedded && terminalTarget ? terminalTarget : readLastWorkspace(), []);
   const canvasRef = useRef(null);
   const [page, setPage] = useState(initialWorkspace.page),
     [tab, setTab] = useState(initialWorkspace.tab),
@@ -257,10 +269,7 @@ export function App({ embedded = false, terminalTarget = null, terminalContext =
   });
   const [quickTradePrefill, setQuickTradePrefill] = useState(null);
   const [paperReviewRequest, setPaperReviewRequest] = useState(null);
-  const [savedStrategies, setSavedStrategies] = useStoredState(
-    "ai-trading-assistant-strategies",
-    [],
-  );
+  const [savedStrategies, setSavedStrategies] = useStrategyDrafts(embedded,terminalContext);
   const [assetGroups, setAssetGroups] = useStoredState("ai-trading-assistant-groups", []);
   const [authorizedAccounts, setAuthorizedAccounts] = useStoredState(
     "ai-trading-assistant-accounts",
@@ -313,16 +322,51 @@ export function App({ embedded = false, terminalTarget = null, terminalContext =
     setQuickTradePrefill(null);setPaperReviewRequest(null);setMarketOrderOpen(false);
     setMarketCommand({type:'restoreWorkspaceContext',venue:terminalContext.venue || null,period:chartPeriod(terminalContext.timeframe),id:crypto.randomUUID()});
   }, [embedded,terminalContext?.market,terminalContext?.instrumentId,terminalContext?.venue,terminalContext?.timeframe,terminalContext?.accountId,terminalContext?.walletId,terminalContext?.chainId,terminalContext?.contractAddress,terminalContext?.contextVersion,terminalContext?.executionMode,terminalContext?.authorizationVersion,terminalContext?.accountVerified,terminalContext?.paperEligible,terminalContext?.identityUserId]);
+  useEffect(()=>{
+    if(!embedded||new URLSearchParams(location.search).get('tool')!=='1')return;
+    parent.postMessage({type:'terminal:tool-ready'},location.origin);
+    const escape=event=>{if(event.key==='Escape')parent.postMessage({type:'terminal:tool-close'},location.origin);};
+    window.addEventListener('keydown',escape);return()=>window.removeEventListener('keydown',escape);
+  },[embedded]);
+  useEffect(() => {
+    if(embedded)parent.postMessage({type:'terminal:tool-state',tool:aiFloatOpen?'research':overlay?overlay.type:drawer==='sidebarLayout'?drawer:page==='market'?(marketOrderOpen?'trade':marketSideOpen?marketSideTab:null):drawer},location.origin);
+  },[embedded,page,drawer,marketSideOpen,marketSideTab,marketOrderOpen,aiFloatOpen,overlay]);
+  useEffect(() => {
+    if (!embedded) return;
+    const escape=event=>{if(event.key==='Escape'){setDrawer(null);if(page==='market'){setMarketSideOpen(false);setMarketOrderOpen(false);}setAiFloatOpen(false);}};
+    const tool = event => {
+      const id=event.detail?.tool;
+      if (!['depth','news','funds','analysis','feature','etf','ai','trade','sidebarLayout','help','research'].includes(id)) return;
+      parent.postMessage({type:'terminal:tool-activated',tool:id},location.origin);
+      setAiFloatOpen(false);setOverlay(null);
+      if(id==='research'){setAiFloatOpen(true);return;}
+      if(id==='help'){openOverlay('help','在线客服与帮助中心');return;}
+      if(id==='sidebarLayout'){setDrawer(value=>value==='sidebarLayout'?null:'sidebarLayout');return;}
+      if(page==='market') {
+        if(id==='trade')setMarketOrderOpen(value=>!value);
+        else {setMarketSideTab(id);setMarketSideOpen(value=>marketSideTab===id?!value:true);}
+      } else setDrawer(value=>value===id?null:id);
+    };
+    window.addEventListener('terminal:tool',tool);window.addEventListener('keydown',escape);
+    return()=>{window.removeEventListener('terminal:tool',tool);window.removeEventListener('keydown',escape);};
+  }, [embedded,page,marketSideTab]);
   useEffect(() => {
     const research = event => {
       if (typeof event.detail?.question !== 'string') return;
-      setAiResearchIntent({id:crypto.randomUUID(),question:event.detail.question.slice(0,4000),onchainAttachment:embedded&&event.detail.onchainAttachment?structuredClone(event.detail.onchainAttachment):null,includeMarket:event.detail.includeMarket !== false && page === 'market' && tab === '图表'});
+      let pageAction=null;
+      if(event.detail.pageAction){try{pageAction=validatePageAIIntent(event.detail.pageAction,terminalTarget,terminalContext);}catch{return;}}
+      const strategyAttachment=event.detail.strategyAttachment;
+      if(strategyAttachment&&(!strategyAttachmentMatches(strategyAttachment,embedded?terminalContext:null)||event.detail.pageAction||event.detail.paperReviewAttachment))return;
+      const paperReviewAttachment=event.detail.paperReviewAttachment;
+      if(paperReviewAttachment&&(pageAction||!paperReviewAttachmentMatches(paperReviewAttachment,embedded?terminalContext:null,marketSymbol)))return;
+      setAiResearchIntent({id:crypto.randomUUID(),question:event.detail.question.slice(0,4000),strategyAttachment:strategyAttachment?structuredClone(strategyAttachment):null,pageAction,paperReviewAttachment:paperReviewAttachment?structuredClone(paperReviewAttachment):null,onchainAttachment:embedded&&event.detail.onchainAttachment?structuredClone(event.detail.onchainAttachment):null,includeNews:Boolean(pageAction?.requiredSources.includes('cached_news')),includeOnchain:Boolean(pageAction?.requiredSources.includes('onchain_snapshot')),includeMarket:(pageAction?pageAction.requiredSources.includes('market_ohlcv'):event.detail.includeMarket !== false) && page === 'market' && tab === '图表'});
       setOverlay(null);setAiFloatOpen(true);
+      event.detail.accepted=true;
     };
     if(embedded)window.addEventListener('terminal:research', research);
     window.addEventListener('ai-trading-assistant-research-intent',research);
     return () => {window.removeEventListener('terminal:research', research);window.removeEventListener('ai-trading-assistant-research-intent',research);};
-  }, [embedded,page,tab]);
+  }, [embedded,page,tab,terminalTarget,terminalContext,marketSymbol]);
   const [backendStatus, setBackendStatus] = useState({ connected: false, status: "checking" });
   useEffect(() => {
     const navigate = () => {
@@ -357,7 +401,7 @@ export function App({ embedded = false, terminalTarget = null, terminalContext =
     return () => { active = false; clearInterval(timer); };
   }, []);
   useEffect(() => {
-    localStorage.setItem("ai-trading-assistant-workspace", JSON.stringify({ page, tab }));
+    if (!embedded) localStorage.setItem("ai-trading-assistant-workspace", JSON.stringify({ page, tab }));
     if (canvasRef.current) canvasRef.current.scrollTop = 0;
   }, [page, tab]);
   useEffect(() => {
@@ -386,8 +430,19 @@ export function App({ embedded = false, terminalTarget = null, terminalContext =
       setAiFloatOpen(true);
       return;
     }
-    setOverlay({ type, title, ...payload });
+    setOverlay({ type, title, ...payload, strategyScope:type==="strategyCreate"?strategyDraftScope(embedded,terminalContext):null });
   };
+  useEffect(()=>{
+    const adopt=event=>{
+      const detail=event.detail;
+      if(!embedded||!detail||detail.principal!==strategySessionIdentity()||detail.scope!==strategyContextIdentity()||!detail.draft||detail.draft.status!=="草稿")return;
+      setAiFloatOpen(false);
+      openOverlay('strategyCreate','审阅AI参数草稿',{strategy:detail.draft});
+      detail.accepted=true;
+    };
+    window.addEventListener('terminal:strategy-suggestion-draft',adopt);
+    return()=>window.removeEventListener('terminal:strategy-suggestion-draft',adopt);
+  },[embedded,terminalContext]);
   const restoreWorkspace = packet => {
     const target=workspaceRestorePlan(packet);
     if(target.tab&&!META[target.page].tabs.includes(target.tab))throw Error("工作区频道不受支持，请保持当前工作区");
@@ -481,6 +536,7 @@ export function App({ embedded = false, terminalTarget = null, terminalContext =
           onMarketAction={(type) => setMarketCommand({ type, id: Date.now() })}
         />
       </div>
+      {embedded && terminalTarget && terminalContext && <PageAIGuide feature={terminalTarget} context={terminalContext}/>}
       <main className={`canvas ${page === "market" && marketSideOpen ? "market-drawer-open" : ""}`} ref={canvasRef}>
         {embedded && terminalContext?.market === "onchain" && (page === "chain" || page === "assets" || page === "more" && tab === "钱包") && <TerminalOnchainWorkspace context={terminalContext}/> }
         {page === "home" ? (
@@ -540,8 +596,9 @@ export function App({ embedded = false, terminalTarget = null, terminalContext =
           sidebarMode={sidebarMode}
         />
       )}
-      {overlay && (
+      {overlay && (overlay.type!=="strategyCreate"||overlay.strategyScope===strategyDraftScope(embedded,terminalContext)) && (
         <ActionOverlay
+          key={overlay.type+':'+(overlay.strategyScope||'')+':'+(overlay.strategy?.id||overlay.strategy?.source_snapshot_id||'new')}
           workspaceContext={workspaceContext} workspaceAgentOpen={aiFloatOpen} onRestoreWorkspace={restoreWorkspace}
           model={overlay}
           close={() => setOverlay(null)}
@@ -3386,7 +3443,7 @@ function Strategy({
           </select>
         </div>}
         {category === 0 ? (
-          <StrategyNotebook say={say} setSavedStrategies={setSavedStrategies} />
+          <StrategyNotebook say={say} setSavedStrategies={setSavedStrategies} openOverlay={openOverlay} />
         ) : category === 1 && tab === "我的套利" ? (
           savedStrategies.length ? (
             <div className="saved-strategies">
@@ -3400,12 +3457,15 @@ function Strategy({
                     </small>
                   </span>
                   <em className={s.status === "已暂停" ? "paused" : ""}>
-                    {s.status || "运行中"}
+                    {localStrategyLabel(s)}
                   </em>
                   <button
+                    disabled={s.status === "草稿"}
+                    title="仅修改本地模拟记录，不启动服务端策略"
                     onClick={() => {
-                      const status =
-                        s.status === "已暂停" ? "运行中" : "已暂停";
+                      const next = toggleLocalStrategy(s);
+                      if(next===s)return say("草稿尚未启动，请先编辑并审阅参数");
+                      const status=next.status;
                       setSavedStrategies(
                         savedStrategies.map((item) =>
                           item.id === s.id ? { ...item, status } : item,
@@ -3414,7 +3474,7 @@ function Strategy({
                       say(`${s.name} ${status}`);
                     }}
                   >
-                    {s.status === "已暂停" ? "恢复" : "暂停"}
+                    {s.status === "草稿" ? "待审阅" : s.status === "已暂停" ? "恢复本地记录" : "暂停本地记录"}
                   </button>
                   <button
                     onClick={() =>
@@ -3454,7 +3514,7 @@ function Strategy({
           )
         ) : category !== 1 ? (
           category === 7 || category === 8
-            ? <CapitalTracker mode={category === 7 ? "main" : "hot"} say={say} setSavedStrategies={setSavedStrategies} />
+            ? <CapitalTracker mode={category === 7 ? "main" : "hot"} say={say} setSavedStrategies={setSavedStrategies} openOverlay={openOverlay} />
             : <StrategyProductWorkbench category={category} openOverlay={openOverlay} say={say} authorizedAccounts={authorizedAccounts} />
         ) : tab === "自动赚币" ? (
           <AutoEarnPanel openOverlay={openOverlay} say={say} favorites={arbFavorites} setFavorites={setArbFavorites} />
@@ -5044,17 +5104,29 @@ function ActionOverlay({
   const [value, setValue] = useState("");
   const [choice, setChoice] = useState(prefs.currency);
   const [step, setStep] = useState(1);
-  const [strategyForm, setStrategyForm] = useState({
+  const [strategyForm, setStrategyForm,clearStrategyBuffer,strategyBufferError] = useStrategyEditor(model.type==='strategyCreate'?model.strategyScope:null,model.strategy?.id||(model.strategy?.source_snapshot_id?'suggestion:'+model.strategy.source_snapshot_id:null),{
     id: model.strategy?.id,
     name:
       model.strategy?.name ||
       `${model.strategy?.coin || "BTC"} ${model.strategy?.type || "正向套利"}`,
-    coin: model.strategy?.coin || "BTC",
+    coin: model.strategy?.coin ?? "BTC",
     type: model.strategy?.type || "正向套利",
     annualized: model.strategy?.annualized || "--",
-    amount: model.strategy?.amount || "1000",
+    amount: model.strategy?.amount ?? "1000",
     risk: model.strategy?.risk || "稳健",
     platform: model.strategy?.platform || "币安 + OKX",
+    trigger: model.strategy?.trigger || "",
+    invalidation: model.strategy?.invalidation || "",
+    constraints: model.strategy?.constraints || "",
+    status: model.strategy?.status || "草稿",
+    source_snapshot_id:model.strategy?.source_snapshot_id||"",
+    source_request_id:model.strategy?.source_request_id||"",
+    source_content_hash:model.strategy?.source_content_hash||"",
+    source_note_id:model.strategy?.source_note_id||"",
+    ...(model.strategy?.grid?{grid:structuredClone(model.strategy.grid)}:{}),
+    ...(model.strategy?.dca?{dca:structuredClone(model.strategy.dca)}:{}),
+    ...(model.strategy?.budget_currency?{budget_currency:model.strategy.budget_currency}:{}),
+    ...(model.strategy?.quote_currency?{quote_currency:model.strategy.quote_currency}:{}),
   });
   const [groupForm, setGroupForm] = useState({
     name: "",
@@ -5240,7 +5312,7 @@ function ActionOverlay({
                     })
                   }
                 >
-                  {["币安 + OKX", "币安 + Bybit", "OKX + Bitget"].map(
+                  {[...new Set(["币安 + OKX", "币安 + Bybit", "OKX + Bitget",strategyForm.platform])].map(
                     (platform) => (
                       <option key={platform}>{platform}</option>
                     ),
@@ -5262,6 +5334,25 @@ function ActionOverlay({
             ) : (
               <div className="wizard-review">
                 <h3>{strategyForm.name}</h3>
+                {strategyForm.grid&&<p>网格配置：等差区间 {strategyForm.grid.lower}–{strategyForm.grid.upper} · {strategyForm.grid.intervals} 格。请回网格工作区修改专属参数后重新准备。</p>}
+                {strategyForm.dca&&<p>DCA配置：{strategyForm.dca.frequency} · 首次计划 {strategyForm.dca.first_run_local||'未指定'}（用户本地时间，无后台排程）；止盈意向 {strategyForm.dca.take_profit_percent||'未指定'}%。请回原DCA页面修改专属参数。</p>}
+                {strategyForm.source_snapshot_id&&<p>研究来源：{strategyForm.source_snapshot_id} · 本次另存草稿，不覆盖原策略。</p>}
+                <small role="status">{strategyBufferError?"本机缓冲保存失败；请保留当前窗口并手动保存草稿":"未提交参数保存在当前会话；可回到原账户继续编辑，不会自动发送"}</small>
+                {[["trigger","触发条件"],["invalidation","失效与停止条件"],["constraints","预算与风险约束"]].map(([key,label])=><label key={key}>{label}<textarea aria-label={label} maxLength={key==='constraints'?400:200} value={strategyForm[key]} onChange={event=>setStrategyForm({...strategyForm,[key]:event.target.value})}/></label>)}
+                <button type="button" onClick={()=>{
+                  try {
+                    const prepared=strategyParameterReview(strategyForm,workspaceContext);
+                    const record={...strategyForm,id:strategyForm.id||Date.now(),status:"草稿"};
+                    setStrategyForm(record);
+                    setSavedStrategies(items=>strategyForm.id?items.map(item=>item.id===record.id?record:item):[...items,record]);
+                    clearStrategyBuffer();
+                    const detail={question:prepared.question,includeMarket:false};
+                    window.dispatchEvent(new CustomEvent('ai-trading-assistant-research-intent',{detail}));
+                    if(!detail.accepted)return say("草稿已保存，AI面板未接收，请重新打开审阅");
+                    say("草稿已保存，请在AI面板核对参数后手动发送");
+                  }catch(error){say(error.message);}
+                }}>保存草稿并准备 AI 参数审阅</button>
+                <StrategyMaterialPreview form={strategyForm}/>
                 <p>
                   <span>交易组合</span>
                   <b>
@@ -5274,7 +5365,7 @@ function ActionOverlay({
                 </p>
                 <p>
                   <span>投入金额</span>
-                  <b>{strategyForm.amount} USDT</b>
+                  <b>{strategyForm.amount} {strategyForm.budget_currency||'币种待核对'}</b>
                 </p>
                 <p>
                   <span>风险偏好</span>
@@ -5294,9 +5385,9 @@ function ActionOverlay({
               <button
                 className="overlay-primary"
                 onClick={() => {
-                  if (step === 1 && !strategyForm.name.trim())
-                    return say("请填写策略名称");
-                  if (step === 2 && Number(strategyForm.amount) < 10)
+                  if (step === 1 && (!strategyForm.name.trim()||!strategyForm.coin.trim()))
+                    return say("请填写策略名称与标的");
+                  if (step === 2 && (!/^\d+(\.\d+)?$/.test(strategyForm.amount)||!Number.isFinite(Number(strategyForm.amount))||Number(strategyForm.amount) < 10))
                     return say("投入金额不能低于 10 USDT");
                   if (step < 3) return setStep(step + 1);
                   const record = {
@@ -5310,6 +5401,7 @@ function ActionOverlay({
                         )
                       : [...savedStrategies, record],
                   );
+                  clearStrategyBuffer();
                   done(strategyForm.id ? "策略已更新" : "策略已创建");
                 }}
               >

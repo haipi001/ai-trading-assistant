@@ -7,6 +7,8 @@ from datetime import timezone
 from decimal import Decimal
 from typing import Any
 
+from app.core.tenant_context import current_tenant_id, bind_tenant, reset_tenant
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -77,10 +79,18 @@ class DemoStatusPayload:
 
 
 class DemoSeedService:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, *, user_id: str | None = None):
         self.db = db
+        self.user_id = current_tenant_id() or user_id or "default-user"
 
     def seed(self) -> DemoStatusPayload:
+        token = bind_tenant(self.user_id)
+        try:
+            return self._seed()
+        finally:
+            reset_tenant(token)
+
+    def _seed(self) -> DemoStatusPayload:
         data_service = DataSourceService(self.db)
         data_service.ensure_default_connections()
         data_service.ensure_readonly_account_placeholders()
@@ -243,6 +253,13 @@ class DemoSeedService:
         return self.build_status()
 
     def build_status(self) -> DemoStatusPayload:
+        token = bind_tenant(self.user_id)
+        try:
+            return self._build_status()
+        finally:
+            reset_tenant(token)
+
+    def _build_status(self) -> DemoStatusPayload:
         positions = list(self.db.scalars(select(Position)).all())
         assets = {asset.id: asset for asset in self.db.scalars(select(Asset)).all()}
         theses = list(self.db.scalars(select(InvestmentThesis)).all())
@@ -598,11 +615,12 @@ class DemoSeedService:
         return report
 
     def _ensure_account(self) -> Account:
-        existing = self.db.scalar(select(Account).where(Account.name == DEMO_ACCOUNT_NAME).limit(1))
+        existing = self.db.scalar(select(Account).where(Account.name == DEMO_ACCOUNT_NAME, Account.user_id == self.user_id).limit(1))
         if existing is not None:
             return existing
 
         account = Account(
+            user_id=self.user_id,
             name=DEMO_ACCOUNT_NAME,
             account_type="brokerage",
             broker="demo_seed",
@@ -735,14 +753,14 @@ class DemoSeedService:
     def _ensure_constitution(self) -> InvestmentConstitution:
         existing = self.db.scalar(
             select(InvestmentConstitution)
-            .where(InvestmentConstitution.user_id == DEMO_USER_ID, InvestmentConstitution.name == "Demo Constitution")
+            .where(InvestmentConstitution.user_id == self.user_id, InvestmentConstitution.name == "Demo Constitution")
             .limit(1)
         )
         if existing is not None:
             return existing
 
         constitution = InvestmentConstitution(
-            user_id=DEMO_USER_ID,
+            user_id=self.user_id,
             version="v1",
             name="Demo Constitution",
             investment_style="disciplined",
@@ -769,7 +787,7 @@ class DemoSeedService:
             action="demo_seed.constitution_created",
             entity_type="InvestmentConstitution",
             entity_id=constitution.id,
-            payload_json={"user_id": DEMO_USER_ID},
+            payload_json={"user_id": self.user_id},
         )
         self.db.commit()
         self.db.refresh(constitution)
@@ -781,7 +799,7 @@ class DemoSeedService:
             budget = self.db.scalar(
                 select(RiskBudget)
                 .where(
-                    RiskBudget.user_id == DEMO_USER_ID,
+                    RiskBudget.user_id == self.user_id,
                     RiskBudget.account_id == account.id,
                     RiskBudget.asset_class == asset_class,
                 )
@@ -789,7 +807,7 @@ class DemoSeedService:
             )
             if budget is None:
                 budget = RiskBudget(
-                    user_id=DEMO_USER_ID,
+                    user_id=self.user_id,
                     constitution_id=constitution.id,
                     account_id=account.id,
                     asset_class=asset_class,
@@ -817,7 +835,7 @@ class DemoSeedService:
     def _ensure_playbook(self) -> StrategyPlaybook:
         existing = self.db.scalar(
             select(StrategyPlaybook)
-            .where(StrategyPlaybook.user_id == DEMO_USER_ID, StrategyPlaybook.name == "Demo Quality Compounder")
+            .where(StrategyPlaybook.user_id == self.user_id, StrategyPlaybook.name == "Demo Quality Compounder")
             .limit(1)
         )
         if existing is not None:
@@ -828,7 +846,7 @@ class DemoSeedService:
             return existing
 
         playbook = StrategyPlaybook(
-            user_id=DEMO_USER_ID,
+            user_id=self.user_id,
             name="Demo Quality Compounder",
             strategy_type="fundamental_swing",
             applicable_markets=["US"],
@@ -856,7 +874,7 @@ class DemoSeedService:
     def _ensure_thesis(self, account: Account, asset: Asset, playbook: StrategyPlaybook) -> InvestmentThesis:
         existing = self.db.scalar(
             select(InvestmentThesis)
-            .where(InvestmentThesis.user_id == DEMO_USER_ID, InvestmentThesis.asset_id == asset.id)
+            .where(InvestmentThesis.user_id == self.user_id, InvestmentThesis.asset_id == asset.id)
             .order_by(InvestmentThesis.updated_at.desc(), InvestmentThesis.id.desc())
             .limit(1)
         )
@@ -889,7 +907,7 @@ class DemoSeedService:
         profile = thesis_profiles.get(asset.symbol, thesis_profiles["AAPL"])
 
         thesis = InvestmentThesis(
-            user_id=DEMO_USER_ID,
+            user_id=self.user_id,
             asset_id=asset.id,
             account_id=account.id,
             strategy_playbook_id=playbook.id,
@@ -921,7 +939,7 @@ class DemoSeedService:
         existing = self.db.scalar(
             select(AutomationPolicy)
             .where(
-                AutomationPolicy.user_id == DEMO_USER_ID,
+                AutomationPolicy.user_id == self.user_id,
                 AutomationPolicy.account_id == account.id,
                 AutomationPolicy.asset_id == asset.id,
                 AutomationPolicy.is_active.is_(True),
@@ -936,7 +954,7 @@ class DemoSeedService:
             return existing
 
         policy = AutomationPolicy(
-            user_id=DEMO_USER_ID,
+            user_id=self.user_id,
             account_id=account.id,
             asset_id=asset.id,
             strategy_playbook_id=playbook.id,
@@ -1068,7 +1086,7 @@ class DemoSeedService:
         DecisionGateService(self.db).evaluate_order(
             order_intent.id,
             {
-                "user_id": DEMO_USER_ID,
+                "user_id": self.user_id,
                 "data_snapshot_id": snapshot_id,
                 "data_quality_status": "ok",
                 "current_position_pct": current_position_pct,
@@ -1153,12 +1171,12 @@ class DemoSeedService:
     def _ensure_behavior_pattern_and_intervention(self, intent: OrderIntent) -> None:
         pattern = self.db.scalar(
             select(BehaviorPattern)
-            .where(BehaviorPattern.user_id == DEMO_USER_ID, BehaviorPattern.pattern_type == "OVERTRADING")
+            .where(BehaviorPattern.user_id == self.user_id, BehaviorPattern.pattern_type == "OVERTRADING")
             .limit(1)
         )
         if pattern is None:
             pattern = BehaviorPattern(
-                user_id=DEMO_USER_ID,
+                user_id=self.user_id,
                 pattern_type="OVERTRADING",
                 description="Seeded demo pattern for the monthly review sample.",
                 evidence_json={"source": "demo_seed"},
@@ -1176,7 +1194,7 @@ class DemoSeedService:
         )
         if intervention is None:
             intervention = BehaviorIntervention(
-                user_id=DEMO_USER_ID,
+                user_id=self.user_id,
                 pattern_id=pattern.id,
                 order_intent_id=intent.id,
                 intervention_level="HARD_CONFIRM",
@@ -1194,7 +1212,7 @@ class DemoSeedService:
         DecisionGateService(self.db).evaluate_order(
             intent.id,
             {
-                "user_id": DEMO_USER_ID,
+                "user_id": self.user_id,
                 "data_quality_status": "warning",
                 "research_report_required": True,
                 "execution_mode": "paper",
@@ -1210,7 +1228,7 @@ class DemoSeedService:
         existing = self.db.scalar(
             select(MonthlyDecisionReview)
             .where(
-                MonthlyDecisionReview.user_id == DEMO_USER_ID,
+                MonthlyDecisionReview.user_id == self.user_id,
                 MonthlyDecisionReview.period_start == start,
                 MonthlyDecisionReview.period_end == end,
             )
@@ -1219,7 +1237,7 @@ class DemoSeedService:
         if existing is not None:
             return existing
         return MonthlyDecisionReviewService(self.db).generate(
-            user_id=DEMO_USER_ID,
+            user_id=self.user_id,
             period_start=start,
             period_end=end,
         ).review

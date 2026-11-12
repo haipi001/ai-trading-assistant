@@ -25,6 +25,7 @@ from app.services.beta_analytics import BetaAnalyticsError
 from app.services.beta_analytics import BetaAnalyticsService
 from app.services.human_control import HumanControlError
 from app.services.human_control import HumanControlService
+from app.services.research_portfolio_context import PortfolioPrepare
 from app.services.product_completion import ProductCompletionError
 from app.services.product_completion import ProductCompletionService
 from app.services.production_foundation import ManagedAuthService
@@ -390,6 +391,59 @@ def research_news_snapshot(snapshot_id: str, response: Response, actor: Authenti
         raise HTTPException(404, detail={"code":"news_context_not_found"}) from None
 
 
+@router.post("/human-control/llm/chat/portfolio-context/prepare")
+def research_portfolio_prepare(payload: PortfolioPrepare, response: Response, actor: AuthenticatedUser = Depends(production_user), db: Session = Depends(get_db)) -> dict:
+    from app.services.research_portfolio_context import PortfolioContextError
+    response.headers["Cache-Control"]="no-store"
+    try:
+        return HumanControlService(db).research_portfolio_prepare(actor=actor,payload=payload.model_dump())
+    except PortfolioContextError as exc:
+        code=str(exc)
+        raise HTTPException(404 if code=="ai_portfolio_identity_mismatch" else 422,detail={"code":code}) from None
+    except HumanControlError:
+        raise HTTPException(403,detail={"code":"ai_permission_required"}) from None
+
+
+@router.get("/human-control/llm/chat/paper-review-contexts")
+def research_paper_review_history(response: Response, execution_id: str=Query(min_length=1,max_length=128), actor: AuthenticatedUser=Depends(production_user), db: Session=Depends(get_db)) -> dict:
+    response.headers["Cache-Control"]="no-store"
+    return HumanControlService(db).research_paper_review_history(actor=actor,execution_id=execution_id)
+
+
+@router.get("/human-control/llm/chat/paper-review-context/{snapshot_id}")
+def research_paper_review_snapshot(snapshot_id: str,response: Response,actor: AuthenticatedUser=Depends(production_user),db: Session=Depends(get_db)) -> dict:
+    response.headers["Cache-Control"]="no-store"
+    try:return HumanControlService(db).research_paper_review_snapshot(actor=actor,snapshot_id=snapshot_id)
+    except HumanControlError:raise HTTPException(404,detail={"code":"paper_review_context_not_found"}) from None
+
+
+@router.get("/human-control/llm/chat/portfolio-contexts")
+def research_portfolio_history(response: Response, account_id: str=Query(min_length=1,max_length=128), market: str=Query(pattern=r"^(stocks|cex)$"), actor: AuthenticatedUser=Depends(production_user), db: Session=Depends(get_db)) -> dict:
+    response.headers["Cache-Control"]="no-store"
+    try:
+        return HumanControlService(db).research_portfolio_history(actor=actor,account_id=account_id,market=market)
+    except HumanControlError:
+        raise HTTPException(403,detail={"code":"ai_permission_required"}) from None
+
+
+@router.get("/human-control/llm/chat/portfolio-context/{snapshot_id}")
+def research_portfolio_snapshot(snapshot_id: str, response: Response, actor: AuthenticatedUser=Depends(production_user), db: Session=Depends(get_db)) -> dict:
+    response.headers["Cache-Control"]="no-store"
+    try:
+        return HumanControlService(db).research_portfolio_snapshot(actor=actor,snapshot_id=snapshot_id)
+    except HumanControlError:
+        raise HTTPException(404,detail={"code":"portfolio_context_not_found"}) from None
+
+
+@router.get("/human-control/llm/chat/market-contexts")
+def research_market_history(response: Response, symbol: str = Query(default="",pattern=r"^[A-Za-z0-9.^_-]{0,24}$"), market_type: str = Query(default="",pattern=r"^(spot|stock)?$"), actor: AuthenticatedUser = Depends(production_user), db: Session = Depends(get_db)) -> dict:
+    response.headers["Cache-Control"] = "no-store"
+    try:
+        return HumanControlService(db).research_market_history(actor=actor,symbol=symbol,market_type=market_type)
+    except HumanControlError:
+        raise HTTPException(403,detail={"code":"ai_permission_required"}) from None
+
+
 @router.get("/human-control/llm/chat/market-context/{snapshot_id}")
 def research_market_snapshot(snapshot_id: str, response: Response, actor: AuthenticatedUser = Depends(production_user), db: Session = Depends(get_db)) -> dict:
     response.headers["Cache-Control"] = "no-store"
@@ -425,7 +479,7 @@ async def research_chat(request: Request, response: Response, actor: Authenticat
         if len(raw) > 200000:
             raise ValueError()
         payload = json.loads(raw)
-        if not isinstance(payload, dict) or set(payload) - {"question", "page", "symbol", "history", "response_style", "include_news", "market_context", "onchain_context"}:
+        if not isinstance(payload, dict) or set(payload) - {"question", "page", "symbol", "history", "response_style", "include_news", "market_context", "onchain_context", "portfolio_context", "paper_review_context", "strategy_context"}:
             raise ValueError()
     except (ValueError, TypeError):
         raise HTTPException(422, detail={"code": "ai_question_invalid"}) from None

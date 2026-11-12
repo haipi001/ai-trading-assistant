@@ -11,7 +11,7 @@ def create_thesis(client: TestClient, asset_id: str, strategy_playbook_id: str) 
     response = client.post(
         "/investment-theses",
         json={
-            "user_id": "human-user",
+            "user_id": "default-user",
             "asset_id": asset_id,
             "strategy_playbook_id": strategy_playbook_id,
             "entry_reason": "Buy only when momentum confirms the existing thesis.",

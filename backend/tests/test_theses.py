@@ -38,7 +38,7 @@ def capture_thesis(client: TestClient, asset_id: str) -> dict:
     response = client.post(
         "/theses/capture",
         json={
-            "user_id": "user-1",
+            "user_id": "default-user",
             "asset_id": asset_id,
             "data_snapshot_id": TRUSTED_THESIS_SNAPSHOT_ID,
             "user_rationale": "I want to own NVDA while datacenter demand and margin strength remain intact.",
@@ -79,7 +79,7 @@ def test_capture_thesis_blocks_untrusted_snapshot_before_ai_generation(client: T
     response = client.post(
         "/theses/capture",
         json={
-            "user_id": "user-1",
+            "user_id": "default-user",
             "asset_id": asset["id"],
             "data_snapshot_id": "unknown-thesis-snapshot",
             "user_rationale": "Only capture this thesis when its market facts are trusted.",
@@ -184,7 +184,7 @@ def test_create_thesis_violation_message(client: TestClient) -> None:
     response = client.post(
         f"/theses/{thesis['id']}/violation-message",
         json={
-            "user_id": "user-1",
+            "user_id": "default-user",
             "current_action": "Sell because of a small intraday dip despite intact datacenter thesis.",
             "intervention_level": "HARD_CONFIRM",
         },
@@ -351,7 +351,7 @@ def test_reject_unsupported_ai_output(client: TestClient, monkeypatch) -> None:
     response = client.post(
         "/theses/capture",
         json={
-            "user_id": "user-1",
+            "user_id": "default-user",
             "asset_id": asset["id"],
             "data_snapshot_id": TRUSTED_THESIS_SNAPSHOT_ID,
             "user_rationale": "Buy only if the thesis is structurally sound.",

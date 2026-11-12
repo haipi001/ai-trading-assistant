@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="integration/appearance.tokens.css">
 <link rel="stylesheet" href="integration/appearance.generated.css">
 <link rel="stylesheet" href="integration/appearance.css">
+<link rel="stylesheet" href="integration/shell.css?v=20261112-navigation">
 </head>
 <body>
 
@@ -152,19 +153,28 @@
     document.title = "BOOTERROR line " + e.lineno + ": " + e.message;
   });
 </script>
-<script src="integration/registry.js?v=2"></script>
-<script src="app.js?v=integration-7"></script>
-<script src="workspace.js?v=integration-4"></script>
+<script src="integration/registry.js?v=20261112-navigation"></script>
+<script src="app.js?v=20261112-navigation"></script>
+<script src="workspace.js?v=20261112-navigation"></script>
+<script src="integration/shell.js?v=20261112-navigation"></script>
 <div id="integration-boot-status" role="status" style="position:fixed;bottom:26px;right:12px;z-index:10000;padding:8px 12px;background:var(--ui-surface,#18212b);color:var(--ui-text,#e5edf5);font:12px monospace">正在加载市场与AI工作区…</div>
 <script>
   function startTerminalIntegration() {
-  import('./integration/desk.mjs?v=10').then(() => {
+  if (location.protocol === 'file:') {
+    const status=document.getElementById('integration-boot-status');
+    status.replaceChildren();status.setAttribute('role','alert');
+    const message=document.createElement('span');message.textContent='完整工作区需要本地服务。请运行 start.command，或打开： / Start the local server, then open: ';
+    const link=document.createElement('a');link.href='http://127.0.0.1:8850/index.html'+location.search+location.hash;link.textContent='打开完整终端 / Open terminal';
+    status.append(message,link);return;
+  }
+  import('./integration/desk.mjs?v=11').then(() => {
     document.getElementById('integration-boot-status')?.remove();
   }).catch(error => {
     const status = document.getElementById('integration-boot-status');
     if (status) {
       status.setAttribute('role','alert');
       status.textContent = '市场与AI工作区未能启动，请刷新或重新运行 start.command。' + String(error?.message || '').slice(0,200);
+      const retry=document.createElement('button');retry.textContent='重新加载工作区 / Retry';retry.onclick=()=>location.reload();status.append(document.createTextNode(' '),retry);
     }
     console.error('Terminal integration startup failed', error);
   });

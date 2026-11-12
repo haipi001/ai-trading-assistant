@@ -101,7 +101,7 @@ def pass_decision_gates(client: TestClient, order_intent_id: str, account_id: st
     constitution_response = client.post(
         "/investment-constitutions",
         json={
-            "user_id": "user-1",
+            "user_id": "default-user",
             "version": "v1",
             "name": "Risk approval test constitution",
             "investment_style": "disciplined",
@@ -127,7 +127,7 @@ def pass_decision_gates(client: TestClient, order_intent_id: str, account_id: st
     risk_budget_response = client.post(
         "/risk-budgets",
         json={
-            "user_id": "user-1",
+            "user_id": "default-user",
             "constitution_id": constitution["id"],
             "account_id": account_id,
             "asset_class": "stock",
@@ -155,7 +155,7 @@ def pass_decision_gates(client: TestClient, order_intent_id: str, account_id: st
         "/decision-gates/evaluate",
         json={
             "order_intent_id": order_intent_id,
-            "user_id": "user-1",
+            "user_id": "default-user",
             "data_snapshot_id": snapshot_id,
             "current_position_pct": 0,
             "order_position_pct": 0.01,

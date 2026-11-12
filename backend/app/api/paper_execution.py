@@ -2,11 +2,13 @@ from app.core.auth import require_permission, AuthenticatedUser
 from pydantic import BaseModel
 from fastapi import APIRouter
 from fastapi import Depends
-from fastapi import HTTPException
-from sqlalchemy import select
+from fastapi import HTTPException, Response
+from datetime import datetime, timezone
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.models import AuditLog
 from app.models import Execution
 from app.models import OrderDraft
 from app.models import PaperCorporateAction
@@ -32,6 +34,8 @@ from app.services.paper_execution import PaperExecutionService
 
 from app.schemas.core import ManualPaperEvidenceRead
 from app.services.manual_trade_evidence import ManualEvidenceError, prepare_manual_evidence, read_manual_evidence
+
+from app.services.research_paper_review_context import PaperReviewPrepare,PaperReviewReference,PaperReviewMaterialError,prepare_paper_review_context,load_paper_review_context
 
 router = APIRouter(tags=["paper-execution"])
 
@@ -213,19 +217,34 @@ def list_post_trade_reviews(limit: int = 100, db: Session = Depends(get_db)) -> 
     )
 
 
-@router.patch("/post-trade-reviews/{review_id}", response_model=PostTradeReviewRead, dependencies=[Depends(require_permission("proposal:create"))])
+@router.patch("/post-trade-reviews/{review_id}", response_model=PostTradeReviewRead)
 def update_post_trade_review(
     review_id: str,
     payload: PostTradeReviewUpdate,
+    actor: AuthenticatedUser = Depends(require_permission("proposal:create")),
     db: Session = Depends(get_db),
 ) -> PostTradeReview:
-    review = db.get(PostTradeReview, review_id)
+    review = db.scalar(select(PostTradeReview).where(PostTradeReview.id == review_id,
+        PostTradeReview.user_id == actor.user_id))
     if review is None:
         raise HTTPException(status_code=404, detail="post trade review not found")
+    def utc(value):
+        return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
+    if payload.expected_updated_at is not None and utc(payload.expected_updated_at) != utc(review.updated_at):
+        raise HTTPException(status_code=409, detail="post trade review changed; reload before saving")
+    values = {"updated_at": datetime.now(timezone.utc)}
     if payload.status is not None:
-        review.status = payload.status
+        values["status"] = payload.status
     if payload.review_json is not None:
-        review.review_json = payload.review_json
+        values["review_json"] = payload.review_json
+    result = db.execute(update(PostTradeReview).where(PostTradeReview.id == review.id,
+        PostTradeReview.user_id == actor.user_id, PostTradeReview.updated_at == review.updated_at).values(**values))
+    if result.rowcount != 1:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="post trade review changed; reload before saving")
+    db.add(AuditLog(actor_type="user", actor_id=actor.user_id, user_id=actor.user_id,
+        action="post_trade_review.updated", entity_type="PostTradeReview", entity_id=review.id,
+        payload_json={"status": values.get("status", review.status), "version_checked": payload.expected_updated_at is not None}))
     db.commit()
     db.refresh(review)
     return review
@@ -247,3 +266,25 @@ def get_manual_paper_evidence(order_intent_id: str, db: Session = Depends(get_db
         return read_manual_evidence(db, order_intent_id)
     except ManualEvidenceError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+
+@router.post('/paper-executions/{execution_id}/research-material')
+def prepare_paper_review_material(execution_id: str,payload: PaperReviewPrepare,response: Response,
+    actor: AuthenticatedUser = Depends(require_permission('read')),db: Session = Depends(get_db)):
+    try:
+        result=prepare_paper_review_context(db,actor.user_id,execution_id,payload.model_dump())
+    except PaperReviewMaterialError as exc:
+        raise HTTPException(404 if str(exc)=='ai_paper_review_source_unavailable' else 422,detail={'code':str(exc)}) from exc
+    response.headers['Cache-Control']='no-store'
+    return result
+
+
+@router.post('/paper-research-material/validate')
+def validate_paper_review_material(payload: PaperReviewReference,response: Response,
+    actor: AuthenticatedUser = Depends(require_permission('read')),db: Session = Depends(get_db)):
+    try:material=load_paper_review_context(db,actor.user_id,payload.model_dump())
+    except PaperReviewMaterialError as exc:
+        raise HTTPException(404 if str(exc)=='ai_paper_review_source_unavailable' else 422,detail={'code':str(exc)}) from exc
+    response.headers['Cache-Control']='no-store'
+    return {'provided_paper_review':material,'execution_available':False}

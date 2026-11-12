@@ -32,7 +32,7 @@ from fastapi.testclient import TestClient
 from test_decision_gates import create_asset,create_account,create_constitution,create_risk_budget
 import uvicorn
 allowed=('/accounts','/assets','/investment-constitutions','/risk-budgets','/mock/update-quotes',
-    '/quotes','/orders','/decision-gates','/risk','/paper-executions','/reports','/investment-theses',
+    '/quotes','/theses/manual-paper','/orders','/decision-gates','/risk','/paper-executions','/paper-research-material/validate','/reports','/investment-theses',
     '/positions','/reviews','/trade-journal-entries','/post-trade-reviews','/api/v2/workspaces','/health','/openapi.json')
 if args.research:allowed+=('/data-sources','/data-catalog')
 app=FastAPI(title='Controlled Paper fixture: mock data only')
@@ -82,7 +82,7 @@ with TestClient(app) as client:
             saved=db.get(InvestmentConstitution,constitution['id'])
             saved.allowed_markets=['US','GLOBAL']
             db.commit()
-        budget=client.post('/risk-budgets',json={'user_id':'user-1','constitution_id':constitution['id'],'account_id':cex.json()['id'],'asset_class':'crypto','max_allocation_pct':0.2,'max_loss_pct':0.08,'max_order_notional':1000,'max_leverage':1,'rebalance_threshold_pct':0.05})
+        budget=client.post('/risk-budgets',json={'user_id':owner,'constitution_id':constitution['id'],'account_id':cex.json()['id'],'asset_class':'crypto','max_allocation_pct':0.2,'max_loss_pct':0.08,'max_order_notional':1000,'max_leverage':1,'rebalance_threshold_pct':0.05})
         assert budget.status_code==201,budget.text
         connection=client.post('/data-sources/connections',json={'name':'Controlled CEX research source','provider':'mock_market_data','source_type':'market_data','mode':'read_only'})
         assert connection.status_code==201,connection.text

@@ -17,7 +17,7 @@ def prepared(client):
     )
     def attach_policy(db):
         policy = AutomationPolicy(
-            user_id='user-1', account_id=intent['account_id'], asset_id=intent['asset_id'],
+            user_id='default-user', account_id=intent['account_id'], asset_id=intent['asset_id'],
             automation_level='A3_ORDER_DRAFT', max_notional_per_order=10000,
             allowed_actions=['CREATE_ORDER_DRAFT'], forbidden_actions=[], is_active=True,
         )
@@ -46,10 +46,10 @@ def mutate(kind, intent):
             db.flush()
             thesis.asset_id = asset.id
         elif kind == 'forbidden_asset':
-            constitution = db.scalar(select(InvestmentConstitution).where(InvestmentConstitution.user_id == 'user-1'))
+            constitution = db.scalar(select(InvestmentConstitution).where(InvestmentConstitution.user_id == 'default-user'))
             constitution.forbidden_assets = [intent['asset_id']]
         elif kind == 'class_limit':
-            constitution = db.scalar(select(InvestmentConstitution).where(InvestmentConstitution.user_id == 'user-1'))
+            constitution = db.scalar(select(InvestmentConstitution).where(InvestmentConstitution.user_id == 'default-user'))
             constitution.max_asset_class_pct = 0.001
         elif kind == 'playbook_inactive':
             db.get(StrategyPlaybook, thesis.strategy_playbook_id).is_active = False
@@ -60,7 +60,7 @@ def mutate(kind, intent):
             rule = db.scalar(select(StrategyRule).where(StrategyRule.strategy_playbook_id == thesis.strategy_playbook_id))
             rule.rule_type, rule.conditions_json = 'min_thesis_confidence', {'min_confidence': 0.9}
         elif kind == 'behavior_block':
-            db.add(BehaviorIntervention(user_id='user-1', order_intent_id=order.id,
+            db.add(BehaviorIntervention(user_id='default-user', order_intent_id=order.id,
                 intervention_level='BLOCK', message='Persisted control fixture'))
         elif kind == 'policy_asset':
             from app.models import Asset
@@ -107,9 +107,9 @@ def test_hard_confirm_requires_explicit_response_but_unrelated_intervention_does
     ids = []
     def add(db):
         other = db.scalar(select(OrderIntent).where(OrderIntent.id != intent['id']))
-        db.add(BehaviorIntervention(user_id='user-1', order_intent_id=other.id,
+        db.add(BehaviorIntervention(user_id='default-user', order_intent_id=other.id,
             intervention_level='BLOCK', message='Unrelated order'))
-        item = BehaviorIntervention(user_id='user-1', order_intent_id=intent['id'],
+        item = BehaviorIntervention(user_id='default-user', order_intent_id=intent['id'],
             intervention_level='HARD_CONFIRM', message='Confirm fixture')
         db.add(item)
         db.flush()

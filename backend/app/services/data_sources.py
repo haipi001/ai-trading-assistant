@@ -2000,7 +2000,7 @@ class DataSourceService:
                 .order_by(DataSnapshot.created_at.desc(), DataSnapshot.id.desc())
                 .limit(limit)
             )
-        query = query.where(DataSnapshot.snapshot_type.notin_(["research_chat_news_context","research_chat_market_context","research_chat_onchain_context"]))
+        query = query.where(DataSnapshot.snapshot_type.notin_(["research_chat_news_context","research_chat_market_context","research_chat_onchain_context","research_chat_portfolio_context","terminal_portfolio_ledger","terminal_paper_review_context","research_chat_paper_review_context","terminal_strategy_parameters","research_chat_strategy_context","terminal_backtest_research_material"]))
         return list(self.db.scalars(query).all())
 
     def list_quality_reports(self, source: str | None = None, limit: int = 10) -> list[DataQualityReport]:

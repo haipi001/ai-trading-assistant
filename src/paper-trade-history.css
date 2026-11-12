@@ -1,0 +1,6 @@
+.paper-ledger-history{min-width:0;padding:16px;color:inherit;font:inherit}
+.paper-ledger-history p{font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.paper-ledger-history button{margin:4px 8px 8px 0;font:inherit}
+.paper-ledger-history table{width:100%;border-collapse:collapse;font-size:12px;text-align:left;font-variant-numeric:tabular-nums}
+.paper-ledger-history th,.paper-ledger-history td{padding:9px 10px;border-bottom:1px solid var(--ui-border,#7775);white-space:nowrap}
+.paper-ledger-history th{font-weight:600}

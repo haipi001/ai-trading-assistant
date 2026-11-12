@@ -27,7 +27,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import workspaces,terminal_onchain,health
 from app.db.base import Base
 from app.db.session import get_db
-from app.models import Wallet,TokenAllowance,ProtocolPosition
+from app.models import Wallet,TokenAllowance,ProtocolPosition,Account,Asset,Position
 from app.models.core import utc_now
 from app.adapters.evm_rpc_readonly import EvmRpcReadOnlyAdapter,EvmRpcError
 from sqlalchemy import create_engine
@@ -43,6 +43,12 @@ if a.research:
     allowed={
         '/production/human-control/llm/chat/status',
         '/production/human-control/llm/chat',
+        '/production/human-control/llm/chat/portfolio-context/prepare',
+        '/production/human-control/llm/chat/portfolio-contexts',
+        '/production/human-control/llm/chat/portfolio-context/{snapshot_id}',
+        '/production/human-control/llm/chat/market-contexts',
+        '/production/human-control/llm/chat/market-context/{snapshot_id}',
+        '/production/human-control/llm/chat/news-context/{snapshot_id}',
         '/production/human-control/llm/chat/onchain-contexts',
         '/production/human-control/llm/chat/onchain-context/{snapshot_id}',
     }
@@ -60,6 +66,13 @@ with sessions() as db:
         db.add(Wallet(id='public-reference',user_id='default-user',address='0x000000000000000000000000000000000000dEaD',chain='ethereum',label='Public reference address · real read-only'))
     db.add(TokenAllowance(wallet_id='fixture-eth',chain='ethereum',token='Fixture token',symbol='TEST',token_address='0x'+'a'*40,spender='0x'+'3'*40,amount=1000,risk_level='high',source='controlled_fixture',as_of=utc_now()-timedelta(hours=1)))
     db.add(ProtocolPosition(wallet_id='fixture-eth',chain='ethereum',protocol_name='Controlled protocol example',position_type='exposure',asset_symbol='TEST',risk_json={'token_address':'0x'+'a'*40,'source':'controlled_fixture'},as_of=utc_now()-timedelta(hours=1)))
+    if a.research:
+        for market,kind,symbol,currency,venue in [('stocks','brokerage','AAPL','USD','NASDAQ'),('cex','exchange','ETH','USDT','币安')]:
+            aid='fixture-'+market+'-ledger';asset_id='fixture-'+symbol+'-ledger'
+            db.add(Account(id=aid,user_id='default-user',name='受控验收账本（非真实账户） · '+market,account_type=kind,broker='controlled_fixture',base_currency=currency,mode='paper',live_trading_enabled=False))
+            db.add(Asset(id=asset_id,symbol=symbol,name='Controlled ledger asset',asset_type='stock' if market=='stocks' else 'crypto',market='US' if market=='stocks' else 'GLOBAL',venue=venue,currency=currency))
+            db.flush()
+            db.add(Position(id='fixture-position-'+market,user_id='default-user',account_id=aid,asset_id=asset_id,quantity=1.25,average_cost=0,market_price=0,market_value=0))
     db.commit()
 def request(self,payload):
     mode=control.read_text().strip()
@@ -91,8 +104,17 @@ if a.research:
             if mode=='ai-fail':raise RuntimeError('Controlled model failure')
             context=kwargs['input_facts'].get('onchain_context')
             ids=[entry['id'] for entry in context['entries']] if context else []
-            citations=' '.join('['+value+']' for value in ids)
-            if mode=='ai-invalid':citations='[W999]';ids=['W999']
+            market=kwargs['input_facts'].get('market_context')
+            market_ids=['M1'] if market else []
+            portfolio=kwargs['input_facts'].get('portfolio_context')
+            portfolio_ids=[entry['id'] for entry in portfolio['entries']] if portfolio else []
+            news=kwargs['input_facts'].get('news_context')
+            news_ids=[row['id'] for row in news['articles']] if news else []
+            if mode=='ai-invalid':
+                if market:market_ids=['M999']
+                elif portfolio:portfolio_ids=['H999']
+                else:ids=['W999']
+            citations=' '.join('['+value+']' for value in ids+market_ids+news_ids+portfolio_ids)
             return json.dumps({
                 'report_id':'controlled-ui-fixture','report_type':kwargs['report_type'],
                 'agent_name':kwargs['agent_name'],'data_snapshot_id':kwargs['data_snapshot_id'],
@@ -102,7 +124,7 @@ if a.research:
                 'key_risks':['受控数据，非真实模型分析','节点观测不代表最终性或独立验证'],
                 'suggested_action':'检查来源和未知项，不执行交易','confidence':0.1,
                 'limitations':'Controlled local provider; no network, no trading report promotion',
-                'input_facts':{},'evidence':{'onchain_citation_ids':ids}})
+                'input_facts':{},'evidence':{'onchain_citation_ids':ids,'market_citation_ids':market_ids,'news_citation_ids':news_ids,'portfolio_citation_ids':portfolio_ids}})
     HumanControlService._provider_from_llm_config=lambda self,config:ControlledProvider()
 original_request=EvmRpcReadOnlyAdapter._request
 original_read=EvmRpcReadOnlyAdapter.read_wallet_snapshot

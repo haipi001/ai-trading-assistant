@@ -1,0 +1,14 @@
+.page-ai-guide{background:var(--ui-subtle,#f3f5f7);color:var(--ui-text,#202b35);border-bottom:1px solid var(--ui-line,#ccd5dd);font-size:11px;min-width:0}
+.page-ai-guide-main{display:flex;align-items:center;gap:12px;padding:9px 16px;flex-wrap:wrap}
+.page-ai-mark{display:grid;place-items:center;width:28px;height:28px;border:1px solid var(--ui-accent,#955610);color:var(--ui-accent,#955610);font-weight:700;border-radius:4px}
+.page-ai-guide-main>div{flex:1;min-width:140px}.page-ai-guide-main b,.page-ai-guide-main small{display:block}.page-ai-guide-main small{color:var(--ui-muted,#556777);margin-top:3px}
+.page-ai-guide button{padding:6px 10px;background:var(--ui-surface,#fff);color:inherit;border:1px solid var(--ui-line,#ccd5dd);border-radius:3px;font:inherit;cursor:pointer}
+.page-ai-guide-main>button:first-of-type{color:var(--ui-accent,#955610);border-color:var(--ui-accent,#955610)}
+.page-ai-guide-details{padding:0 16px 12px;line-height:1.8;max-height:200px;overflow:auto}.page-ai-guide-details ol{display:flex;flex-wrap:wrap;list-style:none;gap:12px;padding:0;margin:4px 0 10px}.page-ai-guide-details li{display:flex;gap:6px;align-items:center}.page-ai-guide-details li span{color:var(--ui-accent,#955610)}.page-ai-guide-details p{margin:6px 0}.page-ai-guide-details small{color:var(--ui-muted,#556777)}
+.terminal.terminal-embedded:has(>.page-ai-guide){grid-template-rows:44px auto minmax(0,1fr)}
+.terminal-embedded>.page-ai-guide{grid-column:1;grid-row:2}.terminal-embedded:has(>.page-ai-guide)>.canvas{grid-row:3}
+html[data-terminal-tool-only] .terminal-embedded>.page-ai-guide{display:none}
+@media(max-width:480px){.page-ai-guide-main{gap:8px;padding:8px 10px}.page-ai-mark{display:none}.page-ai-guide-main>div{flex-basis:100%}}
+.research-workflow{margin:10px 14px;padding:12px;border:1px solid var(--ui-line,#ccd5dd);background:var(--ui-subtle,#f3f5f7);font-size:11px;line-height:1.7}.research-workflow ol{display:flex;flex-wrap:wrap;gap:10px;list-style:none;padding:0;margin:8px 0}.research-workflow li{color:var(--ui-muted,#556777)}.research-workflow li[aria-current=step]{color:var(--ui-accent,#955610);font-weight:600}.research-workflow p{margin:5px 0}.research-ai-chat .research-export{font:inherit;padding:6px 10px;margin-top:10px;background:var(--ui-surface,#fff);color:var(--ui-accent,#955610);border:1px solid var(--ui-line,#ccd5dd);cursor:pointer}
+.terminal-embedded>.page-ai-guide{position:relative;z-index:14}
+.terminal-embedded:has(>.page-ai-guide) .market-side-workspace{margin-top:0;height:100%;max-height:100%}

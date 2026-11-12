@@ -1,0 +1,20 @@
+{
+  "sha256": {
+    "backend/app/services/research_paper_review_context.py": "7cc774b77a91145693068812f8c8da496081ed942687633becb5039db442c462",
+    "backend/app/api/paper_execution.py": "ab4d5f6b546cb3f61e2b91cbba9e6de0352614555e3dff7dac6fe64ecc0812a5",
+    "backend/app/services/data_sources.py": "cd3ebc995d102403eaf4ce67c0d097c0e330ab55f8b54b390232a408c6741df5",
+    "backend/tests/test_research_paper_review_context.py": "5bc0f1ba454a2efad2bdcd1dc31a9b8011ba6a6997a0f59c34369cce9960b5f9",
+    "src/paper-review-material.js": "ea8d1ce0687ae0e0665b6e53fac1c29a58cadc13637523b1d4d80cd775d24686",
+    "src/paper-review-material.jsx": "bdebf40035466984d4a15f9c960e7c87bf96786c52f9e657cd6cbe0f0be59dd0",
+    "src/paper-order-ticket.jsx": "c332ce7e318e654a975f627504491d8ba524708643c8cb7a1c594214ad1665d4",
+    "terminal-ui/tests/paper-review-material.test.mjs": "cdb70e9b627c2a3b100a66c1d0ea015586cf8fc483a7992540758a633db0c4f3"
+  },
+  "backend_related_tests_passed": 12,
+  "terminal_tests_passed": 100,
+  "terminal_build_passed": true,
+  "model_attachment_implemented": false,
+  "page_ai_adapter_enabled": false,
+  "browser_verified": false,
+  "production_deployed": false,
+  "full_goal_complete": false
+}

@@ -3841,7 +3841,7 @@
       "Help": ["HELP","SUPPORT","ABOUT"]
     };
     for (const feature of window.TERMINAL_FEATURES || []) {
-      const name = '业务 · ' + feature.page;
+      const name = window.TERMINAL_FEATURE_GROUPS?.[feature.page]?.label || '扩展工具';
       (groups[name] ||= []).push(feature.code);
     }
     keys.innerHTML = Object.entries(groups).map(([name,codes])=>
