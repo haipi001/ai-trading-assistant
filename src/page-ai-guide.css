@@ -12,3 +12,11 @@ html[data-terminal-tool-only] .terminal-embedded>.page-ai-guide{display:none}
 .research-workflow{margin:10px 14px;padding:12px;border:1px solid var(--ui-line,#ccd5dd);background:var(--ui-subtle,#f3f5f7);font-size:11px;line-height:1.7}.research-workflow ol{display:flex;flex-wrap:wrap;gap:10px;list-style:none;padding:0;margin:8px 0}.research-workflow li{color:var(--ui-muted,#556777)}.research-workflow li[aria-current=step]{color:var(--ui-accent,#955610);font-weight:600}.research-workflow p{margin:5px 0}.research-ai-chat .research-export{font:inherit;padding:6px 10px;margin-top:10px;background:var(--ui-surface,#fff);color:var(--ui-accent,#955610);border:1px solid var(--ui-line,#ccd5dd);cursor:pointer}
 .terminal-embedded>.page-ai-guide{position:relative;z-index:14}
 .terminal-embedded:has(>.page-ai-guide) .market-side-workspace{margin-top:0;height:100%;max-height:100%}
+
+/* Compact workflow entry; details remain available on demand. */
+.page-ai-guide-main{gap:8px;padding:4px 10px;min-height:34px;flex-wrap:nowrap}
+.page-ai-mark{width:22px;height:22px;font-size:10px;flex:0 0 22px}
+.page-ai-guide-main>div{min-width:0;display:flex;align-items:center;gap:8px;overflow:hidden}
+.page-ai-guide-main b{font-size:11px;white-space:nowrap}.page-ai-guide-main small{margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+.page-ai-guide-main>button{padding:4px 7px;flex-shrink:0;font-size:10px;white-space:nowrap}
+@media(max-width:680px){.page-ai-guide-main small{display:none}.page-ai-guide-main>div{flex-basis:auto}.page-ai-guide-main{gap:6px;padding:4px 8px}.page-ai-mark{display:none}}

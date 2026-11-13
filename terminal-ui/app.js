@@ -3645,6 +3645,7 @@
     $("phSub").textContent = out.sub;
     $("phRight").textContent = out.right || "";
     const ph = document.querySelector(".panel-hd");
+    if(ph)ph.hidden=Boolean(view.querySelector("iframe[data-terminal-feature]"));
     if (ph) ph.setAttribute("data-printed", App.user + " \u00b7 " + hhmmss(new Date()) + " \u00b7 " + out.title);
     view.scrollTop = st;
     App.scrollMemo[App.func] = view.scrollTop;

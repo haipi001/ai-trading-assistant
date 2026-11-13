@@ -46,3 +46,6 @@
 .shell-splitter>button{position:absolute;top:50%;left:-7px;transform:translateY(-50%);height:44px;width:21px;padding:0;background:var(--panel2);color:var(--txt);border:1px solid var(--line2);cursor:pointer}
 .menu-collapsed>.shell-splitter-left>button{left:0}.shell-resizing iframe{pointer-events:none}.shell-resizing{user-select:none}
 #menu-collapse,#menu-reopen{display:none!important}.menu-collapsed>#main>.workspace-nav{padding-left:12px}
+
+.panel-hd[hidden]{display:none!important}
+#desk-status:empty{display:none}
