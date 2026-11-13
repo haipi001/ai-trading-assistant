@@ -72,9 +72,11 @@
  for(const side of ['left','right']){
   const splitter=document.createElement('div');splitter.className='shell-splitter shell-splitter-'+side;splitter.setAttribute('role','separator');splitter.setAttribute('aria-orientation','vertical');splitter.setAttribute('aria-label',side==='left'?'调整菜单宽度':'调整工具面板宽度');splitter.tabIndex=0;splitter.setAttribute('aria-valuenow',String(widths[side]));
   const toggle=button('shell-edge-'+side,side==='left'?'‹':'›',side==='left'?'展开或收起菜单':'展开或收起右侧工具');toggle.onclick=()=>{if(side==='left')menu.click();else if(toolDialog)closeTool();else if(toolOpener)openTool(toolOpener.id.replace('tool-',''),toolOpener);else document.getElementById('tool-research').click();};splitter.append(toggle);layout.append(splitter);
-  splitter.onpointerdown=event=>{if(event.target.closest('button'))return;event.preventDefault();splitter.setPointerCapture(event.pointerId);layout.classList.add('shell-resizing');};
-  splitter.onpointermove=event=>{if(!splitter.hasPointerCapture(event.pointerId))return;const rect=layout.getBoundingClientRect();setWidth(side,side==='left'?event.clientX-rect.left:rect.right-event.clientX-48);};
-  const finish=()=>layout.classList.remove('shell-resizing');splitter.onpointerup=event=>{if(splitter.hasPointerCapture(event.pointerId))splitter.releasePointerCapture(event.pointerId);finish();};splitter.onlostpointercapture=finish;
+  let activePointer=null;
+  splitter.onpointerdown=event=>{if(event.target.closest('button'))return;event.preventDefault();activePointer=event.pointerId;splitter.setPointerCapture(event.pointerId);layout.classList.add('shell-resizing');};
+  const move=event=>{if(activePointer!==event.pointerId)return;const rect=layout.getBoundingClientRect();setWidth(side,side==='left'?event.clientX-rect.left:rect.right-event.clientX-48);};
+  const finish=()=>{if(activePointer!==null&&splitter.hasPointerCapture(activePointer))splitter.releasePointerCapture(activePointer);activePointer=null;layout.classList.remove('shell-resizing');};
+  window.addEventListener('pointermove',move);window.addEventListener('pointerup',finish);window.addEventListener('pointercancel',finish);window.addEventListener('blur',finish);splitter.onlostpointercapture=finish;
   splitter.onkeydown=event=>{if(event.target!==splitter||!['ArrowLeft','ArrowRight'].includes(event.key))return;event.preventDefault();setWidth(side,widths[side]+(event.key==='ArrowRight'?1:-1)*(side==='left'?1:-1)*16);};
  }
  window.addEventListener('resize',()=>{setWidth('left',widths.left);setWidth('right',widths.right);});
