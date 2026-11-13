@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="integration/appearance.tokens.css">
 <link rel="stylesheet" href="integration/appearance.generated.css">
 <link rel="stylesheet" href="integration/appearance.css">
-<link rel="stylesheet" href="integration/shell.css?v=20261112-navigation">
+<link rel="stylesheet" href="integration/shell.css?v=20261112-native-guide">
 </head>
 <body>
 
@@ -153,10 +153,10 @@
     document.title = "BOOTERROR line " + e.lineno + ": " + e.message;
   });
 </script>
-<script src="integration/registry.js?v=20261112-navigation"></script>
-<script src="app.js?v=20261112-navigation"></script>
-<script src="workspace.js?v=20261112-navigation"></script>
-<script src="integration/shell.js?v=20261112-navigation"></script>
+<script src="integration/registry.js?v=20261112-native-guide"></script>
+<script src="app.js?v=20261112-native-guide"></script>
+<script src="workspace.js?v=20261112-native-guide"></script>
+<script src="integration/shell.js?v=20261112-native-guide"></script>
 <div id="integration-boot-status" role="status" style="position:fixed;bottom:26px;right:12px;z-index:10000;padding:8px 12px;background:var(--ui-surface,#18212b);color:var(--ui-text,#e5edf5);font:12px monospace">正在加载市场与AI工作区…</div>
 <script>
   function startTerminalIntegration() {
@@ -167,7 +167,7 @@
     const link=document.createElement('a');link.href='http://127.0.0.1:8850/index.html'+location.search+location.hash;link.textContent='打开完整终端 / Open terminal';
     status.append(message,link);return;
   }
-  import('./integration/desk.mjs?v=11').then(() => {
+  import('./integration/desk.mjs?v=12').then(() => {
     document.getElementById('integration-boot-status')?.remove();
   }).catch(error => {
     const status = document.getElementById('integration-boot-status');

@@ -85,3 +85,18 @@ def list_saved_backtest_material(run_id: str, response: Response, actor: Authent
     response.headers['Cache-Control']='no-store'
     try:return list_backtest_material(db,actor.user_id,run_id)
     except BacktestRunNotFoundError as exc:raise HTTPException(404,'backtest run not found') from exc
+
+
+@router.get('/{run_id}/research-replies/{snapshot_id}')
+def get_saved_backtest_reply(run_id: str, snapshot_id: str, response: Response, actor: AuthenticatedUser = Depends(require_permission('read')), db: Session = Depends(get_db)):
+    from app.services.backtest_research_material import read_backtest_reply
+    response.headers['Cache-Control']='no-store'
+    return read_backtest_reply(db,actor.user_id,run_id,snapshot_id)
+
+
+@router.get('/{run_id}/research-replies')
+def list_saved_backtest_replies(run_id: str, response: Response, actor: AuthenticatedUser = Depends(require_permission('read')), db: Session = Depends(get_db)):
+    from app.services.backtest_research_material import list_backtest_replies
+    response.headers['Cache-Control']='no-store'
+    try:return list_backtest_replies(db,actor.user_id,run_id)
+    except BacktestRunNotFoundError as exc:raise HTTPException(404,'backtest run not found') from exc

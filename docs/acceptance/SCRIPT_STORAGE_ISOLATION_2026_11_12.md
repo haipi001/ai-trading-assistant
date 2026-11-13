@@ -1,0 +1,7 @@
+# Script draft isolation increment
+
+The existing indicator editor now scopes its permanent draft library and per-tab editing buffer by verified user ID. The indicator component remounts when user/session identity changes. Storage adapters refuse operations after the captured session changes, and use the matching user-specific lock and storage-event key. Existing CAS, versions, archive, import and export functions remain in use. No session token is written as a storage key.
+
+Old global keys are left intact and not assigned to a logged-in user. The old standalone unauthenticated entry retains its legacy key behavior. An embedded terminal with no verified identity cannot read private drafts. This is browser-local convenience isolation, not encryption or a server authorization boundary; it does not protect against a person with control of the browser profile.
+
+Controlled tests use the actual commitScriptStore path to verify private save/read, other-owner empty library and rejection of writes/deletes after a session changes. Legacy store retention is tested. Full external terminal145 and mirror149 tests passed; terminal build passed with existing chunk-size warning. Actual browser login/logout, async imports during a switch, reload recovery and legacy manual recovery acceptance remain outstanding. The script compiler/backtest engine is still unavailable; this change concerns storage only.

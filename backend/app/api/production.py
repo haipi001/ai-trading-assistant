@@ -479,7 +479,7 @@ async def research_chat(request: Request, response: Response, actor: Authenticat
         if len(raw) > 200000:
             raise ValueError()
         payload = json.loads(raw)
-        if not isinstance(payload, dict) or set(payload) - {"question", "page", "symbol", "history", "response_style", "include_news", "market_context", "onchain_context", "portfolio_context", "paper_review_context", "strategy_context"}:
+        if not isinstance(payload, dict) or set(payload) - {"question", "page", "symbol", "history", "response_style", "include_news", "market_context", "onchain_context", "portfolio_context", "paper_review_context", "strategy_context", "backtest_context"}:
             raise ValueError()
     except (ValueError, TypeError):
         raise HTTPException(422, detail={"code": "ai_question_invalid"}) from None

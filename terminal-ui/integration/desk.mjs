@@ -47,7 +47,7 @@ function renderNativeGuide(feature,context){
  const guide=pageAIGuide(feature,context);nativeGuide.replaceChildren();
  const mark=document.createElement('b');mark.textContent='AI';
  const copy=document.createElement('div'),title=document.createElement('strong'),note=document.createElement('small');
- title.textContent=guide.title+' · 研究助手';note.textContent=guide.status+' · 自动匹配资料要求，演示数值不作为证据';copy.append(title,note);
+ title.append(document.createTextNode(guide.title+' · '));const label=document.createElement('span');label.textContent='研究助手';title.append(label);const status=document.createElement('span');status.textContent=guide.status;const disclaimer=document.createElement('span');disclaimer.textContent='自动匹配资料要求，演示数值不作为证据';note.append(status,document.createTextNode(' · '),disclaimer);copy.append(title,note);
  const open=document.createElement('a');open.href='#'+guide.destination;open.textContent='进入研究资料页';
  const details=document.createElement('button');details.type='button';details.textContent='查看本页研究流程';details.onclick=()=>{drawer.hidden=false;$('desk-ai').setAttribute('aria-expanded','true');$('desk-actions').scrollIntoView({block:'nearest'});};
  nativeGuide.append(mark,copy,open,details);

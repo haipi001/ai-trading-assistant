@@ -20,7 +20,8 @@ test('frozen backtest material retains source identity and explicit research-onl
  const {savedBacktestMaterial}=await import('../../src/saved-backtests.js');
  const run={id:'r',strategy_playbook_id:'p'},packet={backtest_run_id:'r',strategy_playbook_id:'p',packet_status:'blocked',blockers:[],warnings:[],checks:[],execution_available:false,order_creation_allowed:false};
  const value={snapshot_id:'s',execution_available:false,material:{schema_version:1,source:'saved_application_backtest',backtest_run_id:'r',strategy_playbook_id:'p',execution_available:false,usable_for_trading:false,independently_verified:false,captured_at:new Date().toISOString(),content_hash:'a'.repeat(64),research_packet:packet}};
- assert.equal(savedBacktestMaterial(value,run),value);
+ assert.equal(savedBacktestMaterial(value,run,'s'),value);
+ assert.throws(()=>savedBacktestMaterial(value,run,'another-snapshot'));
  assert.throws(()=>savedBacktestMaterial({...value,material:{...value.material,usable_for_trading:true}},run));
  assert.throws(()=>savedBacktestMaterial(value,{...run,id:'other'}));
 });

@@ -1,20 +1,26 @@
+import {scopedScriptStorage,scriptStorageKey,sessionBoundScriptStorage} from './script-storage-scope.js';
+import {getSessionIdentity} from './backend-session.js';
 import React, { useEffect, useRef, useState } from "react";
 import * as I from "@phosphor-icons/react";
 import { checkScriptText, commitScriptStore, parseScriptImport, readScriptBuffer, readScriptStore, SCRIPT_BUFFER_KEY, SCRIPT_STORE_EVENT, SCRIPT_STORE_KEY } from "./script-drafts.js";
 import "./script-workspace.css";
 
 export const EMPTY_SCRIPT = "// @version=2\n// 在这里创建您的自定义脚本\n";
-function loadSnapshot() {
+function loadSnapshot(stores) {
   let snapshot = null, buffer = null, error = "", bufferError = "";
-  try { snapshot = readScriptStore(window.localStorage); } catch (failure) { error = failure.message; }
+  try { snapshot = readScriptStore(stores.local); } catch (failure) { error = failure.message; }
   // A damaged permanent store must not prevent recovery of the tab's buffer.
-  try { buffer = readScriptBuffer(window.sessionStorage); } catch (failure) { bufferError = failure.message; }
+  try { buffer = readScriptBuffer(stores.session); } catch (failure) { bufferError = failure.message; }
   return { snapshot, buffer, error, bufferError };
 }
 
-export function useScriptWorkspace(initialCode = EMPTY_SCRIPT) {
+export function useScriptWorkspace(initialCode = EMPTY_SCRIPT, userId = undefined) {
+  const storesRef=useRef(null);
+  if(!storesRef.current){const protect=storage=>sessionBoundScriptStorage(storage,getSessionIdentity);storesRef.current={local:protect(userId===undefined?window.localStorage:scopedScriptStorage(window.localStorage,userId)),session:protect(userId===undefined?window.sessionStorage:scopedScriptStorage(window.sessionStorage,userId))};}
+  const stores=storesRef.current;
+  const storeKey=userId===undefined?SCRIPT_STORE_KEY:userId?scriptStorageKey(SCRIPT_STORE_KEY,userId):"unverified-script-workspace";
   const initial = useRef(null);
-  if (!initial.current) initial.current = loadSnapshot();
+  if (!initial.current) initial.current = loadSnapshot(stores);
   const selected = initial.current.snapshot?.data.documents.find(item => item.id === initial.current.snapshot.data.selectedId);
   const [snapshot, setSnapshot] = useState(initial.current.snapshot);
   const [activeId, setActiveId] = useState(initial.current.buffer ? initial.current.buffer.activeId : selected?.id || null);
@@ -36,12 +42,12 @@ export function useScriptWorkspace(initialCode = EMPTY_SCRIPT) {
   const setName = value => { setNameState(value); setNotice(""); };
   useEffect(() => {
     if (!bufferWritable.current) return;
-    try { window.sessionStorage.setItem(SCRIPT_BUFFER_KEY, JSON.stringify({ schema: 1, activeId, name, code })); setBufferWarning(""); }
+    try { stores.session.setItem(SCRIPT_BUFFER_KEY, JSON.stringify({ schema: 1, activeId, name, code })); setBufferWarning(""); }
     catch { setBufferWarning("本标签页缓冲不可写，请保存或导出当前代码后再切换页面"); }
   }, [activeId, name, code]);
   useEffect(() => {
     live.current = true;
-    const changed = event => { if (event.key === SCRIPT_STORE_KEY) setError("其他页面修改了草稿库；当前代码已保留，请先刷新草稿列表"); };
+    const changed = event => { if (event.key === storeKey) setError("其他页面修改了草稿库；当前代码已保留，请先刷新草稿列表"); };
     window.addEventListener("storage", changed);
     return () => { live.current = false; window.removeEventListener("storage", changed); };
   }, []);
@@ -52,7 +58,7 @@ export function useScriptWorkspace(initialCode = EMPTY_SCRIPT) {
     return () => window.removeEventListener("beforeunload", warn);
   }, [dirty]);
 
-  const commit = (base, action) => commitScriptStore(window.localStorage, base.raw, action, { id: crypto.randomUUID() });
+  const commit = (base, action) => commitScriptStore(stores.local, base.raw, action, { id: crypto.randomUUID() });
   const preserve = base => {
     const editor = state.current;
     const saved = base.data.documents.find(item => item.id === editor.activeId);
@@ -68,7 +74,7 @@ export function useScriptWorkspace(initialCode = EMPTY_SCRIPT) {
         if (!base) throw new Error("无法读取草稿库；请先导出当前代码，原数据未覆盖");
         return await task(base);
       };
-      const result = navigator.locks?.request ? await navigator.locks.request(SCRIPT_STORE_KEY, work) : await work();
+      const result = navigator.locks?.request ? await navigator.locks.request(storeKey, work) : await work();
       window.dispatchEvent(new CustomEvent(SCRIPT_STORE_EVENT));
       if (live.current) {
         setSnapshot(result.snapshot);
@@ -117,7 +123,7 @@ export function useScriptWorkspace(initialCode = EMPTY_SCRIPT) {
   });
   const refresh = () => {
     if (busyRef.current) return;
-    const loaded = loadSnapshot(); setSnapshot(loaded.snapshot); setError(loaded.error);
+    const loaded = loadSnapshot(stores); setSnapshot(loaded.snapshot); setError(loaded.error);
     bufferWritable.current = !loaded.bufferError; setBufferWarning(loaded.bufferError);
     setNotice(loaded.error ? "" : "列表已刷新，编辑区内容保留；保存会追加新版本");
   };

@@ -597,6 +597,14 @@ class HumanControlService:
                         raise PaperReviewMaterialError('ai_paper_review_identity_mismatch')
             except PaperReviewMaterialError as exc:
                 return {**status,"status":"blocked","reason":str(exc)}
+        # Never silently downgrade an explicit backtest attachment to plain chat.
+        if payload.get("backtest_context") is not None:
+            from app.services.backtest_research_material import load_backtest_reference
+            if market_context or onchain_context or portfolio_context or paper_review_context or payload.get("strategy_context") is not None or news_context:
+                return {**status,"status":"blocked","reason":"ai_backtest_incompatible"}
+            try:load_backtest_reference(self.db,actor.user_id,payload["backtest_context"])
+            except ValueError as exc:return {**status,"status":"blocked","reason":str(exc)}
+            # Provider generation follows the shared configuration/preflight below.
         from app.services.strategy_research_material import load_strategy_context,validate_strategy_citations,validate_strategy_changes
         strategy_context=None
         if payload.get("strategy_context") is not None:
@@ -621,12 +629,26 @@ class HumanControlService:
         if strategy_context:
             try:strategy_context=load_strategy_context(self.db,actor.user_id,payload["strategy_context"])
             except ValueError as exc:return {**status,"status":"blocked","reason":str(exc)}
+        if payload.get("backtest_context") is not None:
+            try:load_backtest_reference(self.db,actor.user_id,payload["backtest_context"])
+            except ValueError as exc:return {**status,"status":"blocked","reason":str(exc)}
         request_id = "chat-" + str(uuid4())
         try:
             provider = self._provider_from_llm_config(config)
         except Exception:
             return {**status, "status": "blocked", "reason": "ai_configuration_required"}
         from app.ai.reports import ResearchReportOutput
+        if payload.get("backtest_context") is not None:
+            from app.services.backtest_research_material import run_backtest_review
+            def generate_backtest(prompt,snapshot_id):
+                raw=provider.generate_report(report_type="single_asset_research",agent_name="workspace_chat",data_snapshot_id=snapshot_id,input_facts={"user_question":question.strip(),"response_style":response_style,"backtest_context":prompt["evidence"]},prompt_template=prompt["instruction"]+" Return report_type=single_asset_research, agent_name=workspace_chat and the supplied data_snapshot_id exactly. Return JSON matching the research report schema; no order or rule changes.")
+                if not isinstance(raw,str) or len(raw)>100000:raise ValueError('invalid backtest response')
+                report=ResearchReportOutput.model_validate_json(raw)
+                if report.report_type!="single_asset_research" or report.agent_name!="workspace_chat" or report.data_snapshot_id!=snapshot_id:raise ValueError('backtest reply identity mismatch')
+                return report
+            try:result=run_backtest_review(self.db,actor.user_id,payload["backtest_context"],request_id,generate_backtest)
+            except ValueError as exc:return {**status,"status":"blocked","reason":str(exc)}
+            return {**status,**result,"request_id":request_id,"counts_as_external_evidence":False,"context_scope":"owned_frozen_backtest_material","execution_available":False}
         news_snapshot = None
         if news_context:
             news_snapshot = DataSnapshot(user_id=actor.user_id, snapshot_type="research_chat_news_context", data_json=news_context, metadata_json={"request_id":request_id,"provider":news_context["provider"],"content_hash":news_context["content_hash"],"execution_available":False})

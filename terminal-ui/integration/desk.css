@@ -8,3 +8,10 @@
 .qbody:has(>.legacy-feature-frame),#view:not(.quadmode):has(>.legacy-feature-frame){display:flex;flex-direction:column;overflow:hidden}
 .qbody>.legacy-feature-frame,#view:not(.quadmode)>.legacy-feature-frame{flex:1;height:0;min-height:0}
 .integration-feature-tabs button{font:inherit;background:var(--panel2);color:var(--txt);border:1px solid var(--line2);padding:4px 8px;cursor:pointer}.integration-feature-tabs button:hover{color:var(--acc)}
+
+.native-ai-guide{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line2);background:var(--panel2);color:var(--txt);font:12px/1.5 var(--mono);flex-wrap:wrap}
+.native-ai-guide[hidden]{display:none}.native-ai-guide>b{padding:5px 7px;border:1px solid var(--line2);color:var(--acc)}
+.native-ai-guide>div{display:grid;gap:3px;flex:1;min-width:200px}.native-ai-guide small{color:var(--dim)}
+.native-ai-guide>a,.native-ai-guide>button{font:inherit;color:var(--txt);background:var(--panel);border:1px solid var(--line2);padding:6px 10px;text-decoration:none;cursor:pointer}
+.native-ai-guide>a:hover,.native-ai-guide>button:hover{border-color:var(--acc)}
+.native-ai-guide>a:focus-visible,.native-ai-guide>button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}

@@ -29,6 +29,7 @@ export function researchMarkdown(message){
  if(message?.role!=='ai'||!message.result||typeof message.text!=='string')throw Error('validated_result_required');
  const r=message.result;
  return ['# AI 研究记录',`研究上下文：${message.context||'未提供'}`,`请求：${r.request_id||message.id||'未提供'}`,message.text,
- '## 材料快照',...['market','news','onchain','portfolio','paper_review'].map(key=>`${key}: ${r[key+'_context_snapshot_id']||'未附带'}`),
+ '## 材料快照',...['market','news','onchain','portfolio','paper_review','strategy','backtest'].map(key=>`${key}: ${r[key+'_context_snapshot_id']||'未附带'}`),
+ ...(r.provided_backtest?['## 回测来源 [BT1]',`回测：${r.provided_backtest.backtest_run_id}`,`冻结时间：${r.provided_backtest.captured_at}`,`内容哈希：${r.provided_backtest.content_hash}`,`数据范围：${r.provided_backtest.date_from} 至 ${r.provided_backtest.date_to}`,'历史模拟，不代表当前脚本执行、独立核验收益或交易授权。']:[]),
  '仅为研究回复；请核对材料来源、时点与限制。'].join('\n\n');
 }

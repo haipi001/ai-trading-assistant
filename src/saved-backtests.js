@@ -18,8 +18,9 @@ export function backtestReviewQuestion(packet){
  return question;
 }
 
-export function savedBacktestMaterial(value,run){
+export function savedBacktestMaterial(value,run,expectedSnapshotId=null){
  const material=value?.material;
+ if(expectedSnapshotId!==null&&value?.snapshot_id!==expectedSnapshotId)throw Error('backtest snapshot identity mismatch');
  if(typeof value?.snapshot_id!=='string'||!value.snapshot_id||value.execution_available!==false||material?.schema_version!==1||material.source!=='saved_application_backtest'||material.backtest_run_id!==run.id||material.strategy_playbook_id!==run.strategy_playbook_id||material.execution_available!==false||material.usable_for_trading!==false||material.independently_verified!==false||!Number.isFinite(Date.parse(material.captured_at))||!(/^[a-f0-9]{64}$/).test(material.content_hash))throw Error('invalid saved backtest material');
  backtestReviewPacket(material.research_packet,run);
  return value;

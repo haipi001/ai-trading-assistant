@@ -418,13 +418,13 @@ for (const marketSubpage of [
 
 for (const marketWorkflow of [
   "dynamic-group-form",
-  'setBacktestStatus("running")',
+  'setBacktestStatus("unavailable")',
   "backtest-history-table",
-  "请先完成收益测算",
+  "checkGridParameters({lower,upper,gridCount,amount})",
   "图表布局已切换为",
   "K线已切换到",
-  "首次保证金需不少于20 USDT",
-  "请先完成风险测算",
+  "checkFuturesDcaParameters(form)",
+  "请先重新核对当前参数",
   "已生成本地导出记录",
   'useLocalState("ai-trading-assistant-grid-strategies"',
   'useLocalState("ai-trading-assistant-spot-dca-strategies"',
@@ -439,8 +439,8 @@ for (const marketWorkflow of [
   '网格本地模拟策略已创建',
   '现货DCA本地模拟策略已创建',
   '合约DCA本地模拟策略已创建',
-  '指标本地模拟实盘已创建',
-  '本地模拟跟单已启动',
+  '当前脚本回测引擎尚未接入，未运行脚本或生成绩效',
+  '本地配置已保存；未查询信号或启动跟单',
   '已终止并归档',
   '重新创建为本地模拟策略',
 ]) {
@@ -722,7 +722,7 @@ for (const marketSymbolContract of [
 
 for (const localOrderLedgerContract of [
   'useLocalState("ai-trading-assistant-quick-orders", [])',
-  'window.addEventListener("ai-trading-assistant-local-state", sync)',
+  'return useStrategyDrafts(Boolean(context),context,key);',
   'window.dispatchEvent(new CustomEvent("ai-trading-assistant-local-state"',
   'const pendingOrders = scopedOrders.filter((order) => order.status === "等待成交")',
   'const historicalOrders = scopedOrders.filter((order) => order.status !== "等待成交")',
