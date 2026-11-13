@@ -3841,16 +3841,17 @@
       "Help": ["HELP","SUPPORT","ABOUT"]
     };
     for (const feature of window.TERMINAL_FEATURES || []) {
-      const name = window.TERMINAL_FEATURE_GROUPS?.[feature.page]?.label || '扩展工具';
+      const name = feature.page==='market'?'Web3 图表与行情':window.TERMINAL_FEATURE_GROUPS?.[feature.page]?.label || '扩展工具';
       (groups[name] ||= []).push(feature.code);
     }
-    keys.innerHTML = Object.entries(groups).map(([name,codes])=>
+    const priority=['Web3 图表与行情','策略','Portfolio & orders','链上研究','资产管理','Markets','Security analysis','Research & news','研究首页','实时快讯','新闻与研报','账户与授权','数据中心','Settings & integrations','工具与帮助','Help'];
+    keys.innerHTML = Object.entries(groups).sort(([a],[b])=>(priority.indexOf(a)<0?99:priority.indexOf(a))-(priority.indexOf(b)<0?99:priority.indexOf(b))).map(([name,codes])=>
       '<li class="rail-group"><details data-group="'+name+'"'+(opened.has(name)||codes.includes(App.func)||(!keys.children.length && name==="Markets")?' open':'')+'><summary>'+name+'</summary><ul>'+codes.map(k=>
       '<li data-fn="'+k+'" role="button" tabindex="0" aria-current="'+(App.func===k?'page':'false')+'" title="'+FUNCS[k].label+'"'+(App.func===k?' class="on"':'')+'><span class="k">'+FUNCS[k].key+'</span><span class="nm">'+k+'  '+FUNCS[k].label+'</span></li>').join('')+'</ul></details></li>').join('');
 
 
     const mon = $("monitor");
-    const list = ["SPX", "AAPL", "NVDA", "MSFT", "TSLA"];
+    const list = Store.data.watch.filter(s=>bySym[s]);
     mon.innerHTML = list.map((s) => {
       const q = bySym[s];
       const cp = chgp(q);

@@ -1,3 +1,4 @@
+import {SourceAIWorkspace,AIActivityCenter,LiveOrderTicket} from './terminal-tool-workspaces.jsx';
 import {getSessionIdentity as strategySessionIdentity} from './backend-session.js';
 import {tradingContextIdentity as strategyContextIdentity} from './terminal-trading-policy.js';
 import {strategyAttachmentMatches} from './research-strategy.js';
@@ -339,7 +340,7 @@ export function App({ embedded = false, terminalTarget = null, terminalContext =
       if (!['depth','news','funds','analysis','feature','etf','ai','trade','sidebarLayout','help','research'].includes(id)) return;
       parent.postMessage({type:'terminal:tool-activated',tool:id},location.origin);
       setAiFloatOpen(false);setOverlay(null);
-      if(id==='research'){setAiFloatOpen(true);return;}
+      if(id==='research'){setDrawer('aiCenter');return;}
       if(id==='help'){openOverlay('help','在线客服与帮助中心');return;}
       if(id==='sidebarLayout'){setDrawer(value=>value==='sidebarLayout'?null:'sidebarLayout');return;}
       if(page==='market') {
@@ -4238,7 +4239,7 @@ function RightRail({ page, drawer, setDrawer, openOverlay, sidebarMode, setSideb
 }
 function UtilityDrawer({ workspaceContext,onReviewOrder,paperReviewRequest,type, close, go, say, watch, setWatch, marketSymbol = "BTC", prefill, openOverlay, openDrawer, authorizedAccounts = [], sidebarMode = "professional", embedded = false }) {
   if (type === "sidebarLayout") return null;
-  const title = type === "layout" ? "组件列表" : type === "trade" ? "下单面板" : type === "info" ? "币种简况" : RT.find((x) => x[0] === type)?.[1];
+  const title = type === "aiCenter" ? "AI 工作中心" : type === "layout" ? "组件列表" : type === "trade" ? "下单面板" : type === "info" ? "币种简况" : RT.find((x) => x[0] === type)?.[1];
   const [tradeSide, setTradeSide] = useState("买入");
   const [tradeOrderType, setTradeOrderType] = useState("限价");
   const [agentPrompt, setAgentPrompt] = useState("");
@@ -4284,7 +4285,7 @@ function UtilityDrawer({ workspaceContext,onReviewOrder,paperReviewRequest,type,
           <I.X />
         </button>
       </header>
-      {type !== "ai" && type !== "trade" && sidebarMode === "professional" && (
+      {type !== "ai" && type !== "aiCenter" && type !== "trade" && sidebarMode === "professional" && (
         <section className="professional-instrument">
           <div className="professional-quote">
             <span><i>{marketSymbol.slice(0, 1)}</i><b>{instrumentTitle}</b></span>
@@ -4299,8 +4300,8 @@ function UtilityDrawer({ workspaceContext,onReviewOrder,paperReviewRequest,type,
           <nav>{professionalTabs.map(([id, label]) => <button key={id} className={type === id ? "on" : ""} onClick={() => openDrawer(id)}>{label}</button>)}</nav>
         </section>
       )}
-      {type === "ai" ? (
-        <><div className="ace-drawer-status"><AceAgentDock onReviewOrder={onReviewOrder}><div className="ace-drawer-chat-launch"><p>继续现有研究对话，发送前选择资料并明确确认。任务与订单状态可独立查看，无需调用模型。</p><button type="button" onClick={()=>{close();openOverlay('aiChart','Ace研究对话',{question:agentPrompt||'梳理当前研究需要哪些数据'});}}>进入研究对话</button></div></AceAgentDock></div><details className="ace-legacy-tools"><summary>本地演示策略工具（不代表正在运行的 AI）</summary>        {type === "ai" ? (
+      {type === "aiCenter" ? <AIActivityCenter go={go} onReviewOrder={onReviewOrder}/> : type === "ai" ? (
+        <><SourceAIWorkspace renderSource={source=><RailPanel key={source} type={source} say={say} go={go} watch={watch} setWatch={setWatch} symbol={marketSymbol}/>}/><details><summary>Agent 任务与历史工具</summary><div className="ace-drawer-status"><AceAgentDock onReviewOrder={onReviewOrder}><div className="ace-drawer-chat-launch"><p>继续现有研究对话，发送前选择资料并明确确认。任务与订单状态可独立查看，无需调用模型。</p><button type="button" onClick={()=>{close();openOverlay('aiChart','Ace研究对话',{question:agentPrompt||'梳理当前研究需要哪些数据'});}}>进入研究对话</button></div></AceAgentDock></div></details><details className="ace-legacy-tools"><summary>本地演示策略工具（不代表正在运行的 AI）</summary>        {type === "ai" ? (
           <div className="agent-modes">
             {["Agent", "Chat"].map((x) => (
               <button
@@ -4383,7 +4384,7 @@ function UtilityDrawer({ workspaceContext,onReviewOrder,paperReviewRequest,type,
           )}
         </div></details></>
       ) : type === "trade" ? (
-        <div className="professional-order-panel">
+        <div className="professional-order-panel"><LiveOrderTicket openConnections={()=>{close();go("auth");}}/>
           <nav className="professional-order-tabs">
             {["下单", "抢新开盘", "特色"].map((name) => <button key={name} className={orderPanelTab === name ? "on" : ""} onClick={() => { setOrderPanelTab(name); setOrderTool(null); }}>{name}</button>)}
             <button aria-label="下单设置" onClick={() => openOverlay("settings", "下单设置")}><I.Gear/></button>
@@ -4518,7 +4519,7 @@ function UtilityDrawer({ workspaceContext,onReviewOrder,paperReviewRequest,type,
           </> : <div className="order-auth-hub">
             <span className="auth-badge">真实交易未接入</span>
             {prefill?.symbol===marketSymbol && <p role="status" className="order-prefill-summary">待填入：{prefill.symbol} · 限价{tradeSide} · {tradeForm.price}。尚未提交委托。</p>}
-            <h3>连接交易所，查看真实账户余额</h3>
+            <details><summary>连接设置 · 只读账户与权限</summary><h3>连接交易所，查看真实账户余额</h3>
             <p>可在连接管理中验证 Binance、OKX、Bybit、Bitget 和 Gate 的只读 API，并按需保存已验证凭证。密钥会发送到当前交易后端；保存时写入后端本机文件。行情连接和只读账户连接均不提供真实下单权限。</p>
             <div className="order-auth-tools">
               {[
@@ -4530,7 +4531,7 @@ function UtilityDrawer({ workspaceContext,onReviewOrder,paperReviewRequest,type,
             </div>
             {orderTool && <div className="order-tool-preview"><b>{orderTool}</b><p>{orderTool === "抢新开盘" ? "设置开盘时间、价格保护和最大重试次数；授权后才可进入确认。" : orderTool === "多账户下单" ? "创建账户分组并设置跟单/分仓比例；提交前逐账户预览。" : orderTool === "三键下单" ? "配置买多、卖空、平仓三键数量和二次确认。" : "配置总量、单笔随机范围、间隔与价格保护。"}</p><button onClick={() => setOrderPanelTab(orderTool === "抢新开盘" ? "抢新开盘" : "特色")}>查看配置</button></div>}
             <button className="drawer-primary" onClick={() => { close(); go("auth"); }}>连接交易所只读API</button>
-            <button className="auth-manage-link" onClick={() => { close(); go("auth"); }}>查看授权管理</button>
+            <button className="auth-manage-link" onClick={() => { close(); go("auth"); }}>查看授权管理</button></details>
           </div>) : orderPanelTab === "抢新开盘" ? <div className="first-open-panel">
             <I.RocketLaunch/>
             <h3>抢新开盘</h3>

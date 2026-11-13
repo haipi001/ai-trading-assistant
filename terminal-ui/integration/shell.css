@@ -31,3 +31,18 @@
 
 /* Keep the drawer handle visible while browsing long function lists. */
 .rail>.rail-hd:first-child{position:sticky;top:0;z-index:3;background:var(--panel);border-bottom:1px solid var(--line2)}
+
+/* Docked tools share the workspace grid; no content-covering overlay. */
+.body{--left-width:240px;--right-width:400px;grid-template-columns:var(--left-width) minmax(0,1fr) 0 48px!important}
+.body.menu-collapsed{grid-template-columns:0 minmax(0,1fr) 0 48px!important}
+.body.tool-open{grid-template-columns:var(--left-width) minmax(0,1fr) var(--right-width) 48px!important}
+.body.menu-collapsed.tool-open{grid-template-columns:0 minmax(0,1fr) var(--right-width) 48px!important}
+.body>.rail{grid-column:1;grid-row:1}.body>main{grid-column:2;grid-row:1;overflow:hidden}.shell-tool-rail{grid-column:4;grid-row:1}
+.body>.shell-tool-drawer{position:relative;inset:auto;width:auto;min-width:0;min-height:0;grid-column:3;grid-row:1;box-shadow:none;z-index:2;border:0;border-left:1px solid var(--line2)}
+.shell-splitter{position:absolute;top:0;bottom:0;width:7px;z-index:30;cursor:col-resize;touch-action:none}
+.shell-splitter-left{left:calc(var(--left-width) - 4px)}.menu-collapsed>.shell-splitter-left{left:0}
+.shell-splitter-right{right:44px}.tool-open>.shell-splitter-right{right:calc(var(--right-width) + 44px)}
+.shell-splitter:hover{background:color-mix(in srgb,var(--acc) 15%,transparent)}
+.shell-splitter>button{position:absolute;top:50%;left:-7px;transform:translateY(-50%);height:44px;width:21px;padding:0;background:var(--panel2);color:var(--txt);border:1px solid var(--line2);cursor:pointer}
+.menu-collapsed>.shell-splitter-left>button{left:0}.shell-resizing iframe{pointer-events:none}.shell-resizing{user-select:none}
+#menu-collapse,#menu-reopen{display:none!important}.menu-collapsed>#main>.workspace-nav{padding-left:12px}
