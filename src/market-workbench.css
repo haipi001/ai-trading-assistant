@@ -130,9 +130,6 @@
 .ai-analysis-terminal>footer button{background:#267c68;white-space:nowrap}
 @media(max-width:1180px){.ai-analysis-terminal>section{grid-template-columns:minmax(0,1fr)}.ai-analysis-terminal .report-placeholder{padding:4px 0}}
 
-/* Tool rows size to their contents; only the chart takes flexible space. */
-.chart-workspace,.chart-workspace.chart-fullscreen{display:flex;flex-direction:column;grid-template-rows:none!important;min-height:0}
-.chart-workspace>div,.chart-workspace>section{flex-shrink:0}
-.chart-workspace>.tv-chart-grid{flex:1 0 320px;min-height:320px}
+/* Preserve the chart engine Grid sizing; hidden subscriptions do not occupy a row. */
 .chart-workspace>.drawing-tools{height:34px;min-height:34px;max-height:34px;flex:0 0 34px;overflow-x:auto}
 .chart-workspace>.subscription-quotes{display:none}
