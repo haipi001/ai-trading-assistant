@@ -1,3 +1,5 @@
+import {panelVisibility} from './panel-visibility.js';
+import {observeVisibleInterval} from './visible-interval.js';
 import React,{useCallback,useEffect,useRef,useState} from 'react';
 import {subscribeBackendSession} from './backend-session.js';
 import {apiRequest} from './backend-api.js';
@@ -8,9 +10,9 @@ export function useSubscriptions(target){
  const active=useRef(null);
  const refresh=useCallback(()=>active.current?.(),[]);
  useEffect(()=>{
-  let stopped=false,pending=false,generation=0,controller=null;
+  let stopped=false,pending=false,generation=0,controller=null;const page=panelVisibility(document);
   const load=async()=>{
-   if(stopped||pending||document.hidden)return;
+   if(stopped||pending||page.hidden)return;
    pending=true;const version=generation;controller=new AbortController();setBusy(true);
    try{
     const list=await apiRequest(`/subscriptions/feed/${target}`,{signal:controller.signal});
@@ -28,9 +30,10 @@ export function useSubscriptions(target){
   };
   const reset=()=>{++generation;controller?.abort();pending=false;setRows([]);setError('');load();};
   const unsubscribe=subscribeBackendSession(reset);
-  active.current=load;load();const timer=setInterval(()=>{setClock(Date.now());load();},target==='quotes'?5000:15000);
-  document.addEventListener('visibilitychange',load);window.addEventListener('subscriptions-saved',reset);window.addEventListener('terminal:session-changed',reset);window.addEventListener('backend-session-changed',reset);
-  return()=>{unsubscribe();stopped=true;controller?.abort();clearInterval(timer);active.current=null;document.removeEventListener('visibilitychange',load);window.removeEventListener('subscriptions-saved',reset);window.removeEventListener('terminal:session-changed',reset);window.removeEventListener('backend-session-changed',reset);};
+  const visibility=()=>{if(page.hidden){++generation;controller?.abort();pending=false;setBusy(false);}};page.addEventListener('visibilitychange',visibility);
+  active.current=load;const stopPolling=observeVisibleInterval(()=>{setClock(Date.now());load();},target==='quotes'?5000:15000,{page});
+  window.addEventListener('subscriptions-saved',reset);window.addEventListener('terminal:session-changed',reset);window.addEventListener('backend-session-changed',reset);
+  return()=>{unsubscribe();stopped=true;controller?.abort();stopPolling();active.current=null;page.removeEventListener('visibilitychange',visibility);window.removeEventListener('subscriptions-saved',reset);window.removeEventListener('terminal:session-changed',reset);window.removeEventListener('backend-session-changed',reset);};
  },[target]);
  return {rows,busy,error,refresh,clock};
 }

@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import React,{act,useEffect,useState} from 'react';
+import {createRoot} from 'react-dom/client';
+import {JSDOM} from 'jsdom';
+import {observeVisibleInterval} from '../src/visible-interval.js';
+import {emptyReplayLedger,replayCloseTime,replayStartIndex} from '../src/chart-replay.js';
+const dom=new JSDOM('<div id="root"></div>',{pretendToBeVisual:true,url:'http://localhost:8851'});globalThis.window=dom.window;globalThis.document=dom.window.document;globalThis.IS_REACT_ACT_ENVIRONMENT=true;
+let hidden=false,id=0;const timers=new Map(),listeners=new Set(),page={get hidden(){return hidden;},addEventListener:(_,fn)=>listeners.add(fn),removeEventListener:(_,fn)=>listeners.delete(fn)};
+const interval=(fn,delay,options)=>observeVisibleInterval(fn,delay,{...options,page,schedule:fn=>{timers.set(++id,fn);return id;},cancel:id=>timers.delete(id)});
+const source=await readFile(new URL('../src/chart-replay-panel.jsx',import.meta.url),'utf8');const prefix=source.slice(source.indexOf('export function KlineReplayPanel'),source.indexOf(' const pnl=')).replace('export ','');
+const useReplay=new Function('useEffect','useState','emptyReplayLedger','replayCloseTime','replayStartIndex','observeVisibleInterval',prefix+'return {index,playing,setPlaying};};return KlineReplayPanel;')(useEffect,useState,emptyReplayLedger,replayCloseTime,replayStartIndex,interval);
+const bars=Array.from({length:30},(_,i)=>({time:1700000000+i*60,close:100+i}));let state;
+function Probe(){state=useReplay({symbol:'TEST',period:'1分',bars,onCursorChange:()=>{}});return null;}
+const root=createRoot(document.getElementById('root'));await act(async()=>root.render(React.createElement(Probe)));const start=state.index;
+await act(async()=>state.setPlaying(true));assert.equal(state.index,start);assert.equal(timers.size,1);
+await act(async()=>timers.values().next().value());assert.equal(state.index,start+1);
+await act(async()=>{hidden=true;listeners.forEach(fn=>fn());});assert.equal(timers.size,0);assert.equal(state.playing,true);
+await act(async()=>{hidden=false;listeners.forEach(fn=>fn());});assert.equal(state.index,start+1);assert.equal(timers.size,1);
+await act(async()=>timers.values().next().value());assert.equal(state.index,start+2);
+await act(async()=>root.unmount());assert.equal(timers.size,0);assert.equal(listeners.size,0);dom.window.close();console.log('PASS replay freezes in background and resumes without skipping or immediate extra step');

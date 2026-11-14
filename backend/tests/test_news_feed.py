@@ -269,3 +269,14 @@ def test_chinese_aggregate_keeps_feed_kind_publishers_and_independent_failure_ca
 @pytest.mark.parametrize('sources',[[],['unknown'],['panews','panews'],'panews',[None]])
 def test_aggregate_source_settings_are_fixed_catalog_only(db,sources):
     with pytest.raises(NewsFeedError):NewsFeedService(db,'aggregate-user').configure({'sources':sources})
+
+
+def test_aggregate_preserves_all_selected_feed_batches(db):
+    from app.services.chinese_news_sources import SOURCES
+    def fetch(url, headers):
+        source, kind = next((s, k) for s, v in SOURCES.items() for k in ('flash', 'article') if v[k] == url)
+        return {'status': 'ok', 'articles': [article(url=f'https://example.com/{source}/{kind}/{i}') for i in range(100)]}
+    result = NewsFeedService(db, 'full-batches', fetch=fetch).refresh()
+    assert len(result['articles']) == 600
+    assert sum(row['kind'] == 'flash' for row in result['articles']) == 300
+    assert sum(row['count'] for row in result['source_status']) == 600

@@ -1,3 +1,4 @@
+import {observeVisibleInterval} from './visible-interval.js';
 import {OnchainResearchHistory} from './onchain-research-history.jsx';
 import React,{useEffect,useRef,useState} from 'react';
 import {apiRequest} from './backend-api.js';
@@ -20,7 +21,7 @@ export function TerminalOnchainWorkspace({context}){
   }catch(err){if(controller.signal.aborted||job.current!==controller)return;const message=err.code==='onchain_rpc_unavailable'?'公共RPC读取失败或网络不匹配；上次材料保留，未写入部分结果。':err.status===404?'钱包不存在、已停用或不属于当前用户。':err.status===422?'链、合约或钱包不兼容，请核对全局选择。':err.status===401?'会话已过期，请重新登录。':err.name==='AbortError'?'读取超时；后端只读请求可能仍在完成。':err.status?'无法读取链上资料（HTTP'+err.status+'）。':err.message||'链上服务不可用。';setState(old=>({key,data:old.key===key?old.data:null,busy:false,error:message}));}
  }
  useEffect(()=>{setState({key,data:null,busy:false,error:''});setNotice('');read();return()=>{job.current?.abort();};},[key]);
- useEffect(()=>{const timer=setInterval(()=>setNow(Date.now()),30000);return()=>clearInterval(timer);},[]);
+ useEffect(()=>observeVisibleInterval(()=>setNow(Date.now()),30000),[]);
  function research(kind){try{const onchainAttachment=onchainResearchAttachment(data,context);window.dispatchEvent(new CustomEvent('terminal:research',{detail:{question:kind+'，请区分事实、推断与缺失项，并引用本次材料。',includeMarket:false,onchainAttachment}}));setNotice('已准备链上材料引用，请在AI面板审阅附件后发送；尚未调用模型。');}catch(err){setNotice(err.message);}}
  return <section className="onchain-workspace" aria-label="链上只读研究">
   <header><div><small>Web3 / 只读数据</small><h2>钱包、授权与协议</h2></div><span>无签名权限 · Live关闭</span></header>

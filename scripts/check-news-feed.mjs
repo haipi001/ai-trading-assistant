@@ -13,8 +13,12 @@ assert.equal(filterNews(result.articles,'精选','ｂｔｃ').length,1);
 assert.equal(filterNews(result.articles,'未知').length,0);
 assert.equal(filterNews(result.articles,'未知','',true).length,3);
 assert.throws(()=>newsSnapshot({provider:'other',status:'ready',articles:[]}));
-assert.throws(()=>newsSnapshot({provider:'newsapi',status:'ready',articles:new Array(201)}));
+assert.throws(()=>newsSnapshot({provider:'newsapi',status:'ready',articles:new Array(601)}));
 console.log('News feed: safe links, identity, deduplication, publication time, filtering and unsupported channels passed.');
 
 const aggregated=newsSnapshot({provider:"chinese_aggregate",status:"ready",articles:[{...row("标题包含分析也仍是快讯","https://example.com/flash","2026-10-30T00:00:00Z"),kind:"flash",source_id:"odaily"},{...row("深度文章","https://example.com/article","2026-10-30T00:00:00Z"),kind:"article",source_id:"panews"}]});
 assert.deepEqual(aggregated.articles.map(item=>item.kind),["flash","article"]);assert.equal(aggregated.articles[0].sourceId,"odaily");
+
+const shared=newsSnapshot({provider:"chinese_aggregate",status:"ready",articles:[{...row("快讯","https://example.com/shared",null),kind:"flash"},{...row("文章","https://example.com/shared",null),kind:"article"}]});
+assert.equal(shared.articles.length,2);
+assert.equal(newsSnapshot({provider:"chinese_aggregate",status:"ready",articles:Array.from({length:600},(_,i)=>({...row(`消息 ${i}`,`https://example.com/${i}`,null),kind:i%2?"flash":"article"}))}).articles.length,600);

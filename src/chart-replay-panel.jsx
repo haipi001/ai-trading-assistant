@@ -1,3 +1,4 @@
+import {observeVisibleInterval} from './visible-interval.js';
 import React,{useEffect,useMemo,useState} from 'react';
 import * as I from '@phosphor-icons/react';
 import {applyReplayTrade,emptyReplayLedger,replayCloseTime,replayProfit,replayStartIndex} from './chart-replay.js';
@@ -7,7 +8,7 @@ export function KlineReplayPanel({symbol,period,bars=[],source,marketMode,onCurs
  useEffect(()=>{setSpeed(initialSpeed);},[initialSpeed]);
  const current=bars[index],finished=index>=bars.length-1;
  useEffect(()=>{if(current)onCursorChange(replayCloseTime(current,period));},[current,period]);
- useEffect(()=>{if(!playing||finished||summary)return;const timer=setInterval(()=>setIndex(value=>Math.min(bars.length-1,value+1)),1000/speed);return()=>clearInterval(timer);},[playing,finished,summary,speed,bars.length]);
+ useEffect(()=>{if(!playing||finished||summary)return;return observeVisibleInterval(()=>setIndex(value=>Math.min(bars.length-1,value+1)),1000/speed,{immediate:false});},[playing,finished,summary,speed,bars.length]);
  useEffect(()=>{if(finished)setPlaying(false);},[finished]);
  const pnl=useMemo(()=>replayProfit(ledger,current?.close||0),[ledger,current]);
  const progress=bars.length?100*(index+1)/bars.length:0,unit=marketMode==='stocks'?'USD':'USDT';
@@ -18,7 +19,7 @@ export function KlineReplayPanel({symbol,period,bars=[],source,marketMode,onCurs
  <div className="replay-progress"><i style={{width:`${progress}%`}}/></div>{error&&<p role="alert">{error}</p>}
  <footer><button onClick={onChooseStart}><I.CalendarBlank/>选择起始时间</button><button onClick={reset}><I.ArrowCounterClockwise/>重新选择起点</button><button disabled={!current||finished} onClick={()=>setIndex(value=>Math.min(bars.length-1,value+1))}><I.SkipForward/>单步</button><button className="replay-play" disabled={!current||finished} onClick={()=>setPlaying(!playing)}>{playing?<I.Pause/>:<I.Play/>}{playing?'暂停':'播放'}</button>{[1,2,4].map(value=><button key={value} className={speed===value?'on':''} onClick={()=>setSpeed(value)}>{value}x</button>)}<span/>{['简洁模式','持仓模式'].map(value=><button key={value} className={mode===value?'on':''} onClick={()=>setMode(value)}>{value}</button>)}<button className="replay-buy" disabled={!current} onClick={()=>trade('买入')}>模拟买入</button><button className="replay-sell" disabled={!current||ledger.quantity<.01} onClick={()=>trade('卖出')}>模拟卖出</button></footer>
  {mode==='持仓模式'&&<div className="replay-trade-records">{ledger.trades.length?ledger.trades.map((trade,index)=><p key={index}>{new Date(trade.time*1000).toISOString()} · {trade.side} {trade.quantity} · {trade.price.toFixed(4)} {unit}</p>):<p>暂无模拟交易</p>}</div>}
- <small className="replay-data-note">固定载入快照逐根推进，图外盘口及资讯不参与复盘；无手续费、滑点或成交撮合，不提交实盘委托。选择新起点会清空本次模拟记录。</small>
+ <small className="replay-data-note">固定载入快照逐根推进，切到后台时暂停推进，返回后按原速继续；图外盘口及资讯不参与复盘；无手续费、滑点或成交撮合，不提交实盘委托。选择新起点会清空本次模拟记录。</small>
  {summary&&<div className="replay-summary"><article><header><I.ChartLineUp/><div><b>复盘训练结果</b><small>{symbol} · {period}</small></div></header><strong>{pnl.total.toFixed(4)} {unit}</strong><p><span>已实现盈亏</span><b>{pnl.realized.toFixed(4)}</b></p><p><span>浮动盈亏</span><b>{pnl.unrealized.toFixed(4)}</b></p><p><span>交易次数</span><b>{ledger.trades.length}</b></p><footer><button onClick={()=>setSummary(false)}>继续复盘</button><button onClick={onClose}>结束并退出</button></footer><small>仅为当前快照的本地模拟，未运行交易策略。</small></article></div>}
  </div>;
 }

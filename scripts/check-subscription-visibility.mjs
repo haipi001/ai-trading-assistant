@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import React,{act,useCallback,useEffect,useRef,useState} from 'react';
+import {createRoot} from 'react-dom/client';
+import {JSDOM} from 'jsdom';
+import {panelVisibility,setPanelActive} from '../src/panel-visibility.js';
+import {observeVisibleInterval} from '../src/visible-interval.js';
+const dom=new JSDOM('<div id="root"></div>',{pretendToBeVisual:true,url:'http://localhost:8851'});
+globalThis.window=dom.window;globalThis.document=dom.window.document;globalThis.Event=dom.window.Event;globalThis.IS_REACT_ACT_ENVIRONMENT=true;
+const source=await readFile(new URL('../src/subscription-live.jsx',import.meta.url),'utf8');
+const hook=source.slice(source.indexOf('export function useSubscriptions'),source.indexOf('\nconst time=')).replace('export ','');
+const requests=[];const apiRequest=(path,options)=>new Promise(resolve=>requests.push({path,options,resolve}));
+const useSubscriptions=new Function('useCallback','useEffect','useRef','useState','apiRequest','subscribeBackendSession','panelVisibility','observeVisibleInterval',hook+';return useSubscriptions;')(useCallback,useEffect,useRef,useState,apiRequest,()=>()=>{},panelVisibility,observeVisibleInterval);
+let state;function Probe(){state=useSubscriptions('news');return React.createElement('span',null,state.rows.length);}
+const root=createRoot(document.getElementById('root'));
+await act(async()=>root.render(React.createElement(Probe)));assert.equal(requests.length,1);
+await act(async()=>setPanelActive(false));assert.equal(requests[0].options.signal.aborted,true);assert.equal(state.busy,false);
+await act(async()=>state.refresh());assert.equal(requests.length,1);
+await act(async()=>setPanelActive(true));assert.equal(requests.length,2);
+await act(async()=>requests[1].resolve([]));assert.equal(state.busy,false);
+await act(async()=>requests[0].resolve([{id:'late',checked_at:null,refresh_seconds:1}]));assert.deepEqual(state.rows,[]);assert.equal(requests.length,2);
+await act(async()=>root.unmount());dom.window.close();
+console.log('PASS actual subscription hook aborts on panel hide, resumes and rejects late old result');

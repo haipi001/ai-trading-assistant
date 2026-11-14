@@ -1,3 +1,4 @@
+import {observeVisibleInterval} from './visible-interval.js';
 import {chartStorage} from './panel-storage.js';
 import {SourceAIWorkspace,AIActivityCenter,LiveOrderTicket} from './terminal-tool-workspaces.jsx';
 import {getSessionIdentity as strategySessionIdentity} from './backend-session.js';
@@ -402,9 +403,8 @@ export function App({ embedded = false, terminalTarget = null, terminalContext =
   useEffect(() => {
     let active = true;
     const check = () => getBackendStatus().then((result) => active && setBackendStatus(result));
-    check();
-    const timer = setInterval(check, 30000);
-    return () => { active = false; clearInterval(timer); };
+    const stopPolling = observeVisibleInterval(check, 30000);
+    return () => { active = false; stopPolling(); };
   }, []);
   useEffect(() => {
     if (!embedded) localStorage.setItem("ai-trading-assistant-workspace", JSON.stringify({ page, tab }));

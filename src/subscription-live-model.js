@@ -13,7 +13,7 @@ export function mergeSubscriptionNews(data,rows,now=Date.now()){
  if(!data&&!custom.length)return data;
  const base=data||{articles:[],source_status:[],provider:'custom',status:'ready',settings:{auto_refresh:false},errors_count:0};
  const seen=new Set();
- const articles=[...base.articles,...custom].sort((a,b)=>(b.publishedAt||'').localeCompare(a.publishedAt||'')).filter(row=>{const key=row.url;if(seen.has(key))return false;seen.add(key);return true;});
+ const articles=[...base.articles,...custom].sort((a,b)=>(b.publishedAt||'').localeCompare(a.publishedAt||'')).filter(row=>{const key=`${row.kind}:${row.url}`;if(seen.has(key))return false;seen.add(key);return true;});
  const fetchedAt=[base.fetchedAt,...rows.map(row=>row.fetched_at)].filter(value=>value&&Number.isFinite(Date.parse(value))).sort((a,b)=>Date.parse(b)-Date.parse(a))[0]||null;
  return {...base,articles,fetchedAt,customSources:rows,errors_count:(base.errors_count||0)+rows.filter(row=>row.status==='error').length};
 }

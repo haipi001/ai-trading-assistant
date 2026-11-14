@@ -1,3 +1,4 @@
+import {observeVisibleInterval} from './visible-interval.js';
 import {readEmbeddedAppearance,chartAppearance} from './terminal-appearance.js';
 import {canUpdateCurrentCandle,candleStructureKey} from './chart-live-update.js';
 import { CHART_TYPES } from "./chart-pane-appearance.js";
@@ -25,7 +26,7 @@ import { observeCandleFeed } from "./live-market-candles.js";
 
 function CandleCountdown({ period }) {
   const [now, setNow] = useState(Date.now());
-  useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer); }, []);
+  useEffect(() => observeVisibleInterval(() => setNow(Date.now()), 1000), []);
   return <>UTC周期剩余 {periodCountdown(period, now)}</>;
 }
 

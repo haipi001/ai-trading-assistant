@@ -3,12 +3,12 @@ export function safeNewsURL(value) {
   try { const url = new URL(value); return url.protocol === 'https:' && !url.username && !url.password && (!url.port || url.port === '443') ? url.href : null; } catch { return null; }
 }
 export function newsSnapshot(value) {
-  if (!value || !['chinese_aggregate','panews','cointelegraph','nasdaq','newsapi'].includes(value.provider) || !Array.isArray(value.articles) || value.articles.length > 200 || !['ready','missing','error'].includes(value.status)) throw new Error('news_response_invalid');
+  if (!value || !['chinese_aggregate','panews','cointelegraph','nasdaq','newsapi'].includes(value.provider) || !Array.isArray(value.articles) || value.articles.length > 600 || !['ready','missing','error'].includes(value.status)) throw new Error('news_response_invalid');
   const articles = [], seen = new Set();
   for (const item of value.articles) {
     const url = safeNewsURL(item?.url);
-    if (!url || typeof item.title !== 'string' || !item.title.trim() || seen.has(url)) continue;
-    seen.add(url);
+    if (!url || typeof item.title !== 'string' || !item.title.trim() || seen.has(`${item.kind}:${url}`)) continue;
+    seen.add(`${item.kind}:${url}`);
     const date = typeof item.published_at === 'string' && /(?:Z|[+-]\d\d:\d\d)$/.test(item.published_at) && Number.isFinite(Date.parse(item.published_at)) ? item.published_at : null;
     articles.push({sourceStale:item.source_stale===true,sourceFailed:Boolean(item.source_error),sourceFetchedAt:typeof item.source_fetched_at==='string'?item.source_fetched_at:null,kind:item.kind==='flash'?'flash':item.kind==='article'?'article':value.provider==='panews'?'flash':'article',sourceId:typeof item.source_id==='string'?item.source_id:value.provider,id:url,title:item.title.slice(0,500),description:typeof item.description==='string'?item.description.slice(0,1200):'',url,publisher:typeof item.publisher==='string'?item.publisher:'来源未提供',publishedAt:date,rawTime:typeof item.published_at_raw==='string'?item.published_at_raw.slice(0,100):'',symbol:typeof item.symbol==='string'?item.symbol:''});
   }

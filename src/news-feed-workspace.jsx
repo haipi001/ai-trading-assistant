@@ -14,8 +14,10 @@ export function useNewsFeed(){
  const load=useCallback((refresh=false,automatic=false,replace=false)=>reader.current?.load({refresh,automatic,replace}),[]);
  useEffect(()=>{
   const current=createNewsFeedReader({request:apiRequest,onStart:()=>{setBusy(true);setError('');setNotice('');},onData:result=>{loadedAt.current=Date.now();setData(result);if(result.refresh_skipped)setNotice(result.refresh_skipped==='in_progress'?'已有资讯请求正在处理，本次显示缓存。':'请求间隔尚未到，本次显示缓存。');},onError:()=>setError('无法读取资讯服务，请检查本机后端连接。当前保留上次成功读取的消息。'),onIdle:()=>setBusy(false)});
-  reader.current=current;load();
-  const updated=()=>{setData(null);load(false,false,true);};
+  reader.current=current;
+  // Render cached stories immediately, then fetch sources even when periodic polling is disabled.
+  current.load().then(()=>current.load({refresh:true,automatic:true}));
+  const updated=()=>{current.load({replace:true}).then(()=>current.load({refresh:true,automatic:true}));};
   window.addEventListener('news-feed-settings-saved',updated);
   const timer=setInterval(()=>{if(!panelVisibility(document).hidden)setClock(Date.now());},15000);
   return()=>{current.stop();if(reader.current===current)reader.current=null;clearInterval(timer);window.removeEventListener('news-feed-settings-saved',updated);};

@@ -318,7 +318,7 @@ class NewsFeedService:
             for feed in feeds.values():
                 for row in feed.get('articles',[]):
                     if row['kind']==kind:unique.setdefault(row['url'],row)
-            merged.extend(sorted(unique.values(),key=lambda row:row['published_at'] or '',reverse=True)[:100])
+            merged.extend(sorted(unique.values(),key=lambda row:row['published_at'] or '',reverse=True))
         merged.sort(key=lambda row:row['published_at'] or '',reverse=True)
         cache.update(feeds=feeds,articles=merged,errors_count=len(jobs)-success,last_error=None if success else 'news_source_unavailable')
         if success:cache['fetched_at']=self.now().isoformat()

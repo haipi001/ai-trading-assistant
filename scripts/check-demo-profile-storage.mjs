@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {createDemoProfileStorage} from '../src/demo-profile-storage.js';
+import {readDemoStrategies,saveDemoStrategy,STRATEGY_TEMPLATES,DEMO_STRATEGY_KEY} from '../src/demo-strategy-model.js';
+const map=new Map(),raw={getItem:key=>map.get(key),setItem:(key,value)=>map.set(key,value)};
+map.set(DEMO_STRATEGY_KEY,JSON.stringify([{...STRATEGY_TEMPLATES[0],name:'Legacy owner unknown'}]));
+map.set('terminal.user','Alice');const alice=createDemoProfileStorage(raw);assert.deepEqual(readDemoStrategies(alice),[]);
+saveDemoStrategy(alice,[],{...STRATEGY_TEMPLATES[0],name:'Alice strategy'});alice.setItem('terminal.demo.notes.v1:cex:BTC/USDT','Alice note');
+map.set('terminal.user','Bob');const bob=createDemoProfileStorage(raw);assert.deepEqual(readDemoStrategies(bob),[]);assert.equal(bob.getItem('terminal.demo.notes.v1:cex:BTC/USDT'),undefined);
+saveDemoStrategy(bob,[],{...STRATEGY_TEMPLATES[0],name:'Bob strategy'});assert.equal(readDemoStrategies(alice)[0].name,'Alice strategy');assert.equal(readDemoStrategies(bob)[0].name,'Bob strategy');
+map.set('terminal.user','Alice');assert.equal(readDemoStrategies(createDemoProfileStorage(raw))[0].name,'Alice strategy');assert.equal(createDemoProfileStorage(raw).getItem('terminal.demo.notes.v1:cex:BTC/USDT'),'Alice note');
+assert.throws(()=>alice.getItem('credentials'));assert.equal(JSON.parse(map.get(DEMO_STRATEGY_KEY))[0].name,'Legacy owner unknown');
+console.log('PASS demo profile isolation, same-profile reuse and untouched unowned legacy data');
