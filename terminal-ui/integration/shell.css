@@ -89,3 +89,7 @@
 .native-workspace-content{display:contents}
 
 .quad[hidden]{display:none!important}
+
+.workspace-settings-footer{position:sticky;bottom:-24px;display:flex;justify-content:flex-end;gap:8px;margin:16px -24px -24px;padding:14px 24px;background:var(--panel);border-top:1px solid var(--line2);z-index:2}.workspace-settings-footer>button:last-child{background:var(--acc);color:var(--bg)}.workspace-setting-row>span{flex:1;min-width:0}.workspace-settings section>h3{font-size:13px;border-bottom:1px solid var(--line2);padding-block:8px}.workspace-setting-row label{min-width:0;overflow-wrap:anywhere}
+
+.utility-resize{position:absolute;top:0;bottom:0;left:0;width:8px;cursor:col-resize;touch-action:none}.utility-resize:hover,.utility-resize:focus-visible{background:var(--line2);outline:2px solid var(--accent)}

@@ -115,3 +115,5 @@ html[data-terminal-tool-only] .floating-ai{position:fixed;inset:0;width:100%;hei
 }
 
 .workspace-data-notice{margin:0;padding:7px 14px;font-size:11px;line-height:1.6;background:var(--ui-subtle,#f3f5f7);color:var(--ui-muted,#657580);border-bottom:1px solid var(--ui-line,#dce3e7)}
+
+.feature-recovery{max-width:560px;margin:clamp(24px,8vh,96px) auto;padding:24px;color:var(--txt,#263440);background:var(--panel,#fff);border:1px solid var(--line2,#cbd5df);border-radius:8px}.feature-recovery h2{font-size:20px;margin:0 0 16px}.feature-recovery p{line-height:1.7}.feature-recovery-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}.feature-recovery button{padding:8px 14px;cursor:pointer;color:inherit;background:var(--panel2,#f2f5f8);border:1px solid var(--line2,#cbd5df);border-radius:4px}.feature-recovery button:focus-visible{outline:2px solid currentColor;outline-offset:3px}

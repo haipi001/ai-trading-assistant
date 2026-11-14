@@ -1,3 +1,4 @@
+import {FeatureErrorBoundary} from './feature-error-boundary.js';
 import {setPanelActive} from './panel-visibility.js';
 import React,{Suspense,lazy,useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
@@ -22,4 +23,4 @@ function Feature(){
  if(packet?.context.market==='onchain'&&packet.target.page==='market')return <section className="feature-loading"><h2>链上行情</h2><p>链 ID：{packet.context.chainId} · 合约：{packet.context.contractAddress||'未选择'}</p><p>链上报价适配器尚未接入。请通过链上研究功能查看已支持的页面，当前不使用 CEX 报价代替链上合约价格。</p></section>;
  return packet?<><div className="feature-demo-toggle"><button onClick={()=>setDemo(true)}>功能演示 · 模拟数据</button><span>无需连接账户，体验本页样例与通用策略</span></div><App embedded terminalTarget={packet.target} terminalContext={packet.context}/><Suspense fallback={<p>正在加载模拟信息…</p>}><DemoWorkspace key={packet.target.code+packet.context.market+packet.context.instrumentId} target={packet.target} context={packet.context} onExit={()=>setDemo(false)}/></Suspense></>:<p className="feature-loading">正在连接终端工作区…</p>;
 }
-createRoot(document.getElementById('feature-root')).render(<Feature/>);
+createRoot(document.getElementById('feature-root')).render(<FeatureErrorBoundary><Feature/></FeatureErrorBoundary>);

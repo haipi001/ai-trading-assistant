@@ -8534,7 +8534,8 @@
       "journey": null,
       "api": null,
       "dataMode": "NOT_AUDITED",
-      "evidence": null
+      "evidence": null,
+      "retiredReason": "2026-11-14: Removed disabled credential placeholders from local account draft; real read-only API connection remains in ExchangeProbePanel."
     },
     {
       "id": "src/main.jsx:5365:16",
@@ -8550,7 +8551,8 @@
       "journey": null,
       "api": null,
       "dataMode": "NOT_AUDITED",
-      "evidence": null
+      "evidence": null,
+      "retiredReason": "2026-11-14: Removed disabled credential placeholders from local account draft; real read-only API connection remains in ExchangeProbePanel."
     },
     {
       "id": "src/main.jsx:5375:18",

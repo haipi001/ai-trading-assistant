@@ -1,1 +1,35 @@
-<!doctype html><html lang="zh-CN" data-terminal-feature><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>终端功能面板</title></head><body><div id="feature-root"></div><script type="module" src="/src/terminal-feature.jsx"></script></body></html>
+<!doctype html>
+<html lang="zh-CN" data-terminal-feature>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>终端功能面板</title>
+  <style>
+    #feature-startup{box-sizing:border-box;max-width:560px;margin:8vh auto;padding:24px;font:14px/1.7 system-ui,sans-serif;color:#344351;background:#f5f7f9;border:1px solid #cbd5df;border-radius:8px}
+    #feature-startup[hidden]{display:none}#feature-startup h2{font-size:18px;margin:0 0 12px}#feature-startup button{padding:8px 14px;font:inherit;cursor:pointer}#feature-startup button:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+    @media(prefers-color-scheme:dark){#feature-startup{color:#d5dfe9;background:#17202b;border-color:#425368}}
+  </style>
+</head>
+<body>
+  <section id="feature-startup" role="status" aria-live="polite">
+    <h2>正在加载功能面板</h2>
+    <p id="feature-startup-message">首次加载可能需要一些时间。</p>
+    <button id="feature-startup-reload" type="button" hidden>重新加载本页</button>
+    <noscript>此功能需要启用 JavaScript。</noscript>
+  </section>
+  <div id="feature-root"></div>
+  <script>
+    (()=>{
+      const panel=document.getElementById('feature-startup'),message=document.getElementById('feature-startup-message'),reload=document.getElementById('feature-startup-reload');
+      let started=false;
+      const show=failed=>{if(started)return;panel.querySelector('h2').textContent=failed?'功能资源加载失败':'功能面板仍在加载';message.textContent=failed?'请检查本机服务和网络连接，然后重新加载本页。其他已打开页面不受影响。':'加载时间较长。可以继续等待，或重新加载本页。';reload.hidden=false;};
+      const timer=setTimeout(()=>show(false),15000);
+      const failed=event=>{if(event.target?.tagName==='SCRIPT'||event.target?.tagName==='LINK'){clearTimeout(timer);show(true);}};
+      window.addEventListener('error',failed,true);
+      window.addEventListener('terminal:feature-mounted',()=>{started=true;clearTimeout(timer);panel.hidden=true;window.removeEventListener('error',failed,true);},{once:true});
+      reload.onclick=()=>window.location.reload();
+    })();
+  </script>
+  <script type="module" src="/src/terminal-feature.jsx"></script>
+</body>
+</html>

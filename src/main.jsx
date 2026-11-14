@@ -467,6 +467,7 @@ export function App({ embedded = false, terminalTarget = null, terminalContext =
     say('已打开原Paper票据读取草稿；没有批准或执行');
   };
   const ctx = {
+    embedded,
     allowDemo:!embedded,
     terminalEmbedded:embedded,
     workspaceContext,onReviewOrder:reviewAceOrder,paperReviewRequest,
@@ -3079,7 +3080,7 @@ function DataPage({ tab, openOverlay }) {
   );
 }
 
-function MorePage({ tab, go, say, openOverlay }) {
+function MorePage({ tab, go, say, openOverlay, embedded=false }) {
   const defaultNav = ["行情工作区", "常用策略", "数据看板"];
   const [customNav, setCustomNav] = useStoredState(
     "ai-trading-assistant-custom-nav",
@@ -3120,6 +3121,7 @@ function MorePage({ tab, go, say, openOverlay }) {
       ["关于 AI交易助手", I.Info],
     ],
   }[tab];
+  if(embedded&&tab==='自定义导航')return <section className="more-full"><header><small>工作区设置</small><h1>自定义导航与工具栏</h1><p>左侧分组与页面、顶部工作标签、右侧辅助工具分别管理。市场切换保留你的显隐、排序和展开选择。</p></header><button onClick={()=>parent.postMessage({type:'terminal:workspace-settings-open'},location.origin)}>打开统一工作区设置</button><p>支持标准/专业预设、收藏、分组与工具排序、收纳到更多、导入导出；修改可预览、取消或保存。也可从右侧底部设置按钮进入。</p></section>;
   return (
     <div className="more-full">
       <header>
@@ -3864,7 +3866,7 @@ function Auth({
           <h1>交易所连接</h1><button className="solid" onClick={()=>setProbeOpen("binance")}>连接交易所只读API</button>
           <button
             className="solid"
-            onClick={() => openOverlay("apiAuth", "添加 API 授权")}
+            onClick={() => openOverlay("apiAuth", "新建本地账户草稿")}
           >
             + 本地草稿
           </button>
@@ -3918,7 +3920,7 @@ function Auth({
             <p>本地草稿不会连接交易所；真实连接显示在上方。</p>
             <button
               className="solid"
-              onClick={() => openOverlay("apiAuth", "添加 API 授权")}
+              onClick={() => openOverlay("apiAuth", "新建本地账户草稿")}
             >
               新建本地草稿
             </button>
@@ -5156,10 +5158,6 @@ function ActionOverlay({
   const [authForm, setAuthForm] = useState({
     platform: model.platform || "币安",
     alias: model.platform ? `${model.platform} 主账户` : "",
-    apiKey: "",
-    apiSecret: "",
-    read: true,
-    trade: true,
   });
   const [helpTopic, setHelpTopic] = useState("");
   const [layoutName, setLayoutName] = useState("BTC 主交易布局");
@@ -5521,135 +5519,23 @@ function ActionOverlay({
           </div>
         ) : model.type === "apiAuth" ? (
           <div className="wizard">
-            <div className="wizard-steps">
-              {["选择平台", "API 信息", "安全确认"].map((name, index) => (
-                <span key={name} className={step >= index + 1 ? "on" : ""}>
-                  <i>{index + 1}</i>
-                  {name}
-                </span>
-              ))}
+            <p role="note">本地账户草稿仅记录平台与别名，不连接交易所。真实只读连接请前往“API授权”页面的“连接交易所只读API”。</p>
+            <div className="wizard-form">
+              <label htmlFor="account-draft-platform">交易平台</label>
+              <select id="account-draft-platform" value={authForm.platform} onChange={(e) => setAuthForm({ ...authForm, platform: e.target.value })}>
+                {["币安", "OKX", "Bitget", "Bybit", "Gate"].map((platform) => <option key={platform}>{platform}</option>)}
+              </select>
+              <label htmlFor="account-draft-alias">账户别名</label>
+              <input id="account-draft-alias" maxLength={80} value={authForm.alias} onChange={(e) => setAuthForm({ ...authForm, alias: e.target.value })} placeholder="例如 币安主账户" />
             </div>
-            {step === 1 ? (
-              <div className="wizard-form">
-                <label>交易平台</label>
-                <select
-                  value={authForm.platform}
-                  onChange={(e) =>
-                    setAuthForm({ ...authForm, platform: e.target.value })
-                  }
-                >
-                  {["币安", "OKX", "Bitget", "Bybit", "Gate"].map(
-                    (platform) => (
-                      <option key={platform}>{platform}</option>
-                    ),
-                  )}
-                </select>
-                <label>账户别名</label>
-                <input
-                  value={authForm.alias}
-                  onChange={(e) =>
-                    setAuthForm({ ...authForm, alias: e.target.value })
-                  }
-                  placeholder="例如 币安主账户"
-                />
-              </div>
-            ) : step === 2 ? (
-              <div className="wizard-form">
-                <label>API Key</label>
-                <input
-                  type="password"
-                  value={authForm.apiKey}
-                  onChange={(e) =>
-                    setAuthForm({ ...authForm, apiKey: e.target.value })
-                  }
-                  disabled
-                  placeholder="连接服务待接入，请勿填写真实密钥"
-                />
-                <label>Secret Key</label>
-                <input
-                  type="password"
-                  value={authForm.apiSecret}
-                  onChange={(e) =>
-                    setAuthForm({ ...authForm, apiSecret: e.target.value })
-                  }
-                  disabled
-                  placeholder="连接服务待接入，请勿填写真实密钥"
-                />
-                <div className="permission-row">
-                  <button
-                    onClick={() =>
-                      setAuthForm({ ...authForm, read: !authForm.read })
-                    }
-                  >
-                    <i className={authForm.read ? "switch on" : "switch"} />
-                    读取权限
-                  </button>
-                  <button
-                    onClick={() =>
-                      setAuthForm({ ...authForm, trade: !authForm.trade })
-                    }
-                  >
-                    <i className={authForm.trade ? "switch on" : "switch"} />
-                    交易权限
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="wizard-review security-review">
-                <I.ShieldCheck />
-                <h3>确认安全权限</h3>
-                <p>
-                  <span>平台</span>
-                  <b>{authForm.platform}</b>
-                </p>
-                <p>
-                  <span>账户</span>
-                  <b>{authForm.alias}</b>
-                </p>
-                <p>
-                  <span>权限</span>
-                  <b>
-                    {authForm.read ? "读取" : ""}
-                    {authForm.trade ? "、交易" : ""}
-                  </b>
-                </p>
-                <small>
-                  请确保交易所 API
-                  未开启提现或转账权限。密钥不会写入本地演示数据。
-                </small>
-              </div>
-            )}
             <div className="wizard-actions">
-              <button
-                onClick={() => (step === 1 ? close() : setStep(step - 1))}
-              >
-                {step === 1 ? "取消" : "上一步"}
-              </button>
-              <button
-                className="overlay-primary"
-                onClick={() => {
-                  if (step === 1 && !authForm.alias.trim())
-                    return say("请填写账户别名");
-                  if (step === 2 && !authForm.read)
-                    return say("至少需要开启读取权限");
-                  if (step < 3) return setStep(step + 1);
-                  setAuthorizedAccounts([
-                    ...authorizedAccounts,
-                    {
-                      id: Date.now(),
-                      platform: authForm.platform,
-                      alias: authForm.alias,
-                      status: "未连接交易所",
-                      connectionVerified: false,
-                      mode: "local_draft",
-                      createdAt: new Date().toLocaleDateString("zh-CN"),
-                    },
-                  ]);
-                  done(`${authForm.alias} 已保存本地账户草稿，尚未连接交易所`);
-                }}
-              >
-                {step < 3 ? "下一步" : "保存账户草稿"}
-              </button>
+              <button onClick={close}>取消</button>
+              <button className="overlay-primary" onClick={() => {
+                const alias=authForm.alias.trim();
+                if (!alias) return say("请填写账户别名");
+                setAuthorizedAccounts([...authorizedAccounts, {id: Date.now(), platform: authForm.platform, alias, status: "未连接交易所", connectionVerified: false, mode: "local_draft", createdAt: new Date().toLocaleDateString("zh-CN")}]);
+                done(`${alias} 已保存本地账户草稿，尚未连接交易所`);
+              }}>保存账户草稿</button>
             </div>
           </div>
         ) : model.type === "addWatch" ? (

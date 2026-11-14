@@ -52,6 +52,7 @@
   if(['notes','calculator'].includes(id)){closeTool();window.dispatchEvent(new CustomEvent('terminal:local-tool',{detail:id}));return;}
   if(!window.TerminalBackend){status.hidden=false;status.textContent=language==='en'?'Workspace is not ready. Start the local server and reload the terminal.':'工作区尚未就绪，请启动本地服务并重新加载终端。';return;}
 
+  window.dispatchEvent(new CustomEvent('terminal:business-tool-opening'));
   if(toolDialog&&pendingTool===id){if(!toolDialog.hidden){closeTool();return;}toolDialog.hidden=false;toolFrame.hidden=false;document.querySelector('.body').classList.add('tool-open');rememberTool(true);window.dispatchEvent(new CustomEvent('terminal:panel-activity'));if(toolNeedsActivation&&toolReady){toolFrame.contentWindow.postMessage({type:'terminal:feature-tool',tool:id},location.origin);toolNeedsActivation=false;}setActive(id);return;}
   if(toolDialog){toolDialog.hidden=false;toolFrame.hidden=false;document.querySelector('.body').classList.add('tool-open');}
   pendingTool=id;toolOpener=opener;

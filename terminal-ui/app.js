@@ -3635,7 +3635,14 @@
       $("phTitle").textContent = "PAGE UNAVAILABLE";
       $("phSub").textContent = "Check the function code or security identifier";
       $("phRight").textContent = "LOCAL RECOVERY";
-      view.innerHTML = '<div class="setwrap"><section class="setcard"><h3>PAGE NOT FOUND</h3><p class="system-copy">The address '+uiEscape(App.routeError)+' does not match an available function and security. Your saved profile has not been changed.</p><div class="sbtns"><button class="xbtn" data-go="HELP">FUNCTION DIRECTORY</button><button class="xbtn" data-go="WEI">MARKETS</button><button class="xbtn" data-go="SET">SETTINGS</button></div></section></div>';
+      for(const native of view.querySelectorAll('.native-workspace-content'))native.remove();
+      for(const quad of view.querySelectorAll(':scope > .quad')){quad.hidden=true;for(const cell of quad.querySelectorAll('.qcell'))cell.classList.remove('focus');}
+      for(const frame of view.querySelectorAll('iframe[data-terminal-feature]')){frame.hidden=true;frame.inert=true;}
+      const recovery=document.createElement('div');recovery.className='native-workspace-content';
+      recovery.innerHTML = '<div class="setwrap"><section class="setcard"><h3>PAGE NOT FOUND</h3><p class="system-copy">The address '+uiEscape(App.routeError)+' does not match an available function and security. Your saved profile has not been changed.</p><div class="sbtns"><button class="xbtn" data-go="HELP">FUNCTION DIRECTORY</button><button class="xbtn" data-go="WEI">MARKETS</button><button class="xbtn" data-go="SET">SETTINGS</button></div></section></div>';
+      view.append(recovery);
+      const header=document.querySelector('.panel-hd');if(header)header.hidden=false;
+      window.dispatchEvent(new CustomEvent('terminal:panel-activity'));
       return;
     }
     if (App.layout !== "1") { renderQuad(); return; }
