@@ -33,4 +33,4 @@ export function filterNews(articles, channel, query='', allChannels=false) {
  return articles.filter(item=>{const text=`${item.title} ${item.description} ${item.publisher} ${item.symbol}`.normalize('NFKC');return (!matcher||matcher.test(text))&&(!needle||text.toLocaleLowerCase().includes(needle));});
 }
 
-export const newsProviderLabel=value=>({chinese_aggregate:"中文多源聚合",panews:"PANews 中文快讯",cointelegraph:"Cointelegraph RSS（英文）",nasdaq:"Nasdaq 股票新闻",newsapi:"NewsAPI"}[value]||"正在读取资讯来源");
+export const newsProviderLabel=value=>({custom:"自定义 RSS",chinese_aggregate:"中文多源聚合",panews:"PANews 中文快讯",cointelegraph:"Cointelegraph RSS（英文）",nasdaq:"Nasdaq 股票新闻",newsapi:"NewsAPI"}[value]||"正在读取资讯来源");

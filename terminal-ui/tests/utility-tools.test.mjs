@@ -1,0 +1,3 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {calculatePosition} from '../integration/utility-tools.mjs';
+test('position calculation uses risk budget and absolute price distance',()=>{const result=calculatePosition({capital:10000,riskPercent:1,entry:100,stop:95});assert.deepEqual(result,{budget:100,unitRisk:5,quantity:20,notional:2000});assert.equal(calculatePosition({capital:10000,riskPercent:1,entry:100,stop:105}).quantity,20);});
+test('invalid or unbounded inputs do not yield a position',()=>{for(const patch of [{entry:100,stop:100},{capital:0},{riskPercent:101},{entry:Infinity},{stop:''}])assert.equal(calculatePosition({capital:10000,riskPercent:1,entry:100,stop:95,...patch}),null);});

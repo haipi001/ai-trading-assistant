@@ -1,3 +1,5 @@
+import {chartStorage} from './panel-storage.js';
+import {SourceAIWorkspace,AIActivityCenter,LiveOrderTicket} from './terminal-tool-workspaces.jsx';
 import {getSessionIdentity as strategySessionIdentity} from './backend-session.js';
 import {tradingContextIdentity as strategyContextIdentity} from './terminal-trading-policy.js';
 import {strategyAttachmentMatches} from './research-strategy.js';
@@ -24,7 +26,9 @@ import {BackendSessionSettings} from './backend-session-settings.jsx';
 import {ImportantNewsNotices,NewsNoticeSettings} from './news-notices.jsx';
 import {marketResearchCapture} from './research-market-context.js';
 import {ResearchNewsContext} from './research-news-context.jsx';
+import {SubscriptionQuotes} from './subscription-live.jsx';
 import {NewsFeedWorkspace,NewsFeedRail} from './news-feed-workspace.jsx';
+import {SubscriptionSettings} from './subscription-settings.jsx';
 import {NewsFeedSettings} from './news-feed-settings.jsx';
 import {requestResearchChat,researchText,AI_MESSAGES} from './research-ai.js';
 import {AIIntegrationSettings} from './ai-integration-settings.jsx';
@@ -60,6 +64,7 @@ import "./strategy-filters.css";
 import "./professional-sidebar.css";
 import "./brand.css";
 import "./backend-status.css";
+import "./ui-refinement.css";
 import { ChartToolPopover, KlineReplayPanel, MarketWorkbench, StrategyProductWorkbench } from "./market-workbench.jsx";
 import { FEATURE_OVERLAY_TYPES, FeatureOverlayPanel } from "./feature-overlays.jsx";
 import { TradingChartGrid } from "./trading-chart.jsx";
@@ -225,14 +230,14 @@ function readLastWorkspace() {
 function useStoredState(key, initialValue) {
   const [state, setState] = useState(() => {
     try {
-      const saved = localStorage.getItem(key);
+      const saved = chartStorage().getItem(key);
       return saved ? JSON.parse(saved) : initialValue;
     } catch {
       return initialValue;
     }
   });
   useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(state));
+    chartStorage().setItem(key, JSON.stringify(state));
     window.dispatchEvent(new CustomEvent("ai-trading-assistant-local-state", { detail: { key, value: state } }));
   }, [key, state]);
   return [state, setState];
@@ -336,10 +341,11 @@ export function App({ embedded = false, terminalTarget = null, terminalContext =
     const escape=event=>{if(event.key==='Escape'){setDrawer(null);if(page==='market'){setMarketSideOpen(false);setMarketOrderOpen(false);}setAiFloatOpen(false);}};
     const tool = event => {
       const id=event.detail?.tool;
-      if (!['depth','news','funds','analysis','feature','etf','ai','trade','sidebarLayout','help','research'].includes(id)) return;
+      if (!['depth','news','funds','analysis','feature','etf','ai','trade','sidebarLayout','help','research','aiSettings','newsSettings','backendSettings'].includes(id)) return;
       parent.postMessage({type:'terminal:tool-activated',tool:id},location.origin);
       setAiFloatOpen(false);setOverlay(null);
-      if(id==='research'){setAiFloatOpen(true);return;}
+      if(['aiSettings','newsSettings','backendSettings'].includes(id)){openOverlay('settings',({aiSettings:'AI服务设置',newsSettings:'连接与订阅',backendSettings:'后端会话设置'})[id]);return;}
+      if(id==='research'){setDrawer('aiCenter');return;}
       if(id==='help'){openOverlay('help','在线客服与帮助中心');return;}
       if(id==='sidebarLayout'){setDrawer(value=>value==='sidebarLayout'?null:'sidebarLayout');return;}
       if(page==='market') {
@@ -536,11 +542,11 @@ export function App({ embedded = false, terminalTarget = null, terminalContext =
           onMarketAction={(type) => setMarketCommand({ type, id: Date.now() })}
         />
       </div>
-      {embedded && terminalTarget && terminalContext && <PageAIGuide feature={terminalTarget} context={terminalContext}/>}
+      { /* Page-level AI banner removed across embedded workspaces. */ }
       <main className={`canvas ${page === "market" && marketSideOpen ? "market-drawer-open" : ""}`} ref={canvasRef}>
         {embedded && terminalContext?.market === "onchain" && (page === "chain" || page === "assets" || page === "more" && tab === "钱包") && <TerminalOnchainWorkspace context={terminalContext}/> }
         {page === "home" ? (
-          <Home {...ctx} />
+          <><p className="workspace-data-notice" role="note">数据说明：本首页概览、榜单、筛选及雷达中的市场数字为演示样本，不代表实时行情，不可作为 AI 研究或下单依据。AI 回复与资讯连接状态另行标注。</p><Home {...ctx} /></>
         ) : page === "market" ? (
           <Market {...ctx} />
         ) : page === "news" ? (
@@ -556,7 +562,7 @@ export function App({ embedded = false, terminalTarget = null, terminalContext =
         ) : page === "auth" ? (
           <Auth {...ctx} />
         ) : page === "data" ? (
-          <DataPage {...ctx} />
+          <><p className="workspace-data-notice" role="note">数据说明：此页储备与统计数字为演示样本，尚未接入可核验的实时来源。</p><DataPage {...ctx} /></>
         ) : page === "more" ? (
           <MorePage {...ctx} />
         ) : (
@@ -1281,9 +1287,9 @@ function FuturesRadar() {
   const radarRows = coins.map((x, i) => [
     x[0],
     (0.006 + i * 0.0012).toFixed(4) + "%",
-    (12 - i * 1.4).toFixed(1) + "亿美元",
-    8420 - i * 730 + "万",
-    "1." + (62 - i * 7),
+    (12 / (1 + i * .4)).toFixed(1) + "亿美元",
+    Math.round(8420 / (1 + i * .35)) + "万",
+    (1.62 / (1 + i * .07)).toFixed(2),
   ]).sort((a,b)=>{
     const column={资金费率:1,持仓量:2,爆仓:3,多空比:4}[metric];
     return parseFloat(String(b[column]).replace(/[^\d.]/g,""))-parseFloat(String(a[column]).replace(/[^\d.]/g,""));
@@ -1413,6 +1419,16 @@ function Market({
   const [period, setPeriod] = useState("5分"),
     [tool, setTool] = useState(null),
     [bottom, setBottom] = useState("自定义指标/回测/实盘");
+  const [workHeight, setWorkHeight] = useStoredState("terminal-bottom-work-height", 286);
+  const startWorkbenchResize = event => {
+    event.preventDefault();
+    const handle = event.currentTarget;
+    const y = event.clientY, initial = workHeight;
+    handle.setPointerCapture(event.pointerId);
+    const move = e => setWorkHeight(Math.max(120, Math.min(window.innerHeight * .7, initial + y - e.clientY)));
+    const stop = () => { handle.removeEventListener('pointermove', move); handle.removeEventListener('pointerup', stop); handle.removeEventListener('pointercancel', stop); };
+    handle.addEventListener('pointermove', move); handle.addEventListener('pointerup', stop); handle.addEventListener('pointercancel', stop);
+  };
   const [watchOpen, setWatchOpen] = useState(false);
   const [orderSplit, setOrderSplit] = useStoredState("ai-trading-assistant-market-order-split", 58);
   const [drawingTool, setDrawingTool] = useState("光标");
@@ -1604,7 +1620,7 @@ function Market({
     if(!await setChartLayouts(next))return;setActiveLayout(layout.id);say("当前设置已复制为独立布局；行情文件不会复制到布局");
   }catch(error){say(`复制布局失败：${error.message}`);}};
   const exportChartLayout=()=>{try{const layout=chartLayouts.find(item=>item.id===activeLayout),text=encodeChartLayout(layout?.name,captureLayout()),url=URL.createObjectURL(new Blob([text],{type:"application/json"})),link=document.createElement("a");link.href=url;link.download="chart-layout.json";link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}catch(error){say(error.message);}};
-  const importChartLayout=async file=>{try{const before=localStorage.getItem("ai-trading-assistant-chart-tabs");if(file.size>CHART_LAYOUT_FILE_LIMIT)throw new Error("布局文件最大2MB");const parsed=decodeChartLayout(await file.text());if(localStorage.getItem("ai-trading-assistant-chart-tabs")!==before)throw new Error("布局列表已变化，请重新导入");if(chartLayouts.length>=100)throw new Error("最多保存100套布局");const layout={id:crypto.randomUUID(),name:`导入 ${parsed.name}`.slice(0,80),symbol:parsed.state.symbol,state:parsed.state,saved:true},next=[...chartLayouts,layout];if(!await setChartLayouts(next))return;selectChartLayout(layout);setActiveLayout(layout.id);say("布局已导入为新标签");}catch(error){say(`布局导入失败：${error.message}`);}};
+  const importChartLayout=async file=>{try{const before=chartStorage().getItem("ai-trading-assistant-chart-tabs");if(file.size>CHART_LAYOUT_FILE_LIMIT)throw new Error("布局文件最大2MB");const parsed=decodeChartLayout(await file.text());if(chartStorage().getItem("ai-trading-assistant-chart-tabs")!==before)throw new Error("布局列表已变化，请重新导入");if(chartLayouts.length>=100)throw new Error("最多保存100套布局");const layout={id:crypto.randomUUID(),name:`导入 ${parsed.name}`.slice(0,80),symbol:parsed.state.symbol,state:parsed.state,saved:true},next=[...chartLayouts,layout];if(!await setChartLayouts(next))return;selectChartLayout(layout);setActiveLayout(layout.id);say("布局已导入为新标签");}catch(error){say(`布局导入失败：${error.message}`);}};
   const createChartSnapshot = (source = "图表工具栏") => {
     let state;try {state=captureLayout();} catch(error) {return say(error.message);}
     const now = new Date();
@@ -1706,7 +1722,9 @@ function Market({
         className={
           fullscreen ? "chart-workspace chart-fullscreen" : "chart-workspace"
         }
+        style={{"--work-height": `${workHeight}px`}}
       >
+        <SubscriptionQuotes openOverlay={openOverlay}/>
         <div className="chart-layout-bar">
           <button className="symbol-chip" onClick={() => setWatchOpen(!watchOpen)}>
             <i>{symbol.slice(0, 1)}</i>
@@ -2061,6 +2079,7 @@ function Market({
             ),
           )}
         </div>
+        <button onClick={event=>event.preventDefault()} className="workbench-divider" aria-label="调整图表与底部工作区高度" title="上下拖动调整，双击恢复默认" onPointerDown={startWorkbenchResize} onDoubleClick={()=>setWorkHeight(286)} onKeyDown={e=>{if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();setWorkHeight(Math.max(120,Math.min(window.innerHeight*.7,workHeight+(e.key==='ArrowUp'?20:-20))));}}}><span /></button>
         <MarketWorkbench
           navigation={workbenchNavigation}
           active={bottom}
@@ -2905,7 +2924,7 @@ function DataPage({ tab, openOverlay }) {
           <div>
             <small>Hyperliquid</small>
             <h1>链上永续合约数据中心</h1>
-            <p>市场、持仓、资金费率与巨鲸活动实时概览</p>
+            <p>市场、持仓与资金费率的示例布局；尚未接入实时索引</p>
           </div>
           <div>
             {["1H", "4H", "24H", "7D"].map((x) => (
@@ -3179,9 +3198,9 @@ function MorePage({ tab, go, say, openOverlay }) {
 
 const stratSide = [
   ["我的策略", "交易笔记/标签关联/策略草稿"],
-  ["智能套利", "低风险/稳健收益/随存随取"],
-  ["全币种 DCA", "均摊成本/分批抄底/复利效应"],
-  ["AI网格", "捕捉差价/可加杠杆/中短线"],
+  ["智能套利", "价差研究/成本核对/风险评估"],
+  ["全币种 DCA", "分批计划/预算管理/回测验证"],
+  ["AI网格", "区间研究/参数配置/风险检查"],
   ["指标策略", "独家信号/实时监测/自动下单"],
   ["跟单策略 · CEX", "捕捉信号/复制高手收益"],
   ["跟单策略 · DEX", "Hyperliquid 链上跟单"],
@@ -4238,7 +4257,7 @@ function RightRail({ page, drawer, setDrawer, openOverlay, sidebarMode, setSideb
 }
 function UtilityDrawer({ workspaceContext,onReviewOrder,paperReviewRequest,type, close, go, say, watch, setWatch, marketSymbol = "BTC", prefill, openOverlay, openDrawer, authorizedAccounts = [], sidebarMode = "professional", embedded = false }) {
   if (type === "sidebarLayout") return null;
-  const title = type === "layout" ? "组件列表" : type === "trade" ? "下单面板" : type === "info" ? "币种简况" : RT.find((x) => x[0] === type)?.[1];
+  const title = type === "aiCenter" ? "AI 工作中心" : type === "layout" ? "组件列表" : type === "trade" ? "下单面板" : type === "info" ? "币种简况" : RT.find((x) => x[0] === type)?.[1];
   const [tradeSide, setTradeSide] = useState("买入");
   const [tradeOrderType, setTradeOrderType] = useState("限价");
   const [agentPrompt, setAgentPrompt] = useState("");
@@ -4284,7 +4303,7 @@ function UtilityDrawer({ workspaceContext,onReviewOrder,paperReviewRequest,type,
           <I.X />
         </button>
       </header>
-      {type !== "ai" && type !== "trade" && sidebarMode === "professional" && (
+      {type !== "ai" && type !== "aiCenter" && type !== "trade" && sidebarMode === "professional" && (
         <section className="professional-instrument">
           <div className="professional-quote">
             <span><i>{marketSymbol.slice(0, 1)}</i><b>{instrumentTitle}</b></span>
@@ -4299,8 +4318,8 @@ function UtilityDrawer({ workspaceContext,onReviewOrder,paperReviewRequest,type,
           <nav>{professionalTabs.map(([id, label]) => <button key={id} className={type === id ? "on" : ""} onClick={() => openDrawer(id)}>{label}</button>)}</nav>
         </section>
       )}
-      {type === "ai" ? (
-        <><div className="ace-drawer-status"><AceAgentDock onReviewOrder={onReviewOrder}><div className="ace-drawer-chat-launch"><p>继续现有研究对话，发送前选择资料并明确确认。任务与订单状态可独立查看，无需调用模型。</p><button type="button" onClick={()=>{close();openOverlay('aiChart','Ace研究对话',{question:agentPrompt||'梳理当前研究需要哪些数据'});}}>进入研究对话</button></div></AceAgentDock></div><details className="ace-legacy-tools"><summary>本地演示策略工具（不代表正在运行的 AI）</summary>        {type === "ai" ? (
+      {type === "aiCenter" ? <AIActivityCenter go={go} onReviewOrder={onReviewOrder}/> : type === "ai" ? (
+        <><SourceAIWorkspace renderSource={source=><RailPanel key={source} type={source} say={say} go={go} watch={watch} setWatch={setWatch} symbol={marketSymbol}/>}/><details><summary>Agent 任务与历史工具</summary><div className="ace-drawer-status"><AceAgentDock onReviewOrder={onReviewOrder}><div className="ace-drawer-chat-launch"><p>继续现有研究对话，发送前选择资料并明确确认。任务与订单状态可独立查看，无需调用模型。</p><button type="button" onClick={()=>{close();openOverlay('aiChart','Ace研究对话',{question:agentPrompt||'梳理当前研究需要哪些数据'});}}>进入研究对话</button></div></AceAgentDock></div></details><details className="ace-legacy-tools"><summary>本地演示策略工具（不代表正在运行的 AI）</summary>        {type === "ai" ? (
           <div className="agent-modes">
             {["Agent", "Chat"].map((x) => (
               <button
@@ -4383,7 +4402,7 @@ function UtilityDrawer({ workspaceContext,onReviewOrder,paperReviewRequest,type,
           )}
         </div></details></>
       ) : type === "trade" ? (
-        <div className="professional-order-panel">
+        <div className="professional-order-panel"><LiveOrderTicket openConnections={()=>{close();go("auth");}}/>
           <nav className="professional-order-tabs">
             {["下单", "抢新开盘", "特色"].map((name) => <button key={name} className={orderPanelTab === name ? "on" : ""} onClick={() => { setOrderPanelTab(name); setOrderTool(null); }}>{name}</button>)}
             <button aria-label="下单设置" onClick={() => openOverlay("settings", "下单设置")}><I.Gear/></button>
@@ -4518,7 +4537,7 @@ function UtilityDrawer({ workspaceContext,onReviewOrder,paperReviewRequest,type,
           </> : <div className="order-auth-hub">
             <span className="auth-badge">真实交易未接入</span>
             {prefill?.symbol===marketSymbol && <p role="status" className="order-prefill-summary">待填入：{prefill.symbol} · 限价{tradeSide} · {tradeForm.price}。尚未提交委托。</p>}
-            <h3>连接交易所，查看真实账户余额</h3>
+            <details><summary>连接设置 · 只读账户与权限</summary><h3>连接交易所，查看真实账户余额</h3>
             <p>可在连接管理中验证 Binance、OKX、Bybit、Bitget 和 Gate 的只读 API，并按需保存已验证凭证。密钥会发送到当前交易后端；保存时写入后端本机文件。行情连接和只读账户连接均不提供真实下单权限。</p>
             <div className="order-auth-tools">
               {[
@@ -4530,7 +4549,7 @@ function UtilityDrawer({ workspaceContext,onReviewOrder,paperReviewRequest,type,
             </div>
             {orderTool && <div className="order-tool-preview"><b>{orderTool}</b><p>{orderTool === "抢新开盘" ? "设置开盘时间、价格保护和最大重试次数；授权后才可进入确认。" : orderTool === "多账户下单" ? "创建账户分组并设置跟单/分仓比例；提交前逐账户预览。" : orderTool === "三键下单" ? "配置买多、卖空、平仓三键数量和二次确认。" : "配置总量、单笔随机范围、间隔与价格保护。"}</p><button onClick={() => setOrderPanelTab(orderTool === "抢新开盘" ? "抢新开盘" : "特色")}>查看配置</button></div>}
             <button className="drawer-primary" onClick={() => { close(); go("auth"); }}>连接交易所只读API</button>
-            <button className="auth-manage-link" onClick={() => { close(); go("auth"); }}>查看授权管理</button>
+            <button className="auth-manage-link" onClick={() => { close(); go("auth"); }}>查看授权管理</button></details>
           </div>) : orderPanelTab === "抢新开盘" ? <div className="first-open-panel">
             <I.RocketLaunch/>
             <h3>抢新开盘</h3>
@@ -4935,8 +4954,8 @@ function MessageCenterPanel({ say }) {
   );
 }
 
-function SystemSettingsPanel({ workspaceContext,workspaceAgentOpen,onRestoreWorkspace,prefs, setPrefs, close, say, initialSection = "通用" }) {
-  const sections = ["通用", "工作区同步", "后端会话", "AI服务", "资讯服务", "K线设置", "下单设置", "预警", "快讯弹窗", "策略通知", "市场异动", "消息中心", "Webhook"];
+function SystemSettingsPanel({ workspaceContext,workspaceAgentOpen,onRestoreWorkspace,prefs, setPrefs, close, say, initialSection = "连接与订阅" }) {
+  const sections = ["连接与订阅", "通用", "工作区同步", "后端会话", "AI服务", "资讯服务", "K线设置", "下单设置", "预警", "快讯弹窗", "策略通知", "市场异动", "消息中心", "Webhook"];
   const [section, setSection] = useState(initialSection);
   const settingDefaults = {
     theme: "浅色", scale: "100%", redUp: prefs.redUp ?? false, minimize: true, autoUpdate: true,
@@ -4975,7 +4994,8 @@ function SystemSettingsPanel({ workspaceContext,workspaceAgentOpen,onRestoreWork
   };
   const switchRow = (key, title, description) => <button className="setting-switch-row" onClick={() => toggle(key)}><span><b>{title}</b><small>{description}</small></span><i className={settings[key] ? "switch on" : "switch"}/></button>;
   let content;
-  if(section==="工作区同步")content=<WorkspaceSyncSettings key={workspaceContext?.user_id||"local"} context={workspaceContext} agentOpen={workspaceAgentOpen} onRestore={onRestoreWorkspace}/>;
+  if(section==="连接与订阅")content=<SubscriptionSettings/>;
+  else if(section==="工作区同步")content=<WorkspaceSyncSettings key={workspaceContext?.user_id||"local"} context={workspaceContext} agentOpen={workspaceAgentOpen} onRestore={onRestoreWorkspace}/>;
   else if(section==="后端会话")content=<BackendSessionSettings/>;
   else if(section==="AI服务")content=<AIIntegrationSettings/>;
   else if(section==="资讯服务")content=<NewsFeedSettings/>;
@@ -5215,7 +5235,7 @@ function ActionOverlay({
             <button onClick={() => done("已退出演示账户")}>退出登录</button>
           </div>
         ) : model.type === "settings" ? (
-          <SystemSettingsPanel workspaceContext={workspaceContext} workspaceAgentOpen={workspaceAgentOpen} onRestoreWorkspace={onRestoreWorkspace} prefs={prefs} setPrefs={setPrefs} close={close} say={say} initialSection={model.title.includes("弹窗")?"快讯弹窗":model.title.includes("资讯")?"资讯服务":model.title.includes("AI服务")?"AI服务":"通用"} />
+          <SystemSettingsPanel workspaceContext={workspaceContext} workspaceAgentOpen={workspaceAgentOpen} onRestoreWorkspace={onRestoreWorkspace} prefs={prefs} setPrefs={setPrefs} close={close} say={say} initialSection={model.title.includes("连接与订阅")?"连接与订阅":model.title.includes("弹窗")?"快讯弹窗":model.title.includes("资讯")?"资讯服务":model.title.includes("AI服务")?"AI服务":model.title.includes("后端会话")?"后端会话":"连接与订阅"} />
         ) : model.type === "create" && model.title.includes("图表布局") ? (
           <div className="layout-create-panel">
             <p>新布局会保存当前图表、指标与工作台组合，可随时从布局列表恢复。</p>

@@ -15,3 +15,8 @@ stop();assert.equal(signal.aborted,true);assert.equal(listener,null);
 pending({status:'connected'});await flush();assert.equal(output.length,1);assert.equal(scheduledTasks.size,0);
 page.visibilityState='hidden';const stopHidden=observeMarketSnapshot(()=>{throw new Error('must not run');},()=>assert.fail(),env);assert.equal(scheduledTasks.size,0);stopHidden();
 console.log('Market polling: sequential requests, visibility pause/resume, disposal and late-response rejection passed');
+// Hiding an in-flight request must not publish a false failure; reactivation resumes.
+page.visibilityState='visible';let activeCalls=0,hiddenSignal;const hiddenOutput=[];
+const stopActive=observeMarketSnapshot(s=>{activeCalls++;hiddenSignal=s;return new Promise((resolve,reject)=>s.addEventListener('abort',()=>reject(new Error('aborted')),{once:true}));},row=>hiddenOutput.push(row),env);
+assert.equal(activeCalls,1);page.visibilityState='hidden';listener();assert.equal(hiddenSignal.aborted,true);page.visibilityState='visible';listener();await flush();assert.equal(activeCalls,2);assert.equal(hiddenOutput.length,0);stopActive();await flush();assert.equal(listener,null);
+console.log('Market polling hidden-request abort and immediate reactivation passed');

@@ -1,0 +1,3 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {displayContext} from '../integration/display-context.mjs';
+test('fixed display context excludes credentials, account identity and execution rights',()=>{const result=displayContext({market:'cex',instrumentId:'ETH/USDT',venue:'币安',timeframe:'1H',accountId:'private',token:'secret',executionMode:'PAPER'});assert.equal(result.instrumentId,'ETH/USDT');assert.equal('accountId' in result,false);assert.equal('token' in result,false);assert.equal('executionMode' in result,false);});
+test('malformed market and timeframe do not restore fixed context',()=>{assert.equal(displayContext({market:'fake'}),null);assert.equal(displayContext({market:'stocks',timeframe:'oops'}),null);});

@@ -113,3 +113,5 @@ html[data-terminal-tool-only] .floating-ai{position:fixed;inset:0;width:100%;hei
  .terminal-embedded .assets-full>aside {border-right:0;border-bottom:1px solid var(--ui-line)}
  .terminal-embedded .assets-full>aside button {height:auto;min-height:44px;padding:10px;margin-bottom:6px}
 }
+
+.workspace-data-notice{margin:0;padding:7px 14px;font-size:11px;line-height:1.6;background:var(--ui-subtle,#f3f5f7);color:var(--ui-muted,#657580);border-bottom:1px solid var(--ui-line,#dce3e7)}

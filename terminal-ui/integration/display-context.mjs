@@ -1,0 +1,2 @@
+import {marketContext} from './context.mjs';
+export function displayContext(value){if(!value||typeof value!=='object')return null;try{const clean=marketContext(value.market,{instrumentId:value.instrumentId,venue:value.venue,chainId:value.chainId,contractAddress:value.contractAddress,timeframe:value.timeframe});return Object.fromEntries(['market','instrumentId','venue','chainId','contractAddress','timeframe'].map(key=>[key,clean[key]]));}catch{return null;}}

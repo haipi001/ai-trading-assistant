@@ -1,0 +1,6 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import {defaultNavigationGroup,cleanNavigationGroups} from '../integration/navigation-model.mjs';
+import {normalizePreferences} from '../integration/workspace-preferences.mjs';
+test('shared and market-specific pages retain functional grouping',()=>{assert.equal(defaultNavigationGroup('GP'),'行情');assert.equal(defaultNavigationGroup('R009','market'),'行情');assert.equal(defaultNavigationGroup('R042','chain'),'研究');assert.equal(defaultNavigationGroup('ORD'),'交易');});
+test('custom groups survive normalization without accepting unknown feature ids',()=>{const p=normalizePreferences({navigation:{groups:{GP:'我的研究',unknown:'bad'},hidden:['GP']}},['GP'],[]);assert.deepEqual(p.navigation.groups,{GP:'我的研究'});assert.deepEqual(p.navigation.hidden,['GP']);assert.deepEqual(cleanNavigationGroups({GP:' '.repeat(2)},['GP']),{});});
+test('expanded states and favorites persist independently from market data',()=>{const p=normalizePreferences({navigation:{expanded:{行情:true,研究:false,bad:'true'},favorites:['GP','unknown']},market:'cex'},['GP'],[]);assert.deepEqual(p.navigation.expanded,{行情:true,研究:false});assert.deepEqual(p.navigation.favorites,['GP']);assert.equal('market' in p,false);});

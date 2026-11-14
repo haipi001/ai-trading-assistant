@@ -1,3 +1,4 @@
+import {panelVisibility} from './panel-visibility.js';
 import {decodeMarketTickers,loadMarketTickers} from './market-tickers.js';
 import {observeMarketSnapshot} from './market-refresh.js';
 export function decodeBinanceTickerEvent(payload,symbols){
@@ -26,7 +27,7 @@ export function mergeTickerQuotes(previous,next){
  return result;
 }
 export function observePublicTickers(venue,symbols,receive,env={}){
- const page=env.page||document,schedule=env.schedule||setTimeout,cancel=env.cancel||clearTimeout;
+ const page=env.page||panelVisibility(document),schedule=env.schedule||setTimeout,cancel=env.cancel||clearTimeout;
  const poll=env.poll||observeMarketSnapshot;
  const supported=["币安","欧易OKX","Bitget"].includes(venue);
  let stopped=false,socket=null,retry=null,watchdog=null,attempt=0,live=false,quotes={},lastPoll=null,eventTime=null;
@@ -77,7 +78,7 @@ export function observePublicTickers(venue,symbols,receive,env={}){
    lastPoll=result;
    if(result.status==='connected')quotes=live?mergeTickerQuotes(quotes,result.quotes):result.quotes;
    send();if(venue!=='币安')connect();
- },env);
+ },{...env,page});
  const visibility=()=>{
    if(page.visibilityState==='hidden'){if(retry!==null){cancel(retry);retry=null;}stopSocket();send();}
    else connect();

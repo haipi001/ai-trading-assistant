@@ -316,3 +316,5 @@ html[data-terminal-color-mode] .function-directory{box-shadow:0 14px 30px rgba(0
 
 html[data-terminal-color-mode] .integration-bar{border-bottom:1px solid var(--ui-line);background:var(--ui-surface);color:var(--ui-text)}html[data-terminal-color-mode] .integration-bar input,html[data-terminal-color-mode] .integration-bar select,html[data-terminal-color-mode] .integration-bar button,html[data-terminal-color-mode] .integration-drawer button,html[data-terminal-color-mode] .integration-drawer input{background:var(--ui-subtle);color:var(--ui-text);border:1px solid var(--ui-line)}html[data-terminal-color-mode] .integration-status{color:var(--ui-warning)}html[data-terminal-color-mode] .integration-drawer{background:var(--ui-surface);color:var(--ui-text);border:1px solid var(--ui-line)}html[data-terminal-color-mode] .integration-drawer h2{color:var(--ui-warning)}html[data-terminal-color-mode] .integration-bar :focus-visible,html[data-terminal-color-mode] .integration-drawer :focus-visible{outline:2px solid var(--ui-line)}
 
+/* Remove redundant panel header on every workspace. */
+

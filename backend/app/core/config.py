@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     api_login_rate_limit_requests: int = 10
     api_auth_failure_rate_limit_requests: int = 30
     backend_cors_origins_raw: str = Field(
-        default="https://haipi001.github.io,http://localhost:3002,http://127.0.0.1:3002,http://localhost:8850,http://127.0.0.1:8850",
+        default="https://haipi001.github.io,http://localhost:3002,http://127.0.0.1:3002,http://localhost:8850,http://127.0.0.1:8850,http://localhost:8851,http://127.0.0.1:8851",
         alias="BACKEND_CORS_ORIGINS",
     )
     dependency_check_timeout_seconds: int = 1
