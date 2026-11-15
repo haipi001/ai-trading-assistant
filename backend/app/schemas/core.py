@@ -1782,12 +1782,12 @@ class InvestmentConstitutionCreate(BaseModel):
     allowed_markets: list[str] = Field(default_factory=list)
     forbidden_assets: list[str] = Field(default_factory=list)
     forbidden_actions: list[str] = Field(default_factory=list)
-    max_single_position_pct: float
-    max_asset_class_pct: float
-    max_crypto_pct: float
-    max_single_exchange_pct: float
-    max_daily_loss_pct: float
-    max_monthly_drawdown_pct: float
+    max_single_position_pct: float = Field(ge=0, le=1, allow_inf_nan=False)
+    max_asset_class_pct: float = Field(ge=0, le=1, allow_inf_nan=False)
+    max_crypto_pct: float = Field(ge=0, le=1, allow_inf_nan=False)
+    max_single_exchange_pct: float = Field(ge=0, le=1, allow_inf_nan=False)
+    max_daily_loss_pct: float = Field(ge=0, le=1, allow_inf_nan=False)
+    max_monthly_drawdown_pct: float = Field(ge=0, le=1, allow_inf_nan=False)
     leverage_allowed: bool = False
     derivatives_allowed: bool = False
     auto_execution_allowed: bool = False

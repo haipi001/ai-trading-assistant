@@ -1,3 +1,4 @@
+import {compileStrategy} from './strategy-engine.js';
 import {scopedScriptStorage,scriptStorageKey,sessionBoundScriptStorage} from './script-storage-scope.js';
 import {getSessionIdentity} from './backend-session.js';
 import React, { useEffect, useRef, useState } from "react";
@@ -130,7 +131,7 @@ export function useScriptWorkspace(initialCode = EMPTY_SCRIPT, userId = undefine
   return { snapshot, activeId, name, setName, code, setCode, current, dirty, busy, error, bufferWarning, notice, check,
     save, open, create, archive, unarchive, restore, importFile, refresh,
     checkCode: () => setCheck({ code, diagnostics: checkScriptText(code) }),
-    requestCompile: () => setError("原版编译服务尚未接入，未执行编译；本地检查只检查基础文本结构"),
+    requestCompile: () => { try { const strategy=compileStrategy(code); setError(""); setNotice(`策略校验通过：${strategy.name||strategy.type}，可进入回测`); } catch(error) { setError(error.message); } },
   };
 }
 

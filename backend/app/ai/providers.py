@@ -106,6 +106,7 @@ class AIProvider(ABC):
         data_snapshot_id: str,
         input_facts: dict[str, Any],
         prompt_template: str,
+        deep_thinking: bool = False,
     ) -> str:
         raise NotImplementedError
 
@@ -119,6 +120,7 @@ class MockAIProvider(AIProvider):
         data_snapshot_id: str,
         input_facts: dict[str, Any],
         prompt_template: str,
+        deep_thinking: bool = False,
     ) -> str:
         data_available = bool(input_facts)
         fact_keys = sorted(input_facts.keys())
@@ -298,6 +300,7 @@ class OpenAIProvider(AIProvider):
         data_snapshot_id: str,
         input_facts: dict[str, Any],
         prompt_template: str,
+        deep_thinking: bool = False,
     ) -> str:
         provider_model = f"openai:{self.settings.openai_model}"
         if not self.settings.external_llm_calls_enabled:
@@ -476,6 +479,7 @@ class DeepSeekProvider(AIProvider):
         data_snapshot_id: str,
         input_facts: dict[str, Any],
         prompt_template: str,
+        deep_thinking: bool = False,
     ) -> str:
         schema = ResearchReportOutput.model_json_schema()
         return self._structured_output(
@@ -490,6 +494,7 @@ class DeepSeekProvider(AIProvider):
             "Use only the supplied structured facts. Do not invent external facts. "
             "Return review-only research and never propose broker, exchange, wallet, or execution calls.\n\n"
             + prompt_template,
+            deep_thinking=deep_thinking,
         )
 
     def generate_thesis_capture(self, *, input_facts: dict[str, Any], prompt_template: str) -> str:
@@ -543,7 +548,7 @@ class DeepSeekProvider(AIProvider):
         }
         return self._structured_output("emit_violation_message", schema, input_facts, prompt_template)
 
-    def _structured_output(self, tool_name: str, schema: dict[str, Any], input_facts: dict[str, Any], prompt_template: str) -> str:
+    def _structured_output(self, tool_name: str, schema: dict[str, Any], input_facts: dict[str, Any], prompt_template: str, deep_thinking: bool = False) -> str:
         provider_model = f"deepseek:{self.settings.deepseek_model}"
         if not self.settings.external_llm_calls_enabled:
             raise ValueError("external LLM calls are disabled")
@@ -556,7 +561,8 @@ class DeepSeekProvider(AIProvider):
             {
                 "model": self.settings.deepseek_model,
                 "max_tokens": 4096,
-                "thinking": {"type":"disabled"},
+                # Deep thinking costs more and runs longer, so it is opt-in per request.
+                "thinking": {"type": "enabled"} if deep_thinking else {"type": "disabled"},
                 "system": (
                     "Use only supplied structured facts. Never call tools other than the one provided, "
                     "execute trades, or infer missing facts.\n\n" + prompt_template

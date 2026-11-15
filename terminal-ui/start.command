@@ -13,6 +13,26 @@ if [ ! -f "features/terminal-feature.html" ]; then
   fi
   (cd "$terminal_project" && TERMINAL_FEATURE_OUTDIR="$terminal_root/features" npm run build:terminal) || exit 1
 fi
+# Start the local API used by the embedded panels before opening the UI.
+if ! curl --noproxy '*' --fail --silent --max-time 2 --output /dev/null http://127.0.0.1:8001/health/status; then
+  if lsof -tiTCP:8001 -sTCP:LISTEN >/dev/null 2>&1; then
+    printf '%s\n' '8001 端口已占用但后端未就绪，请检查服务。'
+    exit 1
+  fi
+  nohup bash "$terminal_root/../scripts/start-trading-backend.sh" >/tmp/trading-backend-8001.log 2>&1 </dev/null &
+  backend_ready=false
+  for backend_attempt in {1..40}; do
+    if curl --noproxy '*' --fail --silent --max-time 1 --output /dev/null http://127.0.0.1:8001/health/status; then
+      backend_ready=true
+      break
+    fi
+    sleep 0.25
+  done
+  if [ "$backend_ready" != true ]; then
+    printf '%s\n' '后端未能启动，请检查 /tmp/trading-backend-8001.log。'
+    exit 1
+  fi
+fi
 PORT=8850
 if ! lsof -tiTCP:$PORT -sTCP:LISTEN >/dev/null 2>&1; then
   python3 scripts/serve.py --port "$PORT" >/tmp/terminal-ui-server.log 2>&1 &

@@ -3,6 +3,8 @@ import process from "node:process";
 import { parse } from "@babel/parser";
 
 const sourceFiles = [
+  "../src/strategy-lab.jsx",
+  "../src/strategy-engine.js",
   "../src/ace-status.jsx",
   "../src/paper-order-ticket.jsx",
   "../src/workspace-sync-settings.jsx",
@@ -417,12 +419,12 @@ for (const marketSubpage of [
 }
 
 for (const marketWorkflow of [
-  "dynamic-group-form",
-  'setBacktestStatus("unavailable")',
-  "backtest-history-table",
+  "StrategyScreener",
+  "StrategyBacktest",
+  "lab-trades",
   "checkGridParameters({lower,upper,gridCount,amount})",
   "图表布局已切换为",
-  "K线已切换到",
+  "onSelect",
   "checkFuturesDcaParameters(form)",
   "请先重新核对当前参数",
   "已生成本地导出记录",
@@ -439,7 +441,7 @@ for (const marketWorkflow of [
   '网格本地模拟策略已创建',
   '现货DCA本地模拟策略已创建',
   '合约DCA本地模拟策略已创建',
-  '当前脚本回测引擎尚未接入，未运行脚本或生成绩效',
+  "runStrategy",
   '本地配置已保存；未查询信号或启动跟单',
   '已终止并归档',
   '重新创建为本地模拟策略',
@@ -466,7 +468,7 @@ for (const replayContract of [
 
 for (const completionContract of [
   "AI指标助手",
-  "AI生成代码已写入指标编辑器",
+  "应用到编辑器",
   "setAiResearchIntent",
   "准备 AI 解读",
   "在研究对话中预览",

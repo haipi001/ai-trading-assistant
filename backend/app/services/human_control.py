@@ -544,6 +544,9 @@ class HumanControlService:
         response_style = payload.get("response_style", "brief")
         if response_style not in ("brief", "detailed"):
             raise HumanControlError("ai_question_invalid")
+        deep_thinking = payload.get("deep_thinking", False)
+        if type(deep_thinking) is not bool:
+            raise HumanControlError("ai_question_invalid")
         history = payload.get("history", [])
         if not isinstance(history, list) or len(history) > 6 or any(not isinstance(item, dict) or set(item) != {"role", "content"} or item.get("role") not in ("user", "assistant") or not isinstance(item.get("content"), str) or not 1 <= len(item["content"]) <= 2000 for item in history):
             raise HumanControlError("ai_question_invalid")
