@@ -333,7 +333,7 @@ class NewsFeedService:
         def retrieve(job):
             source,kind=job
             try:
-                payload=self.fetch(SOURCES[source][kind],{'Accept':'application/rss+xml','User-Agent':'AI-Trading-Assistant/1.0','language':'cn'})
+                payload=self.fetch(SOURCES[source][kind],{'Accept':'application/json' if source.startswith('eastmoney') else 'application/rss+xml','User-Agent':'AI-Trading-Assistant/1.0','language':'cn'})
                 if not isinstance(payload,dict) or payload.get('status')!='ok':raise NewsFeedError('news_response_invalid')
                 rows=normalize_articles(payload.get('articles'),source)
                 if payload.get('articles') and not rows:raise NewsFeedError('news_response_invalid')

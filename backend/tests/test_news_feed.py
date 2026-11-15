@@ -310,3 +310,12 @@ def test_market_tags_and_single_stream_sources(db):
     assert {row['market'] for row in result['source_status']}=={'cn','hk','us'}
     assert {row['market'] for row in result['articles']}=={'cn','hk','us'}
     assert result['errors_count']==0
+
+
+def test_json_sources_receive_json_accept_header(db):
+    def fetch(url,headers):
+        assert headers['Accept']=='application/json'
+        return {'status':'ok','articles':[article()]}
+    service=NewsFeedService(db,'json-accept',fetch=fetch)
+    service.configure({'sources':['eastmoney','eastmoney_announcements']})
+    assert service.refresh()['errors_count']==0

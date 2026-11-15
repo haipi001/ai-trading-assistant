@@ -25,3 +25,7 @@
 - CNBC：https://www.cnbc.com/rss-feeds/
 - 东方财富：https://finance.eastmoney.com/ 、https://data.eastmoney.com/notices/
 - 律动官方RSS：https://github.com/BlockBeatsOfficial/RSS-v2
+
+## 显示层复验
+
+2026-11-15 使用真实联网来源、隔离本地账户和真实React组件进行DOM显示验收：A股快讯100条、香港财经20条、美股财经30条、A股公告100条，市场切换与列表可显示。不是浏览器截图验收（CUA连接超时）。修复东方财富JSON源Accept头错误导致406的问题；后端43项测试通过。生产Render API连接超时，因此静态站点发布不等于线上动态数据链路验收通过。
