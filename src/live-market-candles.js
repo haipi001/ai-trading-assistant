@@ -1,3 +1,4 @@
+import {panelVisibility} from './panel-visibility.js';
 import {validateMarketBars} from './market-chart-model.js';
 import {loadBackendCandles} from './market-api.js';
 import {observeMarketSnapshot} from './market-refresh.js';
@@ -45,7 +46,7 @@ export function applyCandleEvent(candles,event,interval){
  return [...candles,event.bar].slice(-240);
 }
 export function observeCandleFeed(symbol,timeframe,options,receive,env={}){
- const page=env.page||document,schedule=env.schedule||setTimeout,cancel=env.cancel||clearTimeout,now=env.now||Date.now;
+ const page=env.page||panelVisibility(document),schedule=env.schedule||setTimeout,cancel=env.cancel||clearTimeout,now=env.now||Date.now;
  let stopped=false,socket=null,watchdog=null,base=null,lastEvent=null,live=false;
  const send=()=>{
    if(stopped||!base)return;
@@ -92,7 +93,7 @@ export function observeCandleFeed(symbol,timeframe,options,receive,env={}){
      if(live&&lastEvent&&lastEvent.eventTime>=startedAt)result={...result,candles:applyCandleEvent(result.candles,lastEvent,result.publicInterval)};
      base=result;send();connect();
    }catch{base=result;recover();}
- },env);
+ },{...env,page});
  const visibility=()=>{if(page.visibilityState==='hidden')recover();};
  page.addEventListener('visibilitychange',visibility);
  return ()=>{stopped=true;stopPoll();close();page.removeEventListener('visibilitychange',visibility);};

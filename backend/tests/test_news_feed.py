@@ -213,14 +213,14 @@ def test_automatic_refresh_respects_interval_across_separate_components(db):
     instant[0] += timedelta(seconds=31)
     other_component = NewsFeedService(db, "public-user", fetch=fetch, now=lambda: instant[0])
     assert other_component.refresh(automatic=True)["refresh_skipped"] == "cooldown"
-    assert len(calls) == 6
+    assert len(calls) == 10
     instant[0] += timedelta(seconds=30)
     assert other_component.refresh(automatic=True)["status"] == "ready"
-    assert len(calls) == 12
+    assert len(calls) == 20
     other_component.configure({"auto_refresh": False})
     instant[0] += timedelta(minutes=5)
     assert other_component.refresh(automatic=True)["refresh_skipped"] == "disabled"
-    assert len(calls) == 12
+    assert len(calls) == 20
 
 
 def test_panews_rss_preserves_chinese_source_text_and_timezone():
@@ -238,7 +238,7 @@ def test_chinese_aggregate_keeps_feed_kind_publishers_and_independent_failure_ca
     stamp=[datetime(2026,10,30,3,tzinfo=timezone.utc)];failed=set()
     def fetch(url,headers):
         if url in failed:raise NewsFeedError('news_source_unavailable')
-        source,kind=next((name,kind) for name,feeds in SOURCES.items() for kind in ('flash','article') if feeds[kind]==url)
+        source,kind=next((name,kind) for name,feeds in SOURCES.items() for kind in ('flash','article') if kind in feeds and feeds[kind]==url)
         return {'status':'ok','articles':[article(title=f'{source} {kind} 独立材料',url=f'https://example.com/{source}/{kind}')]}
     service=NewsFeedService(db,'aggregate-user',fetch=fetch,now=lambda:stamp[0])
     service.configure({'provider':'chinese_aggregate','sources':['panews','odaily']})
@@ -269,3 +269,53 @@ def test_chinese_aggregate_keeps_feed_kind_publishers_and_independent_failure_ca
 @pytest.mark.parametrize('sources',[[],['unknown'],['panews','panews'],'panews',[None]])
 def test_aggregate_source_settings_are_fixed_catalog_only(db,sources):
     with pytest.raises(NewsFeedError):NewsFeedService(db,'aggregate-user').configure({'sources':sources})
+
+
+def test_aggregate_preserves_all_selected_feed_batches(db):
+    from app.services.chinese_news_sources import SOURCES
+    def fetch(url, headers):
+        source, kind = next((s, k) for s, v in SOURCES.items() for k in ('flash', 'article') if k in v and v[k] == url)
+        return {'status': 'ok', 'articles': [article(url=f'https://example.com/{source}/{kind}/{i}') for i in range(100)]}
+    result = NewsFeedService(db, 'full-batches', fetch=fetch).refresh()
+    assert len(result['articles']) == 1000
+    assert sum(row['kind'] == 'flash' for row in result['articles']) == 400
+    assert sum(row['count'] for row in result['source_status']) == 1000
+
+
+def test_stock_payload_time_and_announcement_links():
+    from app.services.news_feed import parse_eastmoney, parse_announcements
+    payload={'code':'1','data':{'fastNewsList':[{'code':'202611153931382455','title':'股票测试','summary':'测试摘要','showTime':'2026-11-15 09:30:00','stockList':['0.300750']}]}}
+    rows=normalize_articles(parse_eastmoney(payload)['articles'],'eastmoney')
+    assert rows[0]['published_at']=='2026-11-15T01:30:00+00:00'
+    assert rows[0]['symbol']=='0.300750'
+    with pytest.raises(NewsFeedError):parse_eastmoney({'code':0,'data':None})
+    rows=parse_announcements({'data':{'list':[{'art_code':'AN202611131831696575','title':'财报测试','notice_date':'2026-11-14 00:00:00','codes':[{'stock_code':'603120'}]}]}})['articles']
+    assert '/603120/AN202611131831696575.html' in rows[0]['url']
+    assert rows[0]['publishedAt']=='2026-11-13T16:00:00+00:00'
+
+
+def test_stock_source_upgrade_and_explicit_selection(db):
+    service=NewsFeedService(db,'upgrade')
+    service._write('settings',{'sources':['panews']})
+    assert {'eastmoney','rthk','cnbc','eastmoney_announcements'} <= set(service.settings()['sources'])
+    service.configure({'sources':['cnbc']})
+    assert service.settings()['sources']==['cnbc']
+
+
+def test_market_tags_and_single_stream_sources(db):
+    service=NewsFeedService(db,'stocks',fetch=lambda *args:{'status':'ok','articles':[article()]})
+    service.configure({'sources':['eastmoney','rthk','cnbc','eastmoney_announcements']})
+    result=service.refresh()
+    assert len(result['source_status'])==4
+    assert {row['market'] for row in result['source_status']}=={'cn','hk','us'}
+    assert {row['market'] for row in result['articles']}=={'cn','hk','us'}
+    assert result['errors_count']==0
+
+
+def test_json_sources_receive_json_accept_header(db):
+    def fetch(url,headers):
+        assert headers['Accept']=='application/json'
+        return {'status':'ok','articles':[article()]}
+    service=NewsFeedService(db,'json-accept',fetch=fetch)
+    service.configure({'sources':['eastmoney','eastmoney_announcements']})
+    assert service.refresh()['errors_count']==0

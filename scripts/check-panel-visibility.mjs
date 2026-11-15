@@ -1,0 +1,4 @@
+import assert from 'node:assert/strict';
+import {panelVisibility,setPanelActive} from '../src/panel-visibility.js';
+const listeners=new Map(),page={visibilityState:'visible',hidden:false,addEventListener:(name,fn)=>listeners.set(name,fn),removeEventListener:name=>listeners.delete(name)};
+const visibility=panelVisibility(page);assert.equal(visibility.visibilityState,'visible');setPanelActive(false);assert.equal(visibility.visibilityState,'hidden');assert.equal(visibility.hidden,true);setPanelActive(true);assert.equal(visibility.visibilityState,'visible');page.visibilityState='hidden';assert.equal(visibility.visibilityState,'hidden');const listener=()=>{};visibility.addEventListener('visibilitychange',listener);assert.equal(listeners.get('terminal:panel-visibility'),listener);visibility.removeEventListener('visibilitychange',listener);assert.equal(listeners.size,0);console.log('PASS panel activity visibility and listener cleanup');

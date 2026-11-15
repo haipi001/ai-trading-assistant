@@ -9,6 +9,11 @@ const found = {};
 const counts = {};
 const expected = {};
 for (const c of baseline.controls) {
+  if (c.retiredReason) {
+    assert.equal(c.disabled, "disabled", "Only reviewed disabled placeholders may be retired");
+    assert.equal(c.label, "连接服务待接入，请勿填写真实密钥");
+    continue;
+  }
   const key = `${c.file}:${c.tag}`;
   expected[key] = (expected[key] || 0) + 1;
 }
@@ -33,4 +38,4 @@ for (const [name, nav] of Object.entries(baseline.navigation)) {
 for (const [key, count] of Object.entries(expected)) {
   assert.ok(counts[key] >= count, `${key}: ${counts[key] || 0} < baseline ${count}; review relocation/removal before updating baseline`);
 }
-console.log(`UI preservation static guard: ${Object.keys(baseline.navigation).length} navigation contracts, ${baseline.controls.length} controls retained. Runtime behavior not verified.`);
+console.log(`UI preservation static guard: ${Object.keys(baseline.navigation).length} navigation contracts, ${baseline.controls.filter(c=>!c.retiredReason).length} active controls retained. Runtime behavior not verified.`);

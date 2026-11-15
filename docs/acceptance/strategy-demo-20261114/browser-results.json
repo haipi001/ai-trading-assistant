@@ -1,0 +1,17 @@
+{
+  "coverage": [
+    "R001",
+    "R009",
+    "R014",
+    "R026",
+    "R042",
+    "R045",
+    "R051",
+    "R054",
+    "R056"
+  ],
+  "errors": [],
+  "mobileOverflow": false,
+  "saveReplayReuse": true,
+  "apiBlocked": true
+}

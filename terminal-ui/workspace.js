@@ -42,7 +42,7 @@
     }
   });
   function syncControls() {
-    const quad = document.querySelector('.quad');
+    const quad = document.querySelector('.quad:not([hidden])');
     const layout = quad ? (quad.classList.contains('quad4') ? '4' : '2') : '1';
     document.querySelectorAll('.layout-picker button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.command === 'LAY ' + layout)));
     const active = document.querySelector('.qcell.focus .qfn') || document.getElementById('phTitle');

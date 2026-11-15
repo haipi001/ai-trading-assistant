@@ -1,0 +1,3 @@
+let active=true;
+export function setPanelActive(value){const next=value!==false;if(next===active)return;active=next;if(typeof document!=='undefined')document.dispatchEvent(new Event('terminal:panel-visibility'));}
+export function panelVisibility(page){return {get visibilityState(){return !active||page.visibilityState==='hidden'?'hidden':'visible';},get hidden(){return !active||page.hidden;},addEventListener(type,listener){page.addEventListener(type,listener);if(type==='visibilitychange')page.addEventListener('terminal:panel-visibility',listener);},removeEventListener(type,listener){page.removeEventListener(type,listener);if(type==='visibilitychange')page.removeEventListener('terminal:panel-visibility',listener);}};}

@@ -1,0 +1,2 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {TOOL_CATALOG} from '../integration/tool-catalog.mjs';import fs from 'node:fs';
+test('AI leads default tools and every entry maps to a real embedded handler',()=>{assert.deepEqual(TOOL_CATALOG.slice(0,2).map(x=>x.id),['ai','research']);assert.equal(new Set(TOOL_CATALOG.map(x=>x.id)).size,TOOL_CATALOG.length);const source=fs.readFileSync(new URL('../integration/shell.js',import.meta.url),'utf8');for(const tool of TOOL_CATALOG)assert.ok(source.includes("'"+tool.id+"'"),tool.id);});

@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {subscriptionArticles,mergeSubscriptionNews,subscriptionStale} from '../src/subscription-live-model.js';
+const now=Date.parse('2026-11-13T01:01:00Z');
+const row={id:'custom',name:'Fixture RSS',kind:'rss',status:'ready',refresh_seconds:60,fetched_at:'2026-11-13T01:00:00Z',result:{articles:[{title:'Fixture headline',url:'https://example.com/news',kind:'flash',published_at:'2026-11-13T00:59:00Z'}]}};
+assert.equal(subscriptionArticles([row],now)[0].sourceId,'subscription:custom');
+assert.equal(subscriptionArticles([row],now)[0].kind,'flash');
+assert.equal(subscriptionStale(row,now),false);
+assert.equal(subscriptionStale(row,now+121000),true);
+assert.equal(subscriptionArticles([{...row,status:'error'}],now)[0].sourceFailed,true);
+assert.equal(mergeSubscriptionNews(null,[row],now).articles.length,1);
+assert.equal(mergeSubscriptionNews(null,[],now),null);
+assert.equal(mergeSubscriptionNews({articles:[{id:'builtin',sourceId:'builtin',url:'https://example.com/builtin',publishedAt:'2026-11-13T00:00:00Z'}]},[row],now).articles[0].title,'Fixture headline');
+assert.equal(subscriptionArticles([{...row,result:{articles:[{title:'Bad',url:'javascript:alert(1)'}]}}],now).length,0);
+console.log('subscription merge, provenance, stale cache, invalid URL and ordering checks passed');
+assert.equal(mergeSubscriptionNews({articles:[{id:'same',kind:'flash',sourceId:'builtin',url:'https://example.com/news',publishedAt:'2026-11-13T00:59:00Z'}]},[row],now).articles.length,1);
+
+assert.equal(mergeSubscriptionNews({articles:[{id:"article",kind:"article",url:"https://example.com/news"}]},[row],now).articles.length,2);

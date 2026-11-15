@@ -1,3 +1,4 @@
+import {panelVisibility} from './panel-visibility.js';
 import {decodeMarketTrades,loadMarketTrades} from './market-trades.js';
 import {observeMarketSnapshot} from './market-refresh.js';
 export function decodeBinanceTradeEvent(payload,symbol,now=Date.now()){
@@ -30,7 +31,7 @@ export function mergeRecentTrades(previous,next){
 }
 export function observePublicTrades(symbol,venue,receive,env={}){
  const supported=["币安","欧易OKX","Bitget"].includes(venue);
- const page=env.page||document,schedule=env.schedule||setTimeout,cancel=env.cancel||clearTimeout;
+ const page=env.page||panelVisibility(document),schedule=env.schedule||setTimeout,cancel=env.cancel||clearTimeout;
  let stopped=false,socket=null,retry=null,watchdog=null,attempt=0,latest=[],lastPoll=null,live=false,delivery=null;
  const flush=()=>{
    delivery=null;
@@ -67,7 +68,7 @@ export function observePublicTrades(symbol,venue,receive,env={}){
      socket.onclose=socket.onerror=()=>{if(socket===current)reconnect();};
    }catch{reconnect();}
  };
- const stopPoll=(env.poll||observeMarketSnapshot)(signal=>loadMarketTrades(symbol,venue,signal),result=>{if(!stopped){lastPoll=result;try{if(result.status==='connected'&&!(venue==='Bitget'&&live))latest=mergeRecentTrades(latest,result.trades);send();}catch{reconnect();}}},env);
+ const stopPoll=(env.poll||observeMarketSnapshot)(signal=>loadMarketTrades(symbol,venue,signal),result=>{if(!stopped){lastPoll=result;try{if(result.status==='connected'&&!(venue==='Bitget'&&live))latest=mergeRecentTrades(latest,result.trades);send();}catch{reconnect();}}},{...env,page});
  const visibility=()=>{if(page.visibilityState==='hidden'){if(retry!==null){cancel(retry);retry=null;}close();send();}else connect();};
  if(supported&&/^[A-Z0-9]{1,24}$/.test(symbol)){page.addEventListener('visibilitychange',visibility);connect();}
  return ()=>{stopped=true;stopPoll();if(delivery!==null)cancel(delivery);if(retry!==null)cancel(retry);close();page.removeEventListener('visibilitychange',visibility);};

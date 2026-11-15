@@ -1,4 +1,5 @@
 from __future__ import annotations
+from app.ai.failures import provider_failure_code
 
 import json
 import math
@@ -478,6 +479,7 @@ class HumanControlService:
         except HumanControlError as exc:
             return {"status": "blocked", "message": str(exc), "execution_available": False, "counts_as_external_evidence": False}
         input_facts = {"symbol": "TEST", "note": "user key connectivity check", "price": 1.0}
+        failure_code = None
         try:
             raw_output = provider.generate_report(
                 report_type="single_asset_research",
@@ -489,8 +491,9 @@ class HumanControlService:
             parsed = json.loads(raw_output)
             status = "ok"
             message = str(parsed.get("summary") or "structured output received")[:300]
-        except Exception:
+        except Exception as exc:
             status = "failed"
+            failure_code = provider_failure_code(exc)
             message = "provider_request_failed"
         event = OperationalEvent(
             user_id=actor.user_id,
@@ -505,7 +508,7 @@ class HumanControlService:
         self.db.flush()
         self._audit("human_control.llm_test_call", "OperationalEvent", event.id, {"status": status, "contains_secret": False})
         self.db.commit()
-        return {"status": status, "message": message, "provider_mode": config.get("mode"), "provider": config.get("provider"), "model": config.get("model"), "external_call_attempted": True, "execution_available": False, "counts_as_external_evidence": False}
+        return {"status": status, "message": message, "failure_code": failure_code, "provider_mode": config.get("mode"), "provider": config.get("provider"), "model": config.get("model"), "external_call_attempted": failure_code != "credential_unavailable", "execution_available": False, "counts_as_external_evidence": False}
 
     def research_chat_status(self, *, actor: AuthenticatedUser) -> dict[str, Any]:
         self._require(actor, "readiness:read")
@@ -893,6 +896,7 @@ class HumanControlService:
         if result.get("secret_reference"):
             result["secret_reference"] = str(result["secret_reference"])
             result["secret_value_present"] = False
+            result["secret_value_redacted"] = True
         return result
 
     def _require(self, actor: AuthenticatedUser, permission: str) -> None:

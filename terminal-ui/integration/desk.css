@@ -15,3 +15,11 @@
 .native-ai-guide>a,.native-ai-guide>button{font:inherit;color:var(--txt);background:var(--panel);border:1px solid var(--line2);padding:6px 10px;text-decoration:none;cursor:pointer}
 .native-ai-guide>a:hover,.native-ai-guide>button:hover{border-color:var(--acc)}
 .native-ai-guide>a:focus-visible,.native-ai-guide>button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+/* Remove redundant panel header on every workspace. */
+.integration-feature-tabs{display:none!important}
+.integration-bar{gap:5px 8px;padding:4px 10px;font-size:11px}
+.integration-bar label{gap:4px}
+.integration-bar input,.integration-bar select,.integration-bar button{padding:3px 5px;min-height:24px;font-size:11px}
+.integration-bar input{width:82px}.integration-bar .contract-input{width:140px}
+.integration-bar .integration-status{font-size:10px}

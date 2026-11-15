@@ -1,0 +1,1 @@
+export function cacheEvictionCandidates(panels,budget=8){const limit=Math.max(1,Number.isFinite(budget)?Math.floor(budget):8),excess=Math.max(0,panels.length-limit);return panels.filter(panel=>!panel.active&&panel.dirty===false&&!panel.running&&!panel.tool).sort((a,b)=>(a.lastUsed||0)-(b.lastUsed||0)).slice(0,excess).map(panel=>panel.id);}

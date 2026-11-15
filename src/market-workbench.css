@@ -133,3 +133,16 @@
 /* Preserve the chart engine Grid sizing; hidden subscriptions do not occupy a row. */
 .chart-workspace>.drawing-tools{height:34px;min-height:34px;max-height:34px;flex:0 0 34px;overflow-x:auto}
 .chart-workspace>.subscription-quotes{display:none}
+
+.chart-workspace{grid-template-rows:42px 36px 34px minmax(180px,1fr) 34px 38px 8px var(--work-height,286px)!important}
+.chart-workspace>.market-workbench{height:var(--work-height,286px);min-height:0;overflow:auto;border-top:0}
+.workbench-divider{height:8px;padding:0;border:0;border-block:1px solid var(--line);background:var(--ui-subtle,#edf1f4);cursor:ns-resize;touch-action:none;display:grid;place-items:center}
+.workbench-divider span{width:42px;height:2px;background:var(--ui-muted,#8394a1);border-radius:2px}
+.workbench-divider:hover,.workbench-divider:focus-visible{background:var(--ui-line,#ccd5dd)}
+
+/* Bound dense chart controls to their own scroll area, keeping all actions reachable. */
+.chart-workspace>.chart-tools,.chart-workspace>.studybar{min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;overscroll-behavior-x:contain}
+.chart-workspace>.chart-tools>*:not(span),.chart-workspace>.studybar>*{flex-shrink:0}
+.chart-workspace>.chart-tools:focus-visible{outline:2px solid var(--green);outline-offset:-2px}
+
+.market-data-status{min-width:0}.market-candle-age{display:block;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:inherit}

@@ -1,3 +1,4 @@
+import {panelVisibility} from './panel-visibility.js';
 import {applyBitgetBook,parseDepthMessage} from './bitget-live-book.js';
 import {applyOkxBook} from "./okx-live-book.js";
 import {decodeMarketDepth,loadMarketDepth} from './market-depth.js';
@@ -8,7 +9,7 @@ export function decodeBinanceDepthEvent(payload,symbol){
 }
 export function observePublicDepth(symbol,venue,receive,env={}){
  const supported=["币安","欧易OKX","Bitget"].includes(venue);
- const page=env.page||document,schedule=env.schedule||setTimeout,cancel=env.cancel||clearTimeout;
+ const page=env.page||panelVisibility(document),schedule=env.schedule||setTimeout,cancel=env.cancel||clearTimeout;
  let stopped=false,socket=null,retry=null,watchdog=null,attempt=0,bookState=null,latest=null,lastPoll=null,live=false;
  const send=()=>{
    if(stopped)return;
@@ -46,7 +47,7 @@ export function observePublicDepth(symbol,venue,receive,env={}){
      socket.onclose=socket.onerror=()=>{if(socket===current)reconnect();};
    }catch{reconnect();}
  };
- const stopPoll=(env.poll||observeMarketSnapshot)(signal=>loadMarketDepth(symbol,venue,signal),result=>{if(!stopped){lastPoll=result;send();}},env);
+ const stopPoll=(env.poll||observeMarketSnapshot)(signal=>loadMarketDepth(symbol,venue,signal),result=>{if(!stopped){lastPoll=result;send();}},{...env,page});
  const visibility=()=>{if(page.visibilityState==='hidden'){if(retry!==null){cancel(retry);retry=null;}close();send();}else connect();};
  if(supported&&/^[A-Z0-9]{1,24}$/.test(symbol)){page.addEventListener('visibilitychange',visibility);connect();}
  return ()=>{stopped=true;stopPoll();if(retry!==null)cancel(retry);close();page.removeEventListener('visibilitychange',visibility);};

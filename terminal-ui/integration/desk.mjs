@@ -1,3 +1,5 @@
+import {installLeanResearch} from './lean-research.mjs';
+import {installStrategyDemo} from './strategy-demo.mjs';
 import {pageAIGuide} from './ai-guide.mjs';
 import {pageAIPolicy,preparePageAIAction,pageAIContextMatches,PAGE_AI_SOURCES,PAGE_AI_ARTIFACT_LABELS} from './page-ai-actions.mjs';
 import {focusedPanelContext,panelLocks,restorePanelLocks} from './panel-host.mjs?v=5';
@@ -16,6 +18,8 @@ let state=initialState(raw);
 const bar=document.createElement('section');bar.className='integration-bar';bar.setAttribute('aria-label','跨市场研究上下文');
 bar.innerHTML='<label>市场 <select id="desk-market"></select></label><label>标的 <input id="desk-instrument" maxlength="128"></label><label>场所 <input id="desk-venue" maxlength="128"></label><label data-chain>链 ID <input id="desk-chain"></label><label data-chain>合约 <input id="desk-contract" class="contract-input" maxlength="42"></label><label>周期 <select id="desk-timeframe"><option>5M</option><option>15M</option><option>1H</option><option>1D</option></select></label><label>模式 <select id="desk-execution"><option value="READ_ONLY">只读</option><option value="PAPER">Paper 模拟</option><option value="LIVE" disabled>Live 未开放</option></select></label><span>实盘关闭</span><button id="desk-ai" aria-expanded="false">AI 研究上下文</button><span id="desk-status" class="integration-status" role="status"></span>';
 document.querySelector('.bar').after(bar);
+installLeanResearch({bar});
+installStrategyDemo({bar,getContext:()=>focusedPanelContext()||state.current});
 const $=id=>document.getElementById(id);
 for(const [value,market] of Object.entries(MARKETS)){const option=new Option(market.label,value);$('desk-market').add(option);}
 const drawer=document.createElement('aside');drawer.className='integration-drawer';drawer.hidden=true;drawer.setAttribute('aria-label','AI研究上下文');drawer.innerHTML='<button id="desk-close">关闭</button><h2>当前研究对象</h2><pre id="desk-snapshot"></pre><p>此上下文独立于原终端演示行情；业务数据接入前，演示数字不作为 AI 证据。</p><h2>本页研究动作</h2><div id="desk-actions"></div><pre id="desk-prompt" role="status"></pre>';document.body.append(drawer);
@@ -36,7 +40,7 @@ let preparedPageAction=null,latestResearchDelivery=null;
 window.addEventListener('terminal:research-delivery',event=>{if(event.detail?.requestId!==latestResearchDelivery)return;$('desk-prompt').textContent+=event.detail.status==='received'?'\n目标业务页面已接收研究准备；仍需审阅材料并手动发送。':event.detail.status==='timeout'?'\n目标页面未在期限内确认接收，请检查页面后重新准备；未自动重发。':'\n目标页面未接受研究准备，请重新选择当前页面动作。';latestResearchDelivery=null;});
 const actionFailures={adapter_unavailable:'这类资料尚未接入AI，不能据此生成分析。',business_panel_required:'请先打开资料页，并在业务面板中选择有效材料。',market_incompatible:'此动作不适用于当前市场，请先切换兼容市场。'};
 function currentPage(){
- const frame=document.querySelector('.qcell.focus iframe[data-terminal-feature]')||document.querySelector('#view:not(.quadmode) iframe[data-terminal-feature]');
+ const frame=document.querySelector('.qcell.focus iframe[data-terminal-feature]:not([hidden])')||document.querySelector('#view:not(.quadmode) iframe[data-terminal-feature]:not([hidden])');
  const feature=(window.TERMINAL_FEATURES||[]).find(item=>item.code===frame?.dataset.terminalFeature);
  const title=document.querySelector('.qcell.focus .qfn')?.textContent||$('phTitle')?.textContent||'HELP';
  const code=title.trim().split(' ')[0];return feature||(window.TERMINAL_FEATURES||[]).find(item=>item.code===code)||{code:/^[A-Z]{1,12}$/.test(code)?code:'HELP',page:'terminal',tab:title,label:title};

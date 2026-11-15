@@ -1,3 +1,4 @@
+import {observeVisibleInterval} from './visible-interval.js';
 import React,{useEffect,useRef,useState} from 'react';
 import {apiRequest} from './backend-api.js';
 import {getSessionIdentity,subscribeBackendSession} from './backend-session.js';
@@ -14,8 +15,8 @@ export function AceAgentDock({children,open=true,onReviewOrder,initialView='Chat
   const path=view==='Actions'?'/api/v2/agent/actions':'/api/v2/agent/tasks';
   let requestNumber=0;
   async function load(){const request=++requestNumber,change=mutation.current;setLoading(true);try{const result=await apiRequest(path,{signal:controller.signal});if(version===epoch.current&&request===requestNumber&&change===mutation.current&&getSessionIdentity()===auth){setPacket(result);setError('');}}catch(e){if(!controller.signal.aborted&&version===epoch.current&&request===requestNumber&&change===mutation.current){setPacket(null);setError(e.status===401?'请先登录后端会话。':'后端状态暂不可用；未显示为已连接或已完成。');}}finally{if(version===epoch.current&&request===requestNumber)setLoading(false);}}
-  load();const timer=setInterval(load,15000);
-  return()=>{controller.abort();clearInterval(timer);epoch.current++;};
+  const stopPolling=observeVisibleInterval(load,15000);
+  return()=>{controller.abort();stopPolling();epoch.current++;};
  },[open,view,generation,refresh]);
  async function changeState(notice,status){if(pending.current)return;pending.current=true;mutation.current++;setSaving(true);setError('');setMessage('');const version=epoch.current,auth=getSessionIdentity();try{
   const result=await apiRequest(`/api/v2/agent/actions/${encodeURIComponent(notice.action_id)}/state`,{method:'PATCH',body:noticeUpdate(notice,status)});

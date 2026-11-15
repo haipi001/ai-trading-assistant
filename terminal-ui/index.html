@@ -51,7 +51,7 @@
     <aside class="rail">
       <div class="rail-hd">FUNCTION MENU</div>
       <ul id="fkeys"></ul>
-      <div class="rail-hd">自选监测</div>
+      <div class="rail-hd" title="此处价格为本地模拟，不是右侧业务图表的公共行情">自选监测 · 本地模拟</div>
       <ul id="monitor"></ul>
       <div class="rail-hd">SESSION</div>
       <div class="rail-sess">
@@ -88,10 +88,10 @@
   <footer class="foot">
     <span id="stMsg">Ready. Type a command or press F1–F9. ↑↓ move · ⏎ open · ESC clear</span>
     <span class="fright">
-      <span id="freshflag" class="fchip live" title="Feed state">LIVE</span>
+      <span id="freshflag" class="fchip live" title="Local simulation state">SIM ACTIVE</span>
       <span id="savedflag" class="fchip" title="Profile autosave">SAVED</span>
       <button id="qkfoot" class="fkey" title="Keyboard reference (?)" aria-label="Keyboard reference">?</button>
-      <span id="stRight">12ms · SIM FEED</span>
+      <span id="stRight">本地模拟数据 · 非实时市场来源</span>
     </span>
   </footer>
 
@@ -157,6 +157,10 @@
 <script src="app.js?v=20261113-chart-cleanup"></script>
 <script src="workspace.js?v=20261113-chart-cleanup"></script>
 <script src="integration/shell.js?v=20261113-chart-cleanup"></script>
+<script type="module" src="integration/workspace-settings.mjs"></script>
+<script type="module" src="integration/workspace-tab-bar.mjs"></script>
+<script type="module" src="integration/workspace-cache.mjs"></script>
+<script type="module" src="integration/utility-tools.mjs"></script>
 <div id="integration-boot-status" role="status" style="position:fixed;bottom:26px;right:12px;z-index:10000;padding:8px 12px;background:var(--ui-surface,#18212b);color:var(--ui-text,#e5edf5);font:12px monospace">正在加载市场与AI工作区…</div>
 <script>
   function startTerminalIntegration() {

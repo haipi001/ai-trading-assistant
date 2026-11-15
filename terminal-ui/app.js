@@ -4,6 +4,8 @@
    ========================================================= */
 (function () {
   "use strict";
+  let requestedWorkspaceInstance=null;
+  window.addEventListener("terminal:activate-instance",event=>{const id=event.detail?.id;if(typeof id==='string'&&/^[a-zA-Z0-9:-]{1,128}$/.test(id))requestedWorkspaceInstance=id;});
 
   /* ---------------- helpers ---------------- */
   const $ = (id) => document.getElementById(id) || (() => {
@@ -367,6 +369,8 @@
     Store.save();
     App.user = u;
     try { localStorage.setItem(USER_KEY, u); } catch (e) { /* ignore */ }
+    document.getElementById("view")?.replaceChildren();
+    window.dispatchEvent(new CustomEvent("terminal:profile-changed",{detail:{profile:u}}));
     Store.load();
     seedBook();
     App.period = Store.data.period;
@@ -2392,7 +2396,8 @@
     const term = String(q || "").trim().toUpperCase();
     const out = [];
     Object.keys(FUNCS).forEach((k) => {
-      out.push({ code: k, label: FUNCS[k].label, kind: "FUNC", cmd: k });
+      const row=document.querySelector('#fkeys li[data-fn="'+k+'"]');
+      out.push({ code: k, label: FUNCS[k].label, kind: "FUNC", cmd: k, navigationHidden:Boolean(row?.closest('[hidden]')) });
     });
     UNIV.forEach((s) => out.push({ code: s.sym, label: s.name, kind: s.cls, cmd: s.sym + " DES" }));
     [
@@ -2422,7 +2427,7 @@
     box.innerHTML = pal.items.map((i, n) =>
       '<div class="pitem' + (n === pal.idx ? " sel" : "") + '" data-n="' + n + '">' +
       '<span class="pc">' + i.code + '</span><span class="pl">' + i.label + '</span>' +
-      '<span class="pk">' + i.kind + "</span></div>").join("");
+      '<span class="pk">' + (i.navigationHidden?'导航已隐藏':i.kind) + '</span>' + (i.navigationHidden?'<button type="button" class="xbtn" data-pal-show="'+i.code+'" aria-label="恢复'+uiEscape(i.label)+'导航显示">恢复导航显示</button>':'') + '</div>').join("");
   }
 
   function openPalette() {
@@ -2474,7 +2479,7 @@
     const el = $("freshflag");
     if (!el) return;
     const s = state || (App.paused ? "stale" : "live");
-    el.textContent = s === "stale" ? "STALE" : "LIVE";
+    el.textContent = s === "stale" ? "SIM PAUSED" : "SIM ACTIVE";
     el.classList.toggle("live", s === "live");
     el.classList.toggle("stale", s !== "live");
   }
@@ -2617,6 +2622,8 @@
     }
     const list = $("plist");
     if (list) list.addEventListener("click", (e) => {
+      const restore=e.target.closest('[data-pal-show]');
+      if(restore){const request={code:restore.dataset.palShow,result:null};window.dispatchEvent(new CustomEvent('terminal:restore-navigation',{detail:request}));if(request.result){pal.items=palItems(pin.value);paintPalette();pin.focus();notice(request.result.error||'导航入口已恢复',Boolean(request.result.error));}else notice('请从导航设置恢复此入口',true);return;}
       const it = e.target.closest(".pitem");
       if (it) palChoose(Number(it.getAttribute("data-n")));
     });
@@ -3631,21 +3638,46 @@
       $("phTitle").textContent = "PAGE UNAVAILABLE";
       $("phSub").textContent = "Check the function code or security identifier";
       $("phRight").textContent = "LOCAL RECOVERY";
-      view.innerHTML = '<div class="setwrap"><section class="setcard"><h3>PAGE NOT FOUND</h3><p class="system-copy">The address '+uiEscape(App.routeError)+' does not match an available function and security. Your saved profile has not been changed.</p><div class="sbtns"><button class="xbtn" data-go="HELP">FUNCTION DIRECTORY</button><button class="xbtn" data-go="WEI">MARKETS</button><button class="xbtn" data-go="SET">SETTINGS</button></div></section></div>';
+      for(const native of view.querySelectorAll('.native-workspace-content'))native.remove();
+      for(const quad of view.querySelectorAll(':scope > .quad')){quad.hidden=true;for(const cell of quad.querySelectorAll('.qcell'))cell.classList.remove('focus');}
+      for(const frame of view.querySelectorAll('iframe[data-terminal-feature]')){frame.hidden=true;frame.inert=true;}
+      const recovery=document.createElement('div');recovery.className='native-workspace-content';
+      recovery.innerHTML = '<div class="setwrap"><section class="setcard"><h3>PAGE NOT FOUND</h3><p class="system-copy">The address '+uiEscape(App.routeError)+' does not match an available function and security. Your saved profile has not been changed.</p><div class="sbtns"><button class="xbtn" data-go="HELP">FUNCTION DIRECTORY</button><button class="xbtn" data-go="WEI">MARKETS</button><button class="xbtn" data-go="SET">SETTINGS</button></div></section></div>';
+      view.append(recovery);
+      const header=document.querySelector('.panel-hd');if(header)header.hidden=false;
+      window.dispatchEvent(new CustomEvent('terminal:panel-activity'));
       return;
     }
     if (App.layout !== "1") { renderQuad(); return; }
+    for(const quad of view.querySelectorAll(':scope > .quad')){quad.hidden=true;for(const cell of quad.querySelectorAll('.qcell'))cell.classList.remove('focus');for(const frame of quad.querySelectorAll('iframe[data-terminal-feature]')){frame.hidden=true;frame.inert=true;}for(const native of quad.querySelectorAll('.native-workspace-content'))native.remove();}
     view.className = "";
     App.pfx = "";
     const st = App.scrollMemo[App.func] != null ? App.scrollMemo[App.func] : 0;
     const fn = VIEWS[App.func] || viewHELP;
     const out = fn();
-    view.innerHTML = out.html;
+    // Keep business frames connected while switching business pages.
+    const feature=(window.TERMINAL_FEATURES||[]).find(item=>item.code===App.func);
+    if(feature){
+      view.querySelector(':scope > .native-workspace-content')?.remove();
+      const frames=[...view.querySelectorAll(':scope > iframe[data-terminal-feature]')];
+      const request={featureCode:App.func,instanceId:requestedWorkspaceInstance};window.dispatchEvent(new CustomEvent('terminal:resolve-instance',{detail:request}));const instance=request.instanceId;requestedWorkspaceInstance=null;
+      let active=frames.find(frame=>frame.dataset.terminalFeature===App.func&&(!instance||frame.dataset.workspaceInstance===instance));
+      if(!frames.length)for(const child of [...view.children])if(!child.matches('.quad'))child.remove();
+      for(const frame of frames){frame.hidden=true;frame.inert=true;}
+      if(!active){const template=document.createElement('template');template.innerHTML=out.html;active=template.content.querySelector('iframe');active.dataset.workspaceInstance=instance||crypto.randomUUID();if(instance)active.dataset.explicitInstance='true';active.src='features/terminal-feature.html?instance='+encodeURIComponent(active.dataset.workspaceInstance);view.append(active);}
+      active.hidden=false;active.inert=false;window.dispatchEvent(new CustomEvent("terminal:panel-activity"));
+    }else{
+      view.querySelector(':scope > .native-workspace-content')?.remove();
+      for(const frame of view.querySelectorAll(':scope > iframe[data-terminal-feature]')){frame.hidden=true;frame.inert=true;}
+      if(!view.querySelector(':scope > iframe[data-terminal-feature]'))for(const child of [...view.children])if(!child.matches('.quad'))child.remove();
+      const content=document.createElement('div');content.className='native-workspace-content';content.innerHTML=out.html;view.append(content);
+      window.dispatchEvent(new CustomEvent("terminal:panel-activity"));
+    }
     $("phTitle").textContent = out.title;
     $("phSub").textContent = out.sub;
     $("phRight").textContent = out.right || "";
     const ph = document.querySelector(".panel-hd");
-    if(ph)ph.hidden=Boolean(view.querySelector("iframe[data-terminal-feature]"));
+    if(ph)ph.hidden=Boolean(view.querySelector("iframe[data-terminal-feature]:not([hidden])"));
     if (ph) ph.setAttribute("data-printed", App.user + " \u00b7 " + hhmmss(new Date()) + " \u00b7 " + out.title);
     view.scrollTop = st;
     App.scrollMemo[App.func] = view.scrollTop;
@@ -3704,7 +3736,11 @@
     const n = App.layout === "4" ? 4 : 2;
     if (App.focus >= n) App.focus = 0;
     view.className = "quadmode";
-    view.innerHTML = '<div class="quad quad' + n + '">' +
+    const existingQuad=view.querySelector(':scope > .quad.quad'+n);
+    for(const quad of view.querySelectorAll(':scope > .quad')){quad.hidden=quad!==existingQuad;if(quad!==existingQuad){for(const cell of quad.querySelectorAll('.qcell'))cell.classList.remove('focus');for(const frame of quad.querySelectorAll('iframe[data-terminal-feature]')){frame.hidden=true;frame.inert=true;}for(const native of quad.querySelectorAll('.native-workspace-content'))native.remove();}}
+    view.querySelector(':scope > .native-workspace-content')?.remove();
+    for(const frame of view.querySelectorAll(':scope > iframe[data-terminal-feature]')){frame.hidden=true;frame.inert=true;}
+    const quadMarkup = '<div class="quad quad' + n + '">' +
       Array.from({ length: n }, (_, i) =>
         '<section class="qcell' + (i === App.focus ? " focus" : "") + '" data-cell="' + i + '">' +
           '<div class="qhd"><span class="qidx">' + (i + 1) + "</span>" +
@@ -3712,8 +3748,10 @@
           '<div class="qbody"></div>' +
         "</section>").join("") + "</div>";
 
-    const host = view.querySelector(".quad");
-    if (host) {
+    if(!existingQuad)view.insertAdjacentHTML("beforeend",quadMarkup);
+    window.dispatchEvent(new CustomEvent("terminal:panel-activity"));
+    const host = view.querySelector(".quad:not([hidden])");
+    if (host && !existingQuad) {
       host.insertAdjacentHTML("beforeend",
         '<div class="qsplit v" data-split="v" title="drag to resize \u00b7 double-click to reset"></div>' +
         (App.layout === "4" ? '<div class="qsplit h" data-split="h" title="drag to resize \u00b7 double-click to reset"></div>' : ""));
@@ -3722,7 +3760,7 @@
     }
 
     for (let i = 0; i < n; i++) {
-      const cell = view.querySelector('.qcell[data-cell="' + i + '"]');
+      const cell = host.querySelector('.qcell[data-cell="' + i + '"]');
       if (!cell) continue;
       const body = cell.querySelector(".qbody");
       const p = panelAt(i);
@@ -3731,7 +3769,17 @@
       App.func = p.func;
       App.sym = p.sym || App.sym || "AAPL";
       const out = (VIEWS[p.func] || viewHELP)();
-      body.innerHTML = out.html;
+      cell.classList.toggle('focus',i===App.focus);
+      body.querySelector(':scope > .native-workspace-content')?.remove();
+      const cached=[...body.querySelectorAll(':scope > iframe[data-terminal-feature]')];
+      for(const frame of cached){frame.hidden=true;frame.inert=true;}
+      if((window.TERMINAL_FEATURES||[]).some(item=>item.code===p.func)){
+        let frame=cached.find(item=>item.dataset.terminalFeature===p.func);
+        if(!cached.length)body.replaceChildren();
+        if(!frame){const template=document.createElement('template');template.innerHTML=out.html;frame=template.content.querySelector('iframe');frame.dataset.workspaceInstance=crypto.randomUUID();frame.src='features/terminal-feature.html?instance='+encodeURIComponent(frame.dataset.workspaceInstance);body.append(frame);}
+        frame.hidden=false;frame.inert=false;
+      }else{if(!cached.length)body.replaceChildren();const content=document.createElement('div');content.className='native-workspace-content';content.innerHTML=out.html;body.append(content);}
+
       // 同一个页面里四个面板，id 必须唯一
       body.querySelectorAll("[id]").forEach((el) => { if (!el.id.startsWith(App.pfx)) el.id = App.pfx + el.id; });
       cell.querySelector(".qfn").textContent = p.func;
@@ -3746,6 +3794,7 @@
       App.sym = saveSym;
     }
     App.pfx = "";
+    window.dispatchEvent(new CustomEvent("terminal:panel-activity"));
     mountKbdRows();
     if (panelAt(App.focus).func === "W") mountWatchDrag();
     $("phTitle").textContent = "SPLIT " + App.layout;
@@ -3771,7 +3820,7 @@
   }
 
   window.addEventListener("resize", () => {
-    const host = document.querySelector(".quad");
+    const host = document.querySelector(".quad:not([hidden])");
     if (host) applySplit(host);
   });
 
@@ -3822,7 +3871,7 @@
     App.func = p.func;
     if (p.sym) App.sym = p.sym;
     App.pfx = "q" + i + "-";
-    document.querySelectorAll(".qcell").forEach((c) =>
+    document.querySelectorAll(".quad:not([hidden]) .qcell").forEach((c) =>
       c.classList.toggle("focus", Number(c.getAttribute("data-cell")) === i));
     $("phRight").textContent = "PANEL " + (i + 1) + "/" + n;
     $("phSub").textContent = "Multi-panel workspace · panel " + (i + 1) + " focused · LAY 1 to go back";
@@ -4605,7 +4654,7 @@
       });
     }
     $("tickcount").textContent = fnum(App.ticks);
-    $("stRight").textContent = (10 + Math.floor(Math.random() * 9)) + "ms \u00b7 SIM FEED";
+    $("stRight").textContent = "本地模拟数据 · 非实时市场来源";
 
     // flash the changed cells without re-rendering whole view (tables only)
     flashCells();
@@ -5450,7 +5499,7 @@
 
       // ---- split screen ----
       setLayout("4");
-      t("layout 4 quad", App.layout === "4" && document.querySelectorAll(".qcell").length === 4);
+      t("layout 4 quad", App.layout === "4" && document.querySelectorAll(".quad:not([hidden]) .qcell").length === 4);
       t("quad charts mounted", !!document.querySelector('.qcell[data-cell="0"] canvas'));
       const cell2 = document.querySelector('.qcell[data-cell="2"] .qfn');
       exec("WEI");
@@ -5550,9 +5599,9 @@
       setLayout("1");
       Store.data.panels[0] = { func: "GP", sym: "AAPL" };
       setLayout("2");
-      t("layout 2 panels", App.layout === "2" && document.querySelectorAll(".qcell").length === 2);
+      t("layout 2 panels", App.layout === "2" && document.querySelectorAll(".quad:not([hidden]) .qcell").length === 2);
       setLayout("1");
-      t("layout back to 1", App.layout === "1" && document.querySelectorAll(".qcell").length === 0);
+      t("layout back to 1", App.layout === "1" && document.querySelectorAll(".quad:not([hidden]) .qcell").length === 0);
       t("panels persisted", Array.isArray(Store.data.panels) && Store.data.panels.length === 4);
 
       // ---- draggable splitters ----
@@ -5560,7 +5609,7 @@
       t("splitter count", document.querySelectorAll(".qsplit").length === 2);
       const fire = (el, type, x, y) => el.dispatchEvent(new MouseEvent(type, { bubbles: true, clientX: x, clientY: y }));
       const dragSplit = (kind, fx, fy) => {
-        const host = document.querySelector(".quad");
+        const host = document.querySelector(".quad:not([hidden])");
         if (!host) return null;
         const r = host.getBoundingClientRect();
         const sp = host.querySelector('.qsplit[data-split="' + kind + '"]');
@@ -6097,9 +6146,9 @@
         const el = $("freshflag");
         if (!el) return false;
         setFresh("live");
-        const live = el.textContent === "LIVE" && el.classList.contains("live");
+        const live = el.textContent === "SIM ACTIVE" && el.classList.contains("live");
         setFresh("stale");
-        const stale = el.textContent === "STALE" && el.classList.contains("stale");
+        const stale = el.textContent === "SIM PAUSED" && el.classList.contains("stale");
         setFresh("live");
         return live && stale;
       })());
@@ -6324,6 +6373,7 @@
         $("stMsg").textContent="工作区布局已恢复 · "+value.layout+"屏";
       }
     });
+    window.dispatchEvent(new CustomEvent('terminal:workspace-ready'));
     // self-test surface for automated checks
     window.__TERMINAL__ = {
       ok: true,

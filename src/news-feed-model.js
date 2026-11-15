@@ -3,14 +3,14 @@ export function safeNewsURL(value) {
   try { const url = new URL(value); return url.protocol === 'https:' && !url.username && !url.password && (!url.port || url.port === '443') ? url.href : null; } catch { return null; }
 }
 export function newsSnapshot(value) {
-  if (!value || !['chinese_aggregate','panews','cointelegraph','nasdaq','newsapi'].includes(value.provider) || !Array.isArray(value.articles) || value.articles.length > 200 || !['ready','missing','error'].includes(value.status)) throw new Error('news_response_invalid');
+  if (!value || !['chinese_aggregate','panews','cointelegraph','nasdaq','newsapi'].includes(value.provider) || !Array.isArray(value.articles) || value.articles.length > 1200 || !['ready','missing','error'].includes(value.status)) throw new Error('news_response_invalid');
   const articles = [], seen = new Set();
   for (const item of value.articles) {
     const url = safeNewsURL(item?.url);
-    if (!url || typeof item.title !== 'string' || !item.title.trim() || seen.has(url)) continue;
-    seen.add(url);
+    if (!url || typeof item.title !== 'string' || !item.title.trim() || seen.has(`${item.source_id||value.provider}:${item.kind}:${url}`)) continue;
+    seen.add(`${item.source_id||value.provider}:${item.kind}:${url}`);
     const date = typeof item.published_at === 'string' && /(?:Z|[+-]\d\d:\d\d)$/.test(item.published_at) && Number.isFinite(Date.parse(item.published_at)) ? item.published_at : null;
-    articles.push({sourceStale:item.source_stale===true,sourceFailed:Boolean(item.source_error),sourceFetchedAt:typeof item.source_fetched_at==='string'?item.source_fetched_at:null,kind:item.kind==='flash'?'flash':item.kind==='article'?'article':value.provider==='panews'?'flash':'article',sourceId:typeof item.source_id==='string'?item.source_id:value.provider,id:url,title:item.title.slice(0,500),description:typeof item.description==='string'?item.description.slice(0,1200):'',url,publisher:typeof item.publisher==='string'?item.publisher:'来源未提供',publishedAt:date,rawTime:typeof item.published_at_raw==='string'?item.published_at_raw.slice(0,100):'',symbol:typeof item.symbol==='string'?item.symbol:''});
+    articles.push({market:typeof item.market==='string'?item.market:'crypto',sourceStale:item.source_stale===true,sourceFailed:Boolean(item.source_error),sourceFetchedAt:typeof item.source_fetched_at==='string'?item.source_fetched_at:null,kind:item.kind==='flash'?'flash':item.kind==='article'?'article':value.provider==='panews'?'flash':'article',sourceId:typeof item.source_id==='string'?item.source_id:value.provider,id:url,title:item.title.slice(0,500),description:typeof item.description==='string'?item.description.slice(0,20000):'',url,publisher:typeof item.publisher==='string'?item.publisher:'来源未提供',publishedAt:date,rawTime:typeof item.published_at_raw==='string'?item.published_at_raw.slice(0,100):'',symbol:typeof item.symbol==='string'?item.symbol:''});
   }
   articles.sort((a,b)=>(b.publishedAt||'').localeCompare(a.publishedAt||''));
   const fetchedAt = typeof value.fetched_at==='string' && Number.isFinite(Date.parse(value.fetched_at)) ? value.fetched_at : null;
@@ -33,4 +33,4 @@ export function filterNews(articles, channel, query='', allChannels=false) {
  return articles.filter(item=>{const text=`${item.title} ${item.description} ${item.publisher} ${item.symbol}`.normalize('NFKC');return (!matcher||matcher.test(text))&&(!needle||text.toLocaleLowerCase().includes(needle));});
 }
 
-export const newsProviderLabel=value=>({chinese_aggregate:"中文多源聚合",panews:"PANews 中文快讯",cointelegraph:"Cointelegraph RSS（英文）",nasdaq:"Nasdaq 股票新闻",newsapi:"NewsAPI"}[value]||"正在读取资讯来源");
+export const newsProviderLabel=value=>({custom:"自定义 RSS",chinese_aggregate:"全市场资讯聚合",panews:"PANews 中文快讯",cointelegraph:"Cointelegraph RSS（英文）",nasdaq:"Nasdaq 股票新闻",newsapi:"NewsAPI"}[value]||"正在读取资讯来源");

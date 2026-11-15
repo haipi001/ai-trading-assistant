@@ -1,0 +1,153 @@
+{
+  "scope": "isolated native DOM render; canvas is a stub, not visual acceptance",
+  "pages": [
+    {
+      "code": "WEI",
+      "characters": 637
+    },
+    {
+      "code": "W",
+      "characters": 332
+    },
+    {
+      "code": "TOP",
+      "characters": 5059
+    },
+    {
+      "code": "DES",
+      "characters": 1029
+    },
+    {
+      "code": "GP",
+      "characters": 196
+    },
+    {
+      "code": "HP",
+      "characters": 1250
+    },
+    {
+      "code": "N",
+      "characters": 456
+    },
+    {
+      "code": "MOST",
+      "characters": 654
+    },
+    {
+      "code": "PORT",
+      "characters": 796
+    },
+    {
+      "code": "HELP",
+      "characters": 7029
+    },
+    {
+      "code": "TRD",
+      "characters": 187
+    },
+    {
+      "code": "OPT",
+      "characters": 589
+    },
+    {
+      "code": "GOV",
+      "characters": 466
+    },
+    {
+      "code": "FX",
+      "characters": 1011
+    },
+    {
+      "code": "ECO",
+      "characters": 591
+    },
+    {
+      "code": "COMP",
+      "characters": 418
+    },
+    {
+      "code": "ORD",
+      "characters": 313
+    },
+    {
+      "code": "ALRT",
+      "characters": 454
+    },
+    {
+      "code": "FA",
+      "characters": 606
+    },
+    {
+      "code": "EQS",
+      "characters": 859
+    },
+    {
+      "code": "FLDS",
+      "characters": 2641
+    },
+    {
+      "code": "SRCH",
+      "characters": 2049
+    },
+    {
+      "code": "DEPTH",
+      "characters": 1294
+    },
+    {
+      "code": "MAP",
+      "characters": 558
+    },
+    {
+      "code": "CMDT",
+      "characters": 707
+    },
+    {
+      "code": "SET",
+      "characters": 1258
+    },
+    {
+      "code": "CONN",
+      "characters": 654
+    },
+    {
+      "code": "PLUG",
+      "characters": 573
+    },
+    {
+      "code": "WORK",
+      "characters": 751
+    },
+    {
+      "code": "ABOUT",
+      "characters": 967
+    },
+    {
+      "code": "XL",
+      "characters": 513
+    },
+    {
+      "code": "MSG",
+      "characters": 339
+    },
+    {
+      "code": "FEED",
+      "characters": 630
+    },
+    {
+      "code": "BROKER",
+      "characters": 545
+    },
+    {
+      "code": "ACCOUNT",
+      "characters": 492
+    },
+    {
+      "code": "INBOX",
+      "characters": 192
+    },
+    {
+      "code": "SUPPORT",
+      "characters": 2874
+    }
+  ]
+}

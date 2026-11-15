@@ -45,6 +45,7 @@ from app.api.product_roadmap import router as product_roadmap_router
 from app.api.production import router as production_router
 from app.api.reports import router as reports_router
 from app.api.news_feed import router as news_feed_router
+from app.api.subscriptions import router as subscriptions_router
 from app.api.research_feeds import router as research_feeds_router
 from app.api.risk import router as risk_router
 from app.api.scheduled_jobs import router as scheduled_jobs_router
@@ -121,6 +122,7 @@ def create_app() -> FastAPI:
     app.include_router(reports_router)
     app.include_router(research_feeds_router)
     app.include_router(news_feed_router)
+    app.include_router(subscriptions_router)
     app.include_router(agents_router)
     app.include_router(signals_router)
     app.include_router(risk_router)
