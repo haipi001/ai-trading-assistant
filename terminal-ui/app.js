@@ -2396,7 +2396,8 @@
     const term = String(q || "").trim().toUpperCase();
     const out = [];
     Object.keys(FUNCS).forEach((k) => {
-      out.push({ code: k, label: FUNCS[k].label, kind: "FUNC", cmd: k });
+      const row=document.querySelector('#fkeys li[data-fn="'+k+'"]');
+      out.push({ code: k, label: FUNCS[k].label, kind: "FUNC", cmd: k, navigationHidden:Boolean(row?.closest('[hidden]')) });
     });
     UNIV.forEach((s) => out.push({ code: s.sym, label: s.name, kind: s.cls, cmd: s.sym + " DES" }));
     [
@@ -2426,7 +2427,7 @@
     box.innerHTML = pal.items.map((i, n) =>
       '<div class="pitem' + (n === pal.idx ? " sel" : "") + '" data-n="' + n + '">' +
       '<span class="pc">' + i.code + '</span><span class="pl">' + i.label + '</span>' +
-      '<span class="pk">' + i.kind + "</span></div>").join("");
+      '<span class="pk">' + (i.navigationHidden?'导航已隐藏':i.kind) + '</span>' + (i.navigationHidden?'<button type="button" class="xbtn" data-pal-show="'+i.code+'" aria-label="恢复'+uiEscape(i.label)+'导航显示">恢复导航显示</button>':'') + '</div>').join("");
   }
 
   function openPalette() {
@@ -2621,6 +2622,8 @@
     }
     const list = $("plist");
     if (list) list.addEventListener("click", (e) => {
+      const restore=e.target.closest('[data-pal-show]');
+      if(restore){const request={code:restore.dataset.palShow,result:null};window.dispatchEvent(new CustomEvent('terminal:restore-navigation',{detail:request}));if(request.result){pal.items=palItems(pin.value);paintPalette();pin.focus();notice(request.result.error||'导航入口已恢复',Boolean(request.result.error));}else notice('请从导航设置恢复此入口',true);return;}
       const it = e.target.closest(".pitem");
       if (it) palChoose(Number(it.getAttribute("data-n")));
     });
@@ -6370,6 +6373,7 @@
         $("stMsg").textContent="工作区布局已恢复 · "+value.layout+"屏";
       }
     });
+    window.dispatchEvent(new CustomEvent('terminal:workspace-ready'));
     // self-test surface for automated checks
     window.__TERMINAL__ = {
       ok: true,

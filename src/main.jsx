@@ -1,3 +1,4 @@
+import {candleAgeLabel} from './candle-age-label.js';
 import {observeVisibleInterval} from './visible-interval.js';
 import {chartStorage} from './panel-storage.js';
 import {SourceAIWorkspace,AIActivityCenter,LiveOrderTicket} from './terminal-tool-workspaces.jsx';
@@ -1731,7 +1732,7 @@ function Market({
             <i>{symbol.slice(0, 1)}</i>
             <span><b>{instrument}</b><small>{headline.price===null?"—":headline.price.toLocaleString("en-US",{maximumFractionDigits:8})}　{headline.change===null?"—":`${headline.change>=0?"+":""}${headline.change.toFixed(2)}%`} · {headline.source}</small></span>
           </button>
-          <div className={`market-data-status ${backendMarket.status}`} title={backendMarket.source}><i/><span>{backendMarket.status === "local"?backendMarket.source:backendMarket.status === "connected" ? `行情数据 · ${backendMarket.source}` : backendMarket.status === "loading" ? "正在读取市场数据" : `${backendMarket.source} · ${allowDemo ? "演示回退" : "数据不可用"}`}</span></div>
+          <div className={`market-data-status ${backendMarket.status}`} title={backendMarket.source}><i/><span>{backendMarket.status === "local"?backendMarket.source:backendMarket.status === "connected" ? `行情数据 · ${backendMarket.source}` : backendMarket.status === "loading" ? "正在读取市场数据" : `${backendMarket.source} · ${allowDemo ? "演示回退" : "数据不可用"}`}</span>{liveCandle&&<small className="market-candle-age" title={candleAgeLabel(liveCandle)}>{candleAgeLabel(liveCandle)}</small>}</div>
           {layoutStorageError&&<div role="alert" className="chart-layout-storage-error">{layoutStorageError}<button onClick={reloadLayoutList}>重新读取布局列表</button></div>}<div className="chart-layout-tabs">
             {chartLayouts.map((layout) => (
               <span className={activeLayout === layout.id ? "on" : ""} key={layout.id}>
@@ -1759,7 +1760,7 @@ function Market({
           ><I.Images />快照记录 {chartSnapshots.length}</button>
         </div>
         {layoutManagerOpen&&<aside className="chart-layout-manager"><header><b>图表布局管理</b><button aria-label="关闭图表布局管理" onClick={()=>setLayoutManagerOpen(false)}><I.X/></button></header><label>布局名称<input value={layoutDraft.name} onChange={(event)=>setLayoutDraft({...layoutDraft,name:event.target.value})}/></label><div>{["单窗","双窗","四窗","六窗","九窗"].map((name)=><button className={layoutDraft.mode===name?"on":""} key={name} onClick={()=>setLayoutDraft({...layoutDraft,mode:name})}>{name}</button>)}</div><footer><button onClick={()=>{setPaneCount({单窗:1,双窗:2,四窗:4,六窗:6,九窗:9}[layoutDraft.mode]);say(`已预览${layoutDraft.mode}`)}}>预览布局</button><button onClick={async()=>{if(!layoutDraft.name.trim())return say("请输入布局名称");const next={id:`layout-${Date.now()}`,name:layoutDraft.name.trim(),symbol,state:{...captureLayout(),paneCount:{单窗:1,双窗:2,四窗:4,六窗:6,九窗:9}[layoutDraft.mode]},saved:true};if(!await setChartLayouts([...chartLayouts,next]))return;setActiveLayout(next.id);setPaneCount({单窗:1,双窗:2,四窗:4,六窗:6,九窗:9}[layoutDraft.mode]);setLayoutManagerOpen(false);say(`${layoutDraft.name}布局已保存`)}}>保存布局</button></footer></aside>}
-        <div className="chart-tools">
+        <div className="chart-tools" role="group" aria-label="图表操作工具栏，可横向滚动" tabIndex={0}>
           <label className="chart-venue-control" title="切换当前图表工作区所有窗口的数据平台">
             <span>平台</span>
             <select aria-label="图表行情平台" value={marketPlatform} onChange={event=>selectVenue(event.target.value)}>

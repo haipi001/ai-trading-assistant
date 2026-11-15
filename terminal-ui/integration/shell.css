@@ -93,3 +93,7 @@
 .workspace-settings-footer{position:sticky;bottom:-24px;display:flex;justify-content:flex-end;gap:8px;margin:16px -24px -24px;padding:14px 24px;background:var(--panel);border-top:1px solid var(--line2);z-index:2}.workspace-settings-footer>button:last-child{background:var(--acc);color:var(--bg)}.workspace-setting-row>span{flex:1;min-width:0}.workspace-settings section>h3{font-size:13px;border-bottom:1px solid var(--line2);padding-block:8px}.workspace-setting-row label{min-width:0;overflow-wrap:anywhere}
 
 .utility-resize{position:absolute;top:0;bottom:0;left:0;width:8px;cursor:col-resize;touch-action:none}.utility-resize:hover,.utility-resize:focus-visible{background:var(--line2);outline:2px solid var(--accent)}
+/* Keep text glyphs and SVG tools inside the same compact hit area. */
+.shell-tool-rail button{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;min-height:40px;max-width:40px;overflow:hidden;line-height:1;font-size:18px}
+.shell-tool-rail button svg,.shell-tool-rail button[data-tool-role=ai] svg{width:20px;height:20px;display:block}
+.shell-tool-rail #tool-etf{font-size:11px;letter-spacing:.02em;font-weight:600}

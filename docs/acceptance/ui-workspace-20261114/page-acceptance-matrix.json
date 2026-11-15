@@ -1,0 +1,4827 @@
+{
+  "scope": "逐页业务验收跟踪，已有整体或渲染证据不自动提升任何门槛",
+  "businessCount": 68,
+  "nativeCount": 37,
+  "pages": [
+    {
+      "code": "R001",
+      "title": "AI智搜",
+      "kind": "business",
+      "page": "home",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R002",
+      "title": "市场概览",
+      "kind": "business",
+      "page": "home",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R003",
+      "title": "条件选币",
+      "kind": "business",
+      "page": "home",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R004",
+      "title": "热门榜单",
+      "kind": "business",
+      "page": "home",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R005",
+      "title": "排行",
+      "kind": "business",
+      "page": "home",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R006",
+      "title": "功能指南",
+      "kind": "business",
+      "page": "home",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R007",
+      "title": "云图",
+      "kind": "business",
+      "page": "home",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R008",
+      "title": "合约雷达",
+      "kind": "business",
+      "page": "home",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R009",
+      "title": "图表",
+      "kind": "business",
+      "page": "market",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R010",
+      "title": "深度",
+      "kind": "business",
+      "page": "market",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R011",
+      "title": "资金流",
+      "kind": "business",
+      "page": "market",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R012",
+      "title": "合约数据",
+      "kind": "business",
+      "page": "market",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R013",
+      "title": "自选",
+      "kind": "business",
+      "page": "market",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R014",
+      "title": "精选",
+      "kind": "business",
+      "page": "flash",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R015",
+      "title": "直播",
+      "kind": "business",
+      "page": "flash",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R016",
+      "title": "巨鲸",
+      "kind": "business",
+      "page": "flash",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R017",
+      "title": "主力",
+      "kind": "business",
+      "page": "flash",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R018",
+      "title": "推特",
+      "kind": "business",
+      "page": "flash",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R019",
+      "title": "市场",
+      "kind": "business",
+      "page": "flash",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R020",
+      "title": "特朗普",
+      "kind": "business",
+      "page": "flash",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R021",
+      "title": "上新",
+      "kind": "business",
+      "page": "flash",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R022",
+      "title": "链上",
+      "kind": "business",
+      "page": "flash",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R023",
+      "title": "ETF",
+      "kind": "business",
+      "page": "flash",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R024",
+      "title": "宏观",
+      "kind": "business",
+      "page": "flash",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R025",
+      "title": "币股",
+      "kind": "business",
+      "page": "flash",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R026",
+      "title": "精选",
+      "kind": "business",
+      "page": "news",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R027",
+      "title": "活动FUN放",
+      "kind": "business",
+      "page": "news",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R028",
+      "title": "分析",
+      "kind": "business",
+      "page": "news",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R029",
+      "title": "直播回顾",
+      "kind": "business",
+      "page": "news",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R030",
+      "title": "币股",
+      "kind": "business",
+      "page": "news",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R031",
+      "title": "产品教程",
+      "kind": "business",
+      "page": "news",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R032",
+      "title": "科普",
+      "kind": "business",
+      "page": "news",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R033",
+      "title": "长推",
+      "kind": "business",
+      "page": "news",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R034",
+      "title": "媒体报道",
+      "kind": "business",
+      "page": "news",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R035",
+      "title": "Web3.0",
+      "kind": "business",
+      "page": "news",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R036",
+      "title": "行业报告",
+      "kind": "business",
+      "page": "news",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R037",
+      "title": "AI号",
+      "kind": "business",
+      "page": "news",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R038",
+      "title": "自动赚币",
+      "kind": "business",
+      "page": "strategy",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R039",
+      "title": "套利机会",
+      "kind": "business",
+      "page": "strategy",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R040",
+      "title": "专业套利",
+      "kind": "business",
+      "page": "strategy",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R041",
+      "title": "我的套利",
+      "kind": "business",
+      "page": "strategy",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R042",
+      "title": "聪明钱",
+      "kind": "business",
+      "page": "chain",
+      "supportedMarkets": [
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R043",
+      "title": "Hyperliquid",
+      "kind": "business",
+      "page": "chain",
+      "supportedMarkets": [
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R044",
+      "title": "Polymarket",
+      "kind": "business",
+      "page": "chain",
+      "supportedMarkets": [
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R045",
+      "title": "总览",
+      "kind": "business",
+      "page": "assets",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R046",
+      "title": "币种分布",
+      "kind": "business",
+      "page": "assets",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R047",
+      "title": "API账号分布",
+      "kind": "business",
+      "page": "assets",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R048",
+      "title": "盈亏日历",
+      "kind": "business",
+      "page": "assets",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R049",
+      "title": "流水",
+      "kind": "business",
+      "page": "assets",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R050",
+      "title": "风控",
+      "kind": "business",
+      "page": "assets",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R051",
+      "title": "已授权账户",
+      "kind": "business",
+      "page": "auth",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R052",
+      "title": "添加授权",
+      "kind": "business",
+      "page": "auth",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R053",
+      "title": "安全说明",
+      "kind": "business",
+      "page": "auth",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R054",
+      "title": "加密货币储备",
+      "kind": "business",
+      "page": "data",
+      "supportedMarkets": [
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R055",
+      "title": "Hyperliquid",
+      "kind": "business",
+      "page": "data",
+      "supportedMarkets": [
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R056",
+      "title": "钱包",
+      "kind": "business",
+      "page": "more",
+      "supportedMarkets": [
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R057",
+      "title": "宏观",
+      "kind": "business",
+      "page": "more",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R058",
+      "title": "自定义导航",
+      "kind": "business",
+      "page": "more",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "R059",
+      "title": "帮助中心",
+      "kind": "business",
+      "page": "more",
+      "supportedMarkets": [
+        "stocks",
+        "cex",
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "STR0",
+      "title": "我的策略",
+      "kind": "business",
+      "page": "strategy",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "STR1",
+      "title": "智能套利",
+      "kind": "business",
+      "page": "strategy",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "STR2",
+      "title": "全币种 DCA",
+      "kind": "business",
+      "page": "strategy",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "STR3",
+      "title": "AI网格",
+      "kind": "business",
+      "page": "strategy",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "STR4",
+      "title": "指标策略",
+      "kind": "business",
+      "page": "strategy",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "STR5",
+      "title": "跟单策略 · CEX",
+      "kind": "business",
+      "page": "strategy",
+      "supportedMarkets": [
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "STR6",
+      "title": "跟单策略 · DEX",
+      "kind": "business",
+      "page": "strategy",
+      "supportedMarkets": [
+        "onchain"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "STR7",
+      "title": "主力追踪",
+      "kind": "business",
+      "page": "strategy",
+      "supportedMarkets": [
+        "stocks",
+        "cex"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "STR8",
+      "title": "游资追踪",
+      "kind": "business",
+      "page": "strategy",
+      "supportedMarkets": [
+        "stocks"
+      ],
+      "evidence": [
+        "page-render-audit.md（历史非空渲染，不证明业务）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "WEI",
+      "title": "WEI",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "W",
+      "title": "W",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "TOP",
+      "title": "TOP",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "DES",
+      "title": "DES",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "GP",
+      "title": "GP",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "HP",
+      "title": "HP",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "N",
+      "title": "N",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "MOST",
+      "title": "MOST",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "PORT",
+      "title": "PORT",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "HELP",
+      "title": "HELP",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "TRD",
+      "title": "TRD",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "OPT",
+      "title": "OPT",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "GOV",
+      "title": "GOV",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "FX",
+      "title": "FX",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "ECO",
+      "title": "ECO",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "COMP",
+      "title": "COMP",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "ORD",
+      "title": "ORD",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "ALRT",
+      "title": "ALRT",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "FA",
+      "title": "FA",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "EQS",
+      "title": "EQS",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "FLDS",
+      "title": "FLDS",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "SRCH",
+      "title": "SRCH",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "DEPTH",
+      "title": "DEPTH",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "MAP",
+      "title": "MAP",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "CMDT",
+      "title": "CMDT",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "SET",
+      "title": "SET",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "CONN",
+      "title": "CONN",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "PLUG",
+      "title": "PLUG",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "WORK",
+      "title": "WORK",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "ABOUT",
+      "title": "ABOUT",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "XL",
+      "title": "XL",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "MSG",
+      "title": "MSG",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "FEED",
+      "title": "FEED",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "BROKER",
+      "title": "BROKER",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "ACCOUNT",
+      "title": "ACCOUNT",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "INBOX",
+      "title": "INBOX",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "code": "SUPPORT",
+      "title": "SUPPORT",
+      "kind": "native",
+      "supportedMarkets": null,
+      "evidence": [
+        "native-dom-audit.json（隔离DOM，画布桩）"
+      ],
+      "gates": {
+        "真实入口打开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "数据来源与缺失状态": {
+          "status": "pending",
+          "evidence": null
+        },
+        "主要操作与保存重开": {
+          "status": "pending",
+          "evidence": null
+        },
+        "加载失败与重试": {
+          "status": "pending",
+          "evidence": null
+        },
+        "跨市场上下文隔离": {
+          "status": "pending",
+          "evidence": null
+        },
+        "亮暗与1093px布局": {
+          "status": "pending",
+          "evidence": null
+        },
+        "键盘与缩放": {
+          "status": "pending",
+          "evidence": null
+        },
+        "后台暂停与关闭清理": {
+          "status": "pending",
+          "evidence": null
+        }
+      }
+    }
+  ]
+}
