@@ -7,6 +7,7 @@ try{
 const result=await build({stdin:{contents:`import {JSDOM} from 'jsdom';
 const dom=new JSDOM('<div id="root"></div>',{url:'http://localhost/'});
 Object.assign(globalThis,{window:dom.window,document:dom.window.document,localStorage:dom.window.localStorage,CustomEvent:dom.window.CustomEvent,IS_REACT_ACT_ENVIRONMENT:true});
+Object.defineProperty(globalThis,'navigator',{value:dom.window.navigator,configurable:true});
 const React=await import('react');const {createRoot}=await import('react-dom/client');const {default:Component}=await import('./src/investment-constitution.jsx');
 const assert=(await import('node:assert/strict')).default;
 localStorage.setItem('ai-trading-assistant-strategy-notes',JSON.stringify([{id:'n1',title:'止损复盘',body:'追涨造成额外损失'}]));
