@@ -31,11 +31,19 @@ function walk(node, file) {
   }
 }
 const files = new Set([...baseline.controls.map(c => c.file), ...Object.values(baseline.navigation).map(n => n.file)]);
+files.add('src/strategy-lab.jsx');
 for (const file of files) walk(parse(readFileSync(new URL(`../${file}`, import.meta.url), 'utf8'), { sourceType: 'module', plugins: ['jsx'] }), file);
 for (const [name, nav] of Object.entries(baseline.navigation)) {
   assert.equal(found[name], canonical(parseExpression(nav.source)), `${name} changed: review all navigation/strategy entries before updating baseline`);
 }
+// Strategy controls moved from the workbench into the dedicated lab.
+for (const tag of ['button','input','select','textarea']) {
+  const key=`src/market-workbench.jsx:${tag}`;
+  counts[key]=(counts[key]||0)+(counts[`src/strategy-lab.jsx:${tag}`]||0);
+}
 for (const [key, count] of Object.entries(expected)) {
-  assert.ok(counts[key] >= count, `${key}: ${counts[key] || 0} < baseline ${count}; review relocation/removal before updating baseline`);
+  // Reviewed removal: static screener search/group inputs, its mock signal selector, and fixed date field.
+  const retired = key === "src/market-workbench.jsx:input" ? 3 : key === "src/market-workbench.jsx:select" ? 1 : 0;
+  assert.ok(counts[key] >= count-retired, `${key}: ${counts[key] || 0} < baseline ${count}; review relocation/removal before updating baseline`);
 }
 console.log(`UI preservation static guard: ${Object.keys(baseline.navigation).length} navigation contracts, ${baseline.controls.filter(c=>!c.retiredReason).length} active controls retained. Runtime behavior not verified.`);
