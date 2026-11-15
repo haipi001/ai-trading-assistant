@@ -12,6 +12,7 @@ import xml.etree.ElementTree as ET
 from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from urllib.error import HTTPError
 from urllib.parse import urlencode, urlsplit
 from urllib.request import HTTPRedirectHandler, HTTPSHandler, Request, build_opener
@@ -52,7 +53,7 @@ class NoNewsRedirect(HTTPRedirectHandler):
 
 def fetch_news_json(url, headers):
     parsed = urlsplit(url)
-    if parsed.scheme != "https" or (parsed.netloc, parsed.path) not in {("newsapi.org", "/v2/everything"), ("api.nasdaq.com", "/api/news/topic/articlebysymbol"), ("cointelegraph.com", "/rss"), ("www.panewslab.com", "/rss.xml"),('rss.odaily.news','/rss/newsflash'),('rss.odaily.news','/rss/post'),('api.theblockbeats.news','/v2/rss/newsflash'),('api.theblockbeats.news','/v2/rss/article')}:
+    if parsed.scheme != "https" or (parsed.netloc, parsed.path) not in {(urlsplit(v[k]).netloc,urlsplit(v[k]).path) for v in SOURCES.values() for k in ("flash","article") if k in v} | {("newsapi.org", "/v2/everything"), ("api.nasdaq.com", "/api/news/topic/articlebysymbol"), ("cointelegraph.com", "/rss"), ("www.panewslab.com", "/rss.xml"),('rss.odaily.news','/rss/newsflash'),('rss.odaily.news','/rss/post'),('api.theblockbeats.news','/v2/rss/newsflash'),('api.theblockbeats.news','/v2/rss/article')}:
         raise NewsFeedError("news_host_rejected")
     opener = build_opener(HTTPSHandler(context=ssl.create_default_context(cafile=certifi.where())), NoNewsRedirect())
     try:
@@ -60,7 +61,11 @@ def fetch_news_json(url, headers):
             body = response.read(2_000_001)
         if len(body) > 2_000_000:
             raise NewsFeedError("news_response_invalid")
-        publisher={'www.panewslab.com':'PANews','rss.odaily.news':'Odaily 星球日报','api.theblockbeats.news':'律动 BlockBeats','cointelegraph.com':'Cointelegraph'}.get(parsed.hostname)
+        if parsed.hostname == 'np-anotice-stock.eastmoney.com':
+            return parse_announcements(json.loads(body))
+        if parsed.hostname == 'np-listapi.eastmoney.com':
+            return parse_eastmoney(json.loads(body))
+        publisher={'rthk9.rthk.hk':'香港电台 · 财经','www.cnbc.com':'CNBC · Finance','www.panewslab.com':'PANews','rss.odaily.news':'Odaily 星球日报','api.theblockbeats.news':'律动 BlockBeats','cointelegraph.com':'Cointelegraph'}.get(parsed.hostname)
         return parse_public_rss(body,publisher) if publisher else json.loads(body)
     except HTTPError as exc:
         raise NewsFeedError({401: "news_key_rejected", 403: "news_access_denied", 429: "news_rate_limited"}.get(exc.code, "news_source_unavailable")) from None
@@ -68,6 +73,35 @@ def fetch_news_json(url, headers):
         raise
     except Exception:
         raise NewsFeedError("news_source_unavailable") from None
+
+
+def parse_announcements(payload):
+    data=payload.get('data') if isinstance(payload,dict) else None
+    rows=data.get('list') if isinstance(data,dict) else None
+    if not isinstance(rows,list) or len(rows)>100:raise NewsFeedError('news_response_invalid')
+    articles=[]
+    for row in rows:
+        code=str(row.get('art_code',''))
+        if not re.fullmatch(r'AN\d{10,30}',code):continue
+        symbols=[str(c.get('stock_code','')) for c in row.get('codes',[]) if isinstance(c,dict) and re.fullmatch(r'[A-Za-z0-9]{1,12}',str(c.get('stock_code','')))]
+        try:stamp=datetime.strptime(row['notice_date'],'%Y-%m-%d %H:%M:%S').replace(tzinfo=ZoneInfo('Asia/Shanghai')).astimezone(timezone.utc).isoformat()
+        except (KeyError,ValueError,TypeError):stamp=None
+        articles.append({'title':row.get('title'),'description':'公告目录记录；正文及附件请阅读来源原文。','url':f'https://data.eastmoney.com/notices/detail/{symbols[0] if symbols else "0"}/{code}.html','publishedAt':stamp,'symbol':','.join(symbols),'source':{'name':'东方财富公告'}})
+    return {'status':'ok','articles':articles}
+
+
+def parse_eastmoney(payload):
+    data = payload.get('data') if isinstance(payload, dict) else None
+    rows = data.get('fastNewsList') if isinstance(data, dict) else None
+    if str(payload.get('code')) != '1' or not isinstance(rows, list) or len(rows)>100:
+        raise NewsFeedError('news_response_invalid')
+    articles=[]
+    for row in rows:
+        if not isinstance(row,dict) or not re.fullmatch(r'\d{10,30}',str(row.get('code',''))):continue
+        try:stamp=datetime.strptime(row['showTime'],'%Y-%m-%d %H:%M:%S').replace(tzinfo=ZoneInfo('Asia/Shanghai')).astimezone(timezone.utc).isoformat()
+        except (KeyError,TypeError,ValueError):stamp=None
+        articles.append({'title':row.get('title'),'description':row.get('summary'),'url':f"https://finance.eastmoney.com/a/{row['code']}.html",'publishedAt':stamp,'symbol':','.join(str(v) for v in row.get('stockList',[]) if isinstance(v,str))[:200],'source':{'name':'东方财富'}})
+    return {'status':'ok','articles':articles}
 
 
 class _TextOnly(HTMLParser):
@@ -96,7 +130,7 @@ def parse_public_rss(body, publisher="Cointelegraph"):
             except (ValueError, TypeError, OverflowError):
                 date = None
             text = _TextOnly()
-            text.feed((item.findtext("description") or "")[:20000])
+            text.feed((item.findtext("{http://purl.org/rss/1.0/modules/content/}encoded") or item.findtext("description") or "")[:20000])
             articles.append({"title": item.findtext("title"), "url": item.findtext("link"), "publishedAt": date, "description": " ".join(text.parts).strip(), "source": {"name": publisher}})
         return {"status": "ok", "articles": articles}
     except (ET.ParseError, ValueError):
@@ -136,7 +170,7 @@ def normalize_articles(rows, provider):
         instant = _utc(publication)
         source = row.get("source")
         publisher = source.get("name") if isinstance(source, dict) else row.get("publisher")
-        item = {"id": hashlib.sha256(url.encode()).hexdigest()[:24], "title": title.strip()[:500], "description": str(row.get("description") or "")[:1200], "url": url[:3000], "publisher": str(publisher or provider)[:120], "published_at": instant.isoformat() if instant else None, "published_at_raw": str(publication or "")[:100], "symbol": str(row.get("symbol") or "")[:20], "kind":'flash' if provider=='panews' else 'article'}
+        item = {"id": hashlib.sha256(url.encode()).hexdigest()[:24], "title": title.strip()[:500], "description": str(row.get("description") or "")[:20000], "url": url[:3000], "publisher": str(publisher or provider)[:120], "published_at": instant.isoformat() if instant else None, "published_at_raw": str(publication or "")[:100], "symbol": str(row.get("symbol") or "")[:200], "kind":'flash' if provider=='panews' else 'article'}
         if url not in found:
             found[url] = item
     return sorted(found.values(), key=lambda item: item["published_at"] or "", reverse=True)[:100]
@@ -169,6 +203,8 @@ class NewsFeedService:
 
     def settings(self):
         value = {**DEFAULTS, **self._read("settings")}
+        if not value.get("source_catalog_version"):
+            value["sources"] = list(dict.fromkeys([*value["sources"], "eastmoney", "rthk", "cnbc", "eastmoney_announcements"]))
         return {**value, "key_configured": bool(os.environ.get(self._secret_name())), "storage": "local_file_0600_unencrypted"}
 
     def configure(self, payload):
@@ -192,7 +228,7 @@ class NewsFeedService:
             raise NewsFeedError("news_key_invalid")
         if provider == "newsapi" and not (key or current["key_configured"]):
             raise NewsFeedError("news_key_required")
-        value = {"provider": provider, "sources":sources, "query": query.strip(), "symbols": list(dict.fromkeys(s.upper() for s in symbols)), "language": language, "refresh_seconds": interval, "auto_refresh": auto, "credential_version": current.get("credential_version", 0) + (1 if key else 0)}
+        value = {"provider": provider, "sources":sources, "query": query.strip(), "symbols": list(dict.fromkeys(s.upper() for s in symbols)), "language": language, "refresh_seconds": interval, "auto_refresh": auto, "source_catalog_version": 1, "credential_version": current.get("credential_version", 0) + (1 if key else 0)}
         if key:
             try:
                 set_user_secret(self._secret_name(), key)
@@ -293,7 +329,7 @@ class NewsFeedService:
         return self.latest()
 
     def _refresh_chinese(self,config,cache):
-        jobs=[(source,kind) for source in config['sources'] for kind in ('flash','article')]
+        jobs=[(source,kind) for source in config['sources'] for kind in ('flash','article') if kind in SOURCES[source]]
         def retrieve(job):
             source,kind=job
             try:
@@ -301,14 +337,14 @@ class NewsFeedService:
                 if not isinstance(payload,dict) or payload.get('status')!='ok':raise NewsFeedError('news_response_invalid')
                 rows=normalize_articles(payload.get('articles'),source)
                 if payload.get('articles') and not rows:raise NewsFeedError('news_response_invalid')
-                return job,[{**row,'kind':kind,'source_id':source,'publisher':SOURCES[source]['name']} for row in rows],None
+                return job,[{**row,'kind':kind,'source_id':source,'publisher':SOURCES[source]['name'],'market':SOURCES[source].get('market','crypto')} for row in rows],None
             except NewsFeedError as exc:return job,None,exc.code
             except Exception:return job,None,'news_source_unavailable'
         feeds={};success=0
         with ThreadPoolExecutor(max_workers=6) as pool:
             for (source,kind),articles,error in pool.map(retrieve,jobs):
                 key=source+':'+kind;old=cache.get('feeds',{}).get(key,{})
-                feed={**old,'publisher':SOURCES[source]['name'],'source_id':source,'kind':kind,'checked_at':self.now().isoformat(),'last_error':error,'status':'error' if error else 'ready'}
+                feed={**old,'publisher':SOURCES[source]['name'],'source_id':source,'kind':kind,'market':SOURCES[source].get('market','crypto'),'checked_at':self.now().isoformat(),'last_error':error,'status':'error' if error else 'ready'}
                 if articles is not None:
                     feed.update(articles=articles,fetched_at=self.now().isoformat());success+=1
                 feed['count']=len(feed.get('articles',[]));feeds[key]=feed
@@ -317,7 +353,7 @@ class NewsFeedService:
             unique={}
             for feed in feeds.values():
                 for row in feed.get('articles',[]):
-                    if row['kind']==kind:unique.setdefault(row['url'],row)
+                    if row['kind']==kind:unique.setdefault((row['source_id'],row['url']),row)
             merged.extend(sorted(unique.values(),key=lambda row:row['published_at'] or '',reverse=True))
         merged.sort(key=lambda row:row['published_at'] or '',reverse=True)
         cache.update(feeds=feeds,articles=merged,errors_count=len(jobs)-success,last_error=None if success else 'news_source_unavailable')

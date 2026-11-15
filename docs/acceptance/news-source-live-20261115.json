@@ -1,0 +1,62 @@
+[
+  {
+    "source": "panews",
+    "kind": "flash",
+    "count": 100,
+    "status": "ready"
+  },
+  {
+    "source": "panews",
+    "kind": "article",
+    "count": 100,
+    "status": "ready"
+  },
+  {
+    "source": "odaily",
+    "kind": "flash",
+    "count": 10,
+    "status": "ready"
+  },
+  {
+    "source": "odaily",
+    "kind": "article",
+    "count": 10,
+    "status": "ready"
+  },
+  {
+    "source": "blockbeats",
+    "kind": "flash",
+    "status": "error",
+    "error": "news_source_unavailable"
+  },
+  {
+    "source": "blockbeats",
+    "kind": "article",
+    "status": "error",
+    "error": "news_source_unavailable"
+  },
+  {
+    "source": "eastmoney",
+    "kind": "flash",
+    "count": 100,
+    "status": "ready"
+  },
+  {
+    "source": "rthk",
+    "kind": "article",
+    "count": 20,
+    "status": "ready"
+  },
+  {
+    "source": "cnbc",
+    "kind": "article",
+    "count": 30,
+    "status": "ready"
+  },
+  {
+    "source": "eastmoney_announcements",
+    "kind": "article",
+    "count": 100,
+    "status": "ready"
+  }
+]

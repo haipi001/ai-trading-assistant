@@ -1,11 +1,27 @@
-# 资讯读取验收（2026-11-15）
+# 全市场资讯读取验收 — 2026-11-15
 
-范围：资讯模块全部数据源，不包含个人聊天消息。
+## 已实现
 
-本轮修复：中文聚合不再将每类三家来源裁为100条，保留每路最多100条、六路最多600条；前端接受600条；同链接的快讯和文章分别保留。进入页面先读缓存再请求自动刷新（尊重关闭自动刷新和服务端限流）；修改设置保留旧缓存至新读取完成。
+- 默认聚合加入东方财富财经快讯、A股公告/财报目录、香港电台财经、CNBC Finance；旧来源配置首次升级补入股票来源，保存后尊重用户选择。
+- 新版资讯页提供全部市场、中国财经、香港财经、美国财经和加密资产筛选；各来源独立状态、错误、缓存与时效仍保留。
+- 每路最多100条；现有10路最多1000条。前端容量1200条；不再跨来源截断。同链接不同来源、不同消息类型分别保留。
+- 来源若提供RSS content:encoded优先读取，保留最多20000字符；只显示来源提供的内容，不补写缺失全文。东方财富时间明确按Asia/Shanghai转UTC。
+- API路径保持 `/news-feed/settings`、`/news-feed/latest`、`/news-feed/refresh`；sources目录增加eastmoney、rthk、cnbc、eastmoney_announcements，返回文章及source_status新增market。历史provider标识chinese_aggregate保留兼容，界面显示全市场聚合。
+- 自定义RSS、NewsAPI、Nasdaq和Cointelegraph原适配保留；没有启用交易或新增凭证。
 
-真实网络验证：PANews快讯100/文章100；Odaily快讯10/文章10。BlockBeats两路TLS连接失败；官方RSS-v2仓库仍列出现有URL，未擅自替换成不明代理。Cointelegraph读取30条；Nasdaq返回访问拒绝。NewsAPI需要用户凭证；未验证付费权限。RSS读取的是来源提供的批次及摘要，不等同于全部历史消息或全文。
+## 真实网络证据
 
-验证：29项后端资讯测试通过；资讯模型、读取器、RSS合并检查通过；新版终端构建通过（存在大包体积提示）。未完成全部来源、全文及历史分页验收；未发布、未提交Git。
+见 news-source-live-20261115.json：PANews快讯100/文章100、Odaily快讯10/文章10、东方财富快讯100、香港电台财经20、CNBC财经30、东方财富公告100，均经实际适配器读取。
 
-官方参考：https://github.com/BlockBeatsOfficial/RSS-v2
+律动两路连接失败并如实显示，Nasdaq此前实测访问拒绝；NewsAPI需要用户已有Key及账户权限。未接入不明代理或伪造成功。港股财经消息不是港交所公告全文。东方财富公告含财报类目录，不等同结构化财务报表；SEC研究适配独立保留。独立券商研报、付费全文、全部历史分页尚未完成，不应宣称“所有数据”已齐全。
+
+## 验证
+
+后端news_feed及research_feeds共42项测试通过；前端资讯模型、读取器、订阅合并三组检查通过；新版终端构建通过。构建仍有既有大包提示。只推送本任务文件，其他工作区修改不纳入提交。
+
+## 来源
+
+- 香港电台官方RSS目录：https://news.rthk.hk/rthk/ch/rss.feed
+- CNBC：https://www.cnbc.com/rss-feeds/
+- 东方财富：https://finance.eastmoney.com/ 、https://data.eastmoney.com/notices/
+- 律动官方RSS：https://github.com/BlockBeatsOfficial/RSS-v2

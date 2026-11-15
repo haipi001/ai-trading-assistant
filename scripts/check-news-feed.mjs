@@ -13,7 +13,7 @@ assert.equal(filterNews(result.articles,'精选','ｂｔｃ').length,1);
 assert.equal(filterNews(result.articles,'未知').length,0);
 assert.equal(filterNews(result.articles,'未知','',true).length,3);
 assert.throws(()=>newsSnapshot({provider:'other',status:'ready',articles:[]}));
-assert.throws(()=>newsSnapshot({provider:'newsapi',status:'ready',articles:new Array(601)}));
+assert.throws(()=>newsSnapshot({provider:'newsapi',status:'ready',articles:new Array(1201)}));
 console.log('News feed: safe links, identity, deduplication, publication time, filtering and unsupported channels passed.');
 
 const aggregated=newsSnapshot({provider:"chinese_aggregate",status:"ready",articles:[{...row("标题包含分析也仍是快讯","https://example.com/flash","2026-10-30T00:00:00Z"),kind:"flash",source_id:"odaily"},{...row("深度文章","https://example.com/article","2026-10-30T00:00:00Z"),kind:"article",source_id:"panews"}]});
