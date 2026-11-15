@@ -533,7 +533,7 @@ export function App({ embedded = false, terminalTarget = null, terminalContext =
       <div className={`pagebar ${page === "market" ? `with-symbol ${marketSideOpen ? "market-side-expanded" : "market-side-collapsed"}` : "channels-only"}`}>
         <div>
           {(page === "home" || page === "market") && <div className={`market-mode-switch ${marketMode}`} role="group" aria-label="市场类型切换"><button className={marketMode === "web3" ? "on" : ""} onClick={() => { setMarketMode("web3"); setMarketSymbol("BTC"); if (page === "home" && !HOME_TABS.web3.includes(tab)) setTab("AI智搜"); }}>WEB3</button><button className={marketMode === "stocks" ? "on" : ""} onClick={() => { setMarketMode("stocks"); setMarketSymbol("AAPL"); if (page === "home" && !HOME_TABS.stocks.includes(tab)) setTab("AI智搜"); }}>股票</button></div>}
-          {page === "strategy" && strategyCategory !== 1 && <small>{STRATEGY_CATEGORY_LABELS[strategyCategory]}</small>}
+          {page === "strategy" && strategyCategory !== 1 && <small>{strategyCategory === -1 ? "投资宪章" : STRATEGY_CATEGORY_LABELS[strategyCategory]}</small>}
           {(page === "strategy" && strategyCategory !== 1 ? [] : page === "home" ? HOME_TABS[marketMode] : META[page].tabs).map((x) => (
             <button
               key={x}
@@ -3505,9 +3505,9 @@ function Strategy({
     "我的策略": "交易笔记、AI 分析与双向关联知识图谱",
   };
   return (
-    <div className="strategy-full">
+    <div className={`strategy-full${category === -1 ? " constitution-active" : ""}`}>
       <aside>
-        <button className={category === -1 ? "on" : ""} onClick={() => setCategory(-1)}><I.Robot/><span>投资宪章<small>投资原则 / 风险边界 / 版本记录</small></span></button>
+        <button className={category === -1 ? "on" : ""} onClick={() => setCategory(-1)}><I.Robot/><span><b>投资宪章</b><small>投资原则 / 风险边界 / 版本记录</small></span></button>
         {stratSide.map((x, i) => (
           <button
             key={x[0]}
