@@ -1,0 +1,52 @@
+/* 策略模块：模拟案例展示 */
+.sample-gallery{margin:12px 0 14px;border:1px solid var(--ui-border,#8893);border-radius:5px;background:rgba(127,127,127,.03)}
+.sample-gallery>header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:9px 11px;border-bottom:1px solid var(--ui-border,#8893)}
+.sample-gallery>header>span{display:flex;align-items:center;gap:7px;font-size:12.5px}
+.sample-gallery>header>span>span{font-size:10.5px;opacity:.6;font-weight:400}
+.sample-gallery>header small{flex:1 1 220px;min-width:0;font-size:10.5px;line-height:1.55;opacity:.66}
+.sample-gallery-toggle{display:flex;align-items:center;gap:6px;background:none;border:0;color:inherit;font:inherit;cursor:pointer;padding:0}
+.sample-gallery-toggle svg{transition:transform .15s}
+.sample-gallery-toggle svg.closed{transform:rotate(-90deg)}
+.sample-gallery-toggle b{font-size:12.5px}
+.sample-gallery-toggle span{font-size:10.5px;opacity:.6}
+.sample-gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:10px;padding:11px}
+
+.sample-card{border:1px solid var(--ui-border,#8893);border-radius:5px;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--ui-background,transparent);min-width:0}
+.sample-card>header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.sample-card>header>span{min-width:0;display:flex;flex-direction:column;gap:2px}
+.sample-card>header b{font-size:12.5px;line-height:1.35;overflow-wrap:anywhere}
+.sample-card>header small{font-size:10.5px;opacity:.66;overflow-wrap:anywhere}
+.sample-badge{flex:none;font-style:normal;font-size:9.5px;letter-spacing:.04em;padding:2px 5px;border:1px solid #d0803a;border-radius:3px;color:#b96a2a;white-space:nowrap}
+.sample-detail{margin:0;font-size:11px;line-height:1.6;opacity:.8;overflow-wrap:anywhere}
+.sample-note{margin:0;font-size:10.5px;line-height:1.62;opacity:.7;overflow-wrap:anywhere}
+.sample-spark{width:100%;height:30px;display:block}
+.sample-spark polyline{fill:none;stroke-width:1.6;vector-effect:non-scaling-stroke}
+.sample-spark.is-up polyline{stroke:#1f9d63}
+.sample-spark.is-down polyline{stroke:#d0483a}
+.sample-metrics{display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;margin:0}
+.sample-metrics>div{min-width:0}
+.sample-metrics dt{font-size:10px;opacity:.6;margin:0 0 1px}
+.sample-metrics dd{margin:0;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.sample-metrics dd.green{color:#1f9d63}
+.sample-metrics dd.red{color:#d0483a}
+.sample-card>footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:7px;border-top:1px solid var(--ui-border,#8893);flex-wrap:wrap}
+.sample-card>footer span{font-size:10px;opacity:.58;line-height:1.5;overflow-wrap:anywhere;flex:1 1 100px}
+.sample-card>footer button{font:inherit;font-size:11px;padding:5px 8px;border:1px solid var(--ui-border,#8893);background:transparent;color:inherit;cursor:pointer;border-radius:3px;white-space:nowrap}
+.sample-card>footer button:hover{border-color:currentColor}
+.sample-basket-table{width:100%;border-collapse:collapse;font-size:10.5px}
+.sample-basket-table th{text-align:right;font-weight:600;opacity:.62;padding:3px 4px;border-bottom:1px solid var(--ui-border,#8893);white-space:nowrap}
+.sample-basket-table td{text-align:right;padding:3px 4px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sample-basket-table th:first-child,.sample-basket-table td:first-child{text-align:left}
+.sample-basket-table td.green{color:#1f9d63}
+.sample-basket-table td.red{color:#d0483a}
+
+.sample-analysis{border:1px solid var(--ui-border,#8893);border-radius:5px;padding:12px;margin:12px 0}
+.sample-analysis>header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.sample-analysis>header b{font-size:13px}
+.sample-analysis>header small{font-size:10.5px;opacity:.6;margin-left:6px}
+.sample-verdict{margin:0 0 10px;font-size:12.5px;font-weight:700;line-height:1.6}
+.sample-analysis ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
+.sample-analysis li{display:grid;grid-template-columns:74px 1fr;gap:9px;font-size:11.5px;line-height:1.68}
+.sample-analysis li b{opacity:.66;font-weight:600}
+.sample-analysis li span{overflow-wrap:anywhere}
+.sample-analysis>footer{margin-top:11px;padding-top:9px;border-top:1px solid var(--ui-border,#8893);font-size:10.5px;line-height:1.6;opacity:.64}

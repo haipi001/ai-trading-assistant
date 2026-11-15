@@ -1,3 +1,4 @@
+import InvestmentConstitution from './investment-constitution.jsx';
 import {candleAgeLabel} from './candle-age-label.js';
 import {observeVisibleInterval} from './visible-interval.js';
 import {chartStorage} from './panel-storage.js';
@@ -33,6 +34,7 @@ import {NewsFeedWorkspace,NewsFeedRail} from './news-feed-workspace.jsx';
 import {SubscriptionSettings} from './subscription-settings.jsx';
 import {NewsFeedSettings} from './news-feed-settings.jsx';
 import {requestResearchChat,researchText,AI_MESSAGES} from './research-ai.js';
+import {normalizeThreads,createThread,appendMessage,removeThread,renameThread,toggleArchived,clearScopeThreads,filterThreads,threadTitle,threadPreview,threadStats,makeMessage,relativeTime,scopeOf,scopeLabel,STARTER_QUESTIONS} from './ace-history.js';
 import {AIIntegrationSettings} from './ai-integration-settings.jsx';
 import {LargeTradesPanel} from './large-trades-panel.jsx';
 import {MarketFundFlowWorkspace} from './market-fund-flow-workspace.jsx';
@@ -58,6 +60,8 @@ import { demoMarketBars, periodDefinition } from "./market-chart-model.js";
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import * as I from "@phosphor-icons/react";
+import { positionSize, drawdownTable, RISK_PRESETS } from "./risk-calculator.js";
+import { newQuickNote, filterQuickNotes, quickNoteTitle, quickNotePreview, quickNoteTags, quickNotePrompt, noteSymbolLabel } from "./quick-notes.js";
 import "./styles.css";
 import "./channels.css";
 import "./chart-drawings.css";
@@ -256,7 +260,11 @@ export function App({ embedded = false, terminalTarget = null, terminalContext =
     "ai-trading-assistant-sidebar-mode",
     "professional",
   );
-  const [marketSideTab, setMarketSideTab] = useStoredState("ai-trading-assistant-market-side-tab", "depth");
+  const [marketSideTabRaw, setMarketSideTab] = useStoredState("ai-trading-assistant-market-side-tab", "depth");
+  // A saved tab id from an older build (or an edited value) has no renderer and
+  // would leave the rail blank, so fall back to the default panel.
+  const MARKET_SIDE_TABS = ["depth", "news", "funds", "analysis", "feature", "etf", "ai", "aiCenter", "info", "trade", "layout", "flow", "chart", "notes", "calculator"];
+  const marketSideTab = MARKET_SIDE_TABS.includes(marketSideTabRaw) ? marketSideTabRaw : "depth";
   const [marketSideOpen, setMarketSideOpen] = useStoredState("ai-trading-assistant-market-side-open", true);
   const [marketOrderOpen, setMarketOrderOpen] = useStoredState("ai-trading-assistant-market-order-open", false);
   const [watch, setWatch] = useStoredState("ai-trading-assistant-watch", [
@@ -343,7 +351,7 @@ export function App({ embedded = false, terminalTarget = null, terminalContext =
     const escape=event=>{if(event.key==='Escape'){setDrawer(null);if(page==='market'){setMarketSideOpen(false);setMarketOrderOpen(false);}setAiFloatOpen(false);}};
     const tool = event => {
       const id=event.detail?.tool;
-      if (!['depth','news','funds','analysis','feature','etf','ai','trade','sidebarLayout','help','research','aiSettings','newsSettings','backendSettings'].includes(id)) return;
+      if (!['depth','news','funds','analysis','feature','etf','ai','trade','sidebarLayout','help','research','notes','calculator','aiSettings','newsSettings','backendSettings'].includes(id)) return;
       parent.postMessage({type:'terminal:tool-activated',tool:id},location.origin);
       setAiFloatOpen(false);setOverlay(null);
       if(['aiSettings','newsSettings','backendSettings'].includes(id)){openOverlay('settings',({aiSettings:'AI服务设置',newsSettings:'连接与订阅',backendSettings:'后端会话设置'})[id]);return;}
@@ -597,6 +605,7 @@ export function App({ embedded = false, terminalTarget = null, terminalContext =
           watch={watch}
           setWatch={setWatch}
           marketSymbol={marketSymbol}
+          marketMode={marketMode}
           prefill={quickTradePrefill}
           openOverlay={openOverlay}
           openDrawer={setDrawer}
@@ -993,102 +1002,191 @@ function HomeChannel({ tab, go, say, openOverlay, marketMode = "web3" }) {
   const [aceLoading, setAceLoading] = useState(false);
   const acePending = useRef(false);
   const aceAlive = useRef(true);
+  const [aceThreadsRaw, setAceThreads] = useStoredState("ai-trading-assistant-ace-threads", []);
+  const aceThreads = normalizeThreads(aceThreadsRaw);
+  const [aceActiveThreadId, setAceActiveThreadId] = useState(null);
+  const [aceScopeFilter, setAceScopeFilter] = useState("scope");
+  const [aceArchiveView, setAceArchiveView] = useState("active");
+  const [aceSearch, setAceSearch] = useState("");
+  const [aceRenaming, setAceRenaming] = useState(null);
+  const [aceRenameDraft, setAceRenameDraft] = useState("");
+  const [aceClock, setAceClock] = useState(Date.now());
+  const aceChatEnd = useRef(null);
   useEffect(()=>{aceAlive.current=true;return()=>{aceAlive.current=false;};},[]);
+  useEffect(()=>{
+    const timer=setInterval(()=>{if(!document.hidden)setAceClock(Date.now());},30000);
+    return()=>clearInterval(timer);
+  },[]);
   const isStocks = marketMode === "stocks";
+  const currentScope = scopeOf(marketMode);
+  const listScope = aceScopeFilter === "all" ? "all" : currentScope;
+  const visibleThreads = filterThreads(aceThreads, { scope: listScope, query: aceSearch, archived: aceArchiveView });
+  const activeThread = aceThreads.find((row) => row.id === aceActiveThreadId) || null;
+  const activeMessages = activeThread ? activeThread.messages : [];
+  const aceStats = threadStats(aceThreads);
+  useEffect(()=>{if(aceChatEnd.current)aceChatEnd.current.scrollTop=aceChatEnd.current.scrollHeight;},[activeThread?.id,activeMessages.length,aceLoading]);
+
+  const startThread = () => {
+    const next = createThread(aceThreads, { scope: currentScope });
+    setAceThreads(next);
+    setAceActiveThreadId(next[0]?.id || null);
+    setAceQuery("");
+    setAceArchiveView("active");
+    if (aceScopeFilter !== "all") setAceScopeFilter("scope");
+    say("已开始新对话");
+  };
   const submitAIQuery = async () => {
-    if (!aceQuery.trim()) return say("请输入问题");
+    const question = aceQuery.trim();
+    if (!question) return say("请输入问题");
     if (acePending.current) return;
     if(includeNews&&!newsReady)return say("请先确认可用资讯缓存，或取消附带资讯");
     acePending.current=true;
     setAceLoading(true);
+    const style = aceMode === "详细回答" ? "detailed" : "brief";
+    // Post into the open thread, or open one first so the answer has a home.
+    let threadId = activeThread?.id || null;
+    if (!threadId) {
+      const next = createThread(aceThreads, { scope: currentScope });
+      threadId = next[0]?.id || null;
+      setAceThreads(next);
+      setAceActiveThreadId(threadId);
+    }
     try {
-      const result = await requestResearchChat(aceQuery.trim(), {page:"home",responseStyle:aceMode==="详细回答"?"detailed":"brief",includeNews});
+      const result = await requestResearchChat(question, {page:"home",responseStyle:style,includeNews});
       if(!aceAlive.current)return;
-      if(result.status!=="ok") {openOverlay("aceResult", "AI 智搜 · 未获得回复", {description:AI_MESSAGES[result.reason]||"请检查 AI 服务设置。",researchResult:result});return;}
-      openOverlay("aceResult", "AI 智搜 · 模型回复", {description:researchText(result),researchResult:result});
+      if(result.status!=="ok") {
+        const message = makeMessage({question, answer:"", status:"failed", reason:AI_MESSAGES[result.reason]||"请检查 AI 服务设置。", newsAttached:includeNews, style});
+        setAceThreads((rows)=>appendMessage(rows, threadId, message));
+        say(AI_MESSAGES[result.reason]||"AI 智搜未获得回复");
+        return;
+      }
+      const message = makeMessage({question, answer:researchText(result), provider:result.provider, model:result.model, newsAttached:includeNews, style});
+      setAceThreads((rows)=>appendMessage(rows, threadId, message));
+      setAceQuery("");
+      say("已收到 AI 回复并存入本机对话");
     } catch {
       if(!aceAlive.current)return;
-      openOverlay("aceResult", "AI 智搜 · 请求未完成", {description:"未收到可验证的模型回复，请检查后端连接。问题仍保留在输入框中；本次请求可能已产生模型费用。"});
+      const message = makeMessage({question, answer:"", status:"failed", reason:"未收到可验证的模型回复，请检查后端连接。本次请求可能已产生模型费用。", newsAttached:includeNews, style});
+      setAceThreads((rows)=>appendMessage(rows, threadId, message));
+      say("请求未完成；本次请求可能已产生模型费用");
     } finally { acePending.current=false; if(aceAlive.current)setAceLoading(false); }
   };
+  const starter = STARTER_QUESTIONS[isStocks ? "stocks" : "web3"];
   if (tab === "AI智搜")
     return (
-      <div className="ace-search">
-        <div className="ace-logo">
-          <I.Sparkle />
-          <h1>寻找答案，从这里开始</h1>
-        </div>
-        <div className="ace-ai-provider-info"><p className="ace-provider-disclosure">发送问题将调用设置中保存的 AI，可能计费。可选附带已获取资讯；不包含附件、账户或实时行情。</p><button type="button" onClick={()=>openOverlay("settings","AI服务设置")}>配置 AI 服务</button></div>
-        <div className="ace-box">
-          <textarea
-            aria-label="AI智搜问题" maxLength={4000} value={aceQuery}
-            onChange={(e) => setAceQuery(e.target.value)}
-            placeholder={isStocks ? "行情、财报、估值、新闻和宏观数据的一站式股票搜索引擎" : "行情、指标、数据、信息和功能的一站式 Web3 搜索引擎"}
-          />
-          <footer>
-            <button
-              className={attachmentOpen ? "on" : ""}
-              aria-label="添加附件"
-              title="添加附件"
-              onClick={() => setAttachmentOpen(!attachmentOpen)}
-            >
-              <I.Plus />
-            </button>
-            <button
-              aria-label="提交 AI 智搜"
-              onClick={() =>
-                setAceMode(aceMode === "快速回答" ? "详细回答" : "快速回答")
-              }
-            >
-              {aceMode} <I.CaretDown />
-            </button>
-            <button aria-label="发送 AI 智搜问题" disabled={aceLoading||(includeNews&&!newsReady)} onClick={submitAIQuery}>
-              {aceLoading ? <I.CircleNotch className="spin"/> : <I.ArrowUp />}
-            </button>
+      <div className="ace-workspace">
+        <aside className="ace-rail" aria-label="AI 智搜对话列表">
+          <header className="ace-rail-head">
+            <button type="button" className="ace-new" onClick={startThread}><I.Plus weight="bold"/>新建对话</button>
+          </header>
+          <label className="ace-rail-search"><I.MagnifyingGlass/><input aria-label="搜索对话" value={aceSearch} onChange={(event)=>setAceSearch(event.target.value)} placeholder="搜索对话"/></label>
+          <div className="ace-rail-tabs">
+            <button type="button" className={aceScopeFilter==="scope"?"on":""} onClick={()=>setAceScopeFilter("scope")}>{scopeLabel(currentScope)}</button>
+            <button type="button" className={aceScopeFilter==="all"?"on":""} onClick={()=>setAceScopeFilter("all")}>全部</button>
+            <button type="button" className={aceArchiveView==="active"?"on":""} onClick={()=>setAceArchiveView("active")}>记录</button>
+            <button type="button" className={aceArchiveView==="archived"?"on":""} onClick={()=>setAceArchiveView("archived")}>存档</button>
+          </div>
+          <div className="ace-rail-list">
+            {visibleThreads.map((thread)=>(
+              <article key={thread.id} className={`ace-rail-item${thread.id===aceActiveThreadId?" on":""}${thread.archived?" archived":""}`}>
+                {aceRenaming===thread.id ? (
+                  <input className="ace-rename" aria-label="重命名对话" autoFocus value={aceRenameDraft} onChange={(event)=>setAceRenameDraft(event.target.value)} onBlur={()=>{setAceThreads((rows)=>renameThread(rows,thread.id,aceRenameDraft));setAceRenaming(null);say("对话已重命名");}} onKeyDown={(event)=>{if(event.key==="Enter"){event.currentTarget.blur();}if(event.key==="Escape"){setAceRenaming(null);}}}/>
+                ) : (
+                  <button type="button" className="ace-rail-open" onClick={()=>{setAceActiveThreadId(thread.id);setAceRenaming(null);}}>
+                    <b>{threadTitle(thread)}</b>
+                    <small>{threadPreview(thread)}</small>
+                    <span><em>{relativeTime(thread.updated, aceClock)}</em><i>{scopeLabel(thread.scope)}</i><i>{thread.messages.length} 轮</i></span>
+                  </button>
+                )}
+                <div className="ace-rail-actions">
+                  <button type="button" aria-label="重命名" title="重命名" onClick={()=>{setAceRenaming(thread.id);setAceRenameDraft(threadTitle(thread));}}><I.PencilSimple/></button>
+                  <button type="button" aria-label={thread.archived?"取消存档":"移入存档"} title={thread.archived?"取消存档":"移入存档"} onClick={()=>setAceThreads((rows)=>toggleArchived(rows,thread.id))}><I.Archive/></button>
+                  <button type="button" aria-label="删除对话" title="删除对话" onClick={()=>{if(!window.confirm(`删除对话「${threadTitle(thread)}」？此操作不可撤销。`))return;setAceThreads((rows)=>removeThread(rows,thread.id));if(aceActiveThreadId===thread.id)setAceActiveThreadId(null);say("对话已删除");}}><I.Trash/></button>
+                </div>
+              </article>
+            ))}
+            {visibleThreads.length===0 && (
+              <div className="ace-rail-empty">
+                <p>{aceSearch.trim()?"没有匹配的对话。":aceArchiveView==="archived"?"存档里还没有对话。":`还没有对话。${scopeLabel(currentScope)}与${currentScope==="stocks"?"加密":"股票"}市场的对话分开存档。`}</p>
+                {aceArchiveView==="active"&&!aceSearch.trim()&&<button type="button" onClick={startThread}>新建对话</button>}
+              </div>
+            )}
+          </div>
+          <footer className="ace-rail-foot">
+            <span>{aceStats.threads} 个对话 · {aceStats.messages} 条问答</span>
+            <button type="button" onClick={()=>{if(!window.confirm(`删除${aceScopeFilter==="all"?"全部市场":scopeLabel(currentScope)}的 ${visibleThreads.length} 个对话？此操作不可撤销。`))return;setAceThreads((rows)=>clearScopeThreads(rows,listScope));setAceActiveThreadId(null);say("对话已清除");}}>清除范围</button>
           </footer>
-          <ResearchNewsContext enabled={includeNews} onChange={setIncludeNews} onReady={setNewsReady} disabled={aceLoading}/>
-          {attachmentOpen ? (
-            <div className="ace-attachments">
-              <button
-                onClick={() =>
-                  openOverlay("attachment", "添加图表快照", {
-                    description: "选择当前行情图表作为 AI 智搜上下文。",
-                  })
-                }
-              >
-                <I.ChartLine /> 图表快照
-              </button>
-              <button
-                onClick={() =>
-                  openOverlay("attachment", "添加自选币种", {
-                    description: `选择一个自选${isStocks ? "股票" : "币种"}作为问题上下文。`,
-                  })
-                }
-              >
-                <I.Star /> 自选{isStocks ? "股票" : "币种"}
-              </button>
+        </aside>
+
+        <section className="ace-main" aria-label="AI 智搜对话区">
+          <header className="ace-main-head">
+            <div><small>{scopeLabel(currentScope)} · {includeNews?"附带已获取资讯":"不含附件与实时行情"}</small><b>{activeThread?threadTitle(activeThread):"AI 智搜"}</b></div>
+            <button type="button" onClick={()=>openOverlay("settings","AI服务设置")}>配置 AI 服务</button>
+          </header>
+
+          <div className="ace-chat" ref={aceChatEnd}>
+            {!activeThread && (
+              <div className="ace-welcome">
+                <div className="ace-logo"><I.Sparkle/><h1>寻找答案，从这里开始</h1></div>
+                <p className="ace-welcome-note">发送问题将调用设置中保存的 AI，可能计费。对话按市场分开保存在本机。</p>
+                <div className="question-grid">
+                  {starter.map((x)=>(
+                    <button key={x[0]} type="button" onClick={()=>{ if(!activeThread) startThread(); setAceQuery(x[1]); }}>
+                      <b>{x[0]}</b><span>{x[1]}</span><small>点击填入问题</small>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeThread && activeMessages.length===0 && (
+              <div className="ace-welcome compact">
+                <div className="ace-logo small"><I.Sparkle/><h1>这个对话还没有提问</h1></div>
+                <div className="question-grid">
+                  {starter.map((x)=>(
+                    <button key={x[0]} type="button" onClick={()=>setAceQuery(x[1])}><b>{x[0]}</b><span>{x[1]}</span><small>点击填入问题</small></button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeMessages.map((message)=>(
+              <article key={message.id} className={`ace-msg${message.status==="failed"?" failed":""}`}>
+                <div className="ace-msg-q"><b>{message.question}</b><small>{relativeTime(message.created, aceClock)}{message.newsAttached?" · 附资讯":""}</small></div>
+                <div className="ace-msg-a">
+                  <p>{message.status==="failed"?(message.reason||"未获得有效模型回复"):message.answer}</p>
+                  {message.status==="ok"&&<small>{message.provider||"模型"}{message.model?` / ${message.model}`:""} · 没有实时行情或账户证据，回复不会创建策略或订单</small>}
+                  <button type="button" className="ace-msg-retry" onClick={()=>setAceQuery(message.question)}>把这个问题填回输入框</button>
+                </div>
+              </article>
+            ))}
+            {aceLoading && <div className="ace-msg pending"><div className="ace-msg-a"><p><I.CircleNotch className="spin"/> 正在请求所配置的 AI…关闭页面不会撤销已发出的请求</p></div></div>}
+          </div>
+
+          <div className="ace-compose">
+            <div className="ace-box">
+              <textarea
+                aria-label="AI智搜问题" maxLength={4000} value={aceQuery}
+                onChange={(e) => setAceQuery(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); submitAIQuery(); } }}
+                placeholder={isStocks ? "行情、财报、估值、新闻和宏观数据的一站式股票搜索引擎" : "行情、指标、数据、信息和功能的一站式 Web3 搜索引擎"}
+              />
+              <footer>
+                <button className={attachmentOpen ? "on" : ""} aria-label="添加附件" title="添加附件" onClick={() => setAttachmentOpen(!attachmentOpen)}><I.Plus /></button>
+                <button aria-label="切换回答详细程度" title="切换回答详细程度" onClick={() => setAceMode(aceMode === "快速回答" ? "详细回答" : "快速回答")}>{aceMode} <I.CaretDown /></button>
+                <button aria-label="发送 AI 智搜问题" disabled={aceLoading||(includeNews&&!newsReady)||!aceQuery.trim()} onClick={submitAIQuery}>
+                  {aceLoading ? <I.CircleNotch className="spin"/> : <I.ArrowUp weight="bold"/>}
+                </button>
+              </footer>
+              <ResearchNewsContext enabled={includeNews} onChange={setIncludeNews} onReady={setNewsReady} disabled={aceLoading}/>
+              {attachmentOpen && (
+                <div className="ace-attachments">
+                  <button onClick={() => openOverlay("attachment", "添加图表快照", { description: "选择当前行情图表作为 AI 智搜上下文。" })}><I.ChartLine /> 图表快照</button>
+                  <button onClick={() => openOverlay("attachment", "添加自选币种", { description: `选择一个自选${isStocks ? "股票" : "币种"}作为问题上下文。` })}><I.Star /> 自选{isStocks ? "股票" : "币种"}</button>
+                </div>
+              )}
             </div>
-          ) : null}
-        </div>
-        <div className="question-grid">
-          {[
-            ...(isStocks ? [
-              ["财报速读", "NVDA 最新财报的增长质量如何？"],
-              ["市场情绪", "利率变化如何影响科技股估值？"],
-              ["价格分析", "AAPL 当前关键支撑位在哪里？"],
-            ] : [
-              ["快速学习", "特朗普关税政策如何影响BTC？"],
-              ["市场情绪", "当前恐惧与贪婪指数意味着什么？"],
-              ["价格分析", "BTC关键支撑位在哪里？"],
-            ]),
-          ].map((x) => (
-            <button key={x[0]} onClick={() => setAceQuery(x[1])}>
-              <b>{x[0]}</b>
-              <span>{x[1]}</span>
-              <small>点击开始提问</small>
-            </button>
-          ))}
-        </div>
+            <p className="ace-compose-note">{activeThread?`当前对话：${threadTitle(activeThread)}`:"未选择对话，发送后将自动新建"} · Enter 发送 / Shift+Enter 换行</p>
+          </div>
+        </section>
       </div>
     );
   if (tab === "市场概览")
@@ -2110,6 +2208,7 @@ function Market({
                 watch={watch}
                 setWatch={setWatch}
                 marketSymbol={symbol}
+                marketMode={marketMode}
                 openOverlay={openOverlay}
                 openDrawer={(next) => { setMarketSideTab(next); setMarketSideOpen(true); }}
                 authorizedAccounts={authorizedAccounts}
@@ -2131,6 +2230,7 @@ function Market({
                 watch={watch}
                 setWatch={setWatch}
                 marketSymbol={symbol}
+                marketMode={marketMode}
                 prefill={quickTradePrefill}
                 openOverlay={openOverlay}
                 openDrawer={setMarketSideTab}
@@ -2757,7 +2857,6 @@ function OrderBook({ openOverlay, watch = [], setWatch = () => {}, symbol = "BTC
 
 function News(props) { return <NewsFeedWorkspace {...props} mode="news"/>; }
 function FlashPage(props) { return <NewsFeedWorkspace {...props} mode="flash"/>; }
-
 function ChainPage({ tab, say, openOverlay, go, followedTraders, setFollowedTraders, chartTraders, setChartTraders }) {
   const chainConfigs = {
     聪明钱: {
@@ -3349,6 +3448,8 @@ function Strategy({
   strategyCategory: category,
   setStrategyCategory: setCategory,
 }) {
+  const [constitutionNoteId,setConstitutionNoteId] = useState(null);
+  const [notebookNoteId,setNotebookNoteId] = useState(null);
   const [arbType, setArbType] = useState(tab);
   const [strategySearch, setStrategySearch] = useState("");
   const [arbPlatform, setArbPlatform] = useState("全部平台");
@@ -3395,7 +3496,7 @@ function Strategy({
     return matchesSearch && matchesPlatform && matchesContract && matchesType;
   });
   const strategyHeading =
-    category === 1 ? tab : stratSide[category][0];
+    category === -1 ? "投资宪章" : category === 1 ? tab : stratSide[category][0];
   const channelDescriptions = {
     "自动赚币": "投 U 自动赚 U，程序根据资金费率执行本地模拟套利",
     "套利机会": "发现不同平台与合约之间的收益机会",
@@ -3406,6 +3507,7 @@ function Strategy({
   return (
     <div className="strategy-full">
       <aside>
+        <button className={category === -1 ? "on" : ""} onClick={() => setCategory(-1)}><I.Robot/><span>投资宪章<small>投资原则 / 风险边界 / 版本记录</small></span></button>
         {stratSide.map((x, i) => (
           <button
             key={x[0]}
@@ -3426,7 +3528,7 @@ function Strategy({
           <h2>{strategyHeading}</h2>
           <span>
             {category !== 1
-              ? stratSide[category][1]
+              ? category === -1 ? "所有策略共享的投资纪律" : stratSide[category][1]
               : channelDescriptions[tab]}
           </span>
         </div>
@@ -3464,8 +3566,8 @@ function Strategy({
             <option>期货</option>
           </select>
         </div>}
-        {category === 0 ? (
-          <StrategyNotebook say={say} setSavedStrategies={setSavedStrategies} openOverlay={openOverlay} />
+        {category === -1 ? <InvestmentConstitution sourceNoteId={constitutionNoteId} onOpenNotebook={id=>{setNotebookNoteId(id||null);setCategory(0);}}/> : category === 0 ? (
+          <StrategyNotebook say={say} setSavedStrategies={setSavedStrategies} openOverlay={openOverlay} initialNoteId={notebookNoteId} onReviewConstitution={id=>{setConstitutionNoteId(id);setCategory(-1);}} />
         ) : category === 1 && tab === "我的套利" ? (
           savedStrategies.length ? (
             <div className="saved-strategies">
@@ -4258,7 +4360,7 @@ function RightRail({ page, drawer, setDrawer, openOverlay, sidebarMode, setSideb
     </aside>
   );
 }
-function UtilityDrawer({ workspaceContext,onReviewOrder,paperReviewRequest,type, close, go, say, watch, setWatch, marketSymbol = "BTC", prefill, openOverlay, openDrawer, authorizedAccounts = [], sidebarMode = "professional", embedded = false }) {
+function UtilityDrawer({ workspaceContext,onReviewOrder,paperReviewRequest,type, close, go, say, watch, setWatch, marketSymbol = "BTC", marketMode = "web3", prefill, openOverlay, openDrawer, authorizedAccounts = [], sidebarMode = "professional", embedded = false }) {
   if (type === "sidebarLayout") return null;
   const title = type === "aiCenter" ? "AI 工作中心" : type === "layout" ? "组件列表" : type === "trade" ? "下单面板" : type === "info" ? "币种简况" : RT.find((x) => x[0] === type)?.[1];
   const [tradeSide, setTradeSide] = useState("买入");
@@ -4577,24 +4679,49 @@ function UtilityDrawer({ workspaceContext,onReviewOrder,paperReviewRequest,type,
           watch={watch}
           setWatch={setWatch}
           symbol={marketSymbol}
+          marketMode={marketMode}
         />
       )}
     </aside>
   );
 }
-function RailPanel({ type, say, go, watch, setWatch, symbol = "BTC" }) {
+function RailPanel({ type, say, go, watch, setWatch, symbol = "BTC", marketMode = "web3" }) {
   const quote = quoteFor(symbol);
   const tick = quote.decimals > 2 ? 0.0001 : 0.01;
   const [active, setActive] = useState(0);
-  const [enabled, setEnabled] = useStoredState(
+  const [enabledRaw, setEnabled] = useStoredState(
     "ai-trading-assistant-rail-layout",
     [0, 1, 2, 3],
   );
+  // A corrupted or hand-edited local value must not crash the whole rail.
+  const enabled = Array.isArray(enabledRaw) ? enabledRaw : [0, 1, 2, 3];
+  const watched = Array.isArray(watch) ? watch : [];
   const [layoutSaved, setLayoutSaved] = useState(true);
   const [selectedPrice, setSelectedPrice] = useState("");
   const [selectedEtf, setSelectedEtf] = useState(null);
   const [assistantQuestion, setAssistantQuestion] = useState("");
   const [assistantAnswer, setAssistantAnswer] = useState("");
+  const [quickNotesRaw, setQuickNotes] = useStoredState("ai-trading-assistant-quick-notes", []);
+  const quickNotes = Array.isArray(quickNotesRaw) ? quickNotesRaw.filter((row) => row && typeof row === "object") : [];
+  const [noteQuery, setNoteQuery] = useState("");
+  const [noteId, setNoteId] = useState(null);
+  const [riskFormRaw, setRiskForm] = useStoredState("ai-trading-assistant-risk-form", {
+    account: "", riskPercent: "1", entry: "", stop: "", target: "", side: "买入", losses: "10",
+  });
+  // Stored form values are user-editable, so normalise before using them.
+  const riskForm = riskFormRaw && typeof riskFormRaw === "object" ? riskFormRaw : { account: "", riskPercent: "1", entry: "", stop: "", target: "", side: "买入", losses: "10" };
+  const knownTypes = ["layout", "assistant", "analysis", "depth", "info", "feature", "news", "funds", "flow", "chart", "etf", "notes", "calculator"];
+  if (!knownTypes.includes(type)) {
+    // Previously an unknown panel id fell through to the ETF view, which read as
+    // "wrong content" and left the rail looking broken.
+    return (
+      <div className="rail-panel">
+        <p className="drawer-note">未识别的面板</p>
+        <p>面板标识 <b>{String(type)}</b> 没有对应的显示内容。请从右侧工具栏重新选择。</p>
+        <button className="drawer-primary" onClick={() => go("market")}>返回行情页</button>
+      </div>
+    );
+  }
   if (type === "layout") {
     const modules = [
       "盘口",
@@ -4696,19 +4823,19 @@ function RailPanel({ type, say, go, watch, setWatch, symbol = "BTC" }) {
             <small>{symbol} · 数字资产</small>
           </span>
           <button
-            className={watch.includes(symbol) ? "on" : ""}
+            className={watched.includes(symbol) ? "on" : ""}
             onClick={() => {
-              const exists = watch.includes(symbol);
+              const exists = watched.includes(symbol);
               setWatch(
                 exists
-                  ? watch.filter((coin) => coin !== symbol)
-                  : [...watch, symbol],
+                  ? watched.filter((coin) => coin !== symbol)
+                  : [...watched, symbol],
               );
               say(exists ? `${symbol} 已移出自选` : `${symbol} 已加入自选`);
             }}
           >
-            <I.Star weight={watch.includes(symbol) ? "fill" : "regular"} />
-            {watch.includes(symbol) ? "已自选" : "自选"}
+            <I.Star weight={watched.includes(symbol) ? "fill" : "regular"} />
+            {watched.includes(symbol) ? "已自选" : "自选"}
           </button>
         </div>
         {[
@@ -4749,7 +4876,100 @@ function RailPanel({ type, say, go, watch, setWatch, symbol = "BTC" }) {
       </div>
     );
   }
-  if (type === "news") return <NewsFeedRail symbol={symbol} go={go}/>;
+  if (type === "notes") {
+    const visible = filterQuickNotes(quickNotes, noteQuery);
+    const current = quickNotes.find((row) => row.id === noteId) || visible[0] || null;
+    const save = (next) => setQuickNotes((list) => {
+      const rows = Array.isArray(list) ? list : [];
+      const stamp = new Date().toISOString();
+      return rows.map((row) => (row.id === next.id ? { ...next, updated: stamp, updatedLabel: "刚刚" } : row));
+    });
+    const create = () => {
+      const note = newQuickNote(`${Date.now()}`);
+      setQuickNotes((list) => [note, ...(Array.isArray(list) ? list : [])]);
+      setNoteId(note.id);
+      say("已新建本机笔记");
+    };
+    const remove = (id) => {
+      setQuickNotes((list) => (Array.isArray(list) ? list.filter((row) => row.id !== id) : []));
+      setNoteId(null);
+      say("笔记已删除");
+    };
+    return (
+      <div className="rail-panel rail-notes">
+        <header className="rail-notes-head">
+          <span><small>本机存储 · {quickNotes.length} 条</small><b>交易笔记</b></span>
+          <button aria-label="新建笔记" title="新建笔记" onClick={create}><I.Plus /></button>
+        </header>
+        <label className="rail-notes-search"><I.MagnifyingGlass /><input aria-label="搜索本机笔记" value={noteQuery} onChange={(event) => setNoteQuery(event.target.value)} placeholder="搜索标题、内容或标的" /></label>
+        {current ? (
+          <>
+            <input className="rail-note-title" aria-label="笔记标题" value={current.title || ""} onChange={(event) => save({ ...current, title: event.target.value })} placeholder={quickNoteTitle(current)} />
+            <input className="rail-note-symbol" aria-label="关联标的" value={current.symbol || ""} onChange={(event) => save({ ...current, symbol: event.target.value })} placeholder="关联标的（可选）" />
+            <textarea className="rail-note-body" aria-label="笔记正文" value={current.body || ""} onChange={(event) => save({ ...current, body: event.target.value })} placeholder="记下当行情事实、假设与失效条件… 用 #标签 归类" />
+            <div className="rail-note-meta">
+              <span>{noteSymbolLabel(current)}</span>
+              {quickNoteTags(current).slice(0, 3).map((tag) => <em key={tag}>#{tag}</em>)}
+            </div>
+            <div className="rail-note-actions">
+              <button onClick={() => { const detail = { includeMarket: false, question: quickNotePrompt(current, { instrumentId: symbol }).slice(0, 4000) }; window.dispatchEvent(new CustomEvent("ai-trading-assistant-research-intent", { detail })); say(detail.accepted ? "已准备笔记分析，请在 AI 面板核对后发送" : "AI 面板未接收"); }}><I.Sparkle />AI 分析</button>
+              <button className="rail-note-delete" onClick={() => remove(current.id)}><I.Trash />删除</button>
+            </div>
+            {visible.length > 1 && (
+              <details className="rail-note-list">
+                <summary>全部 {visible.length} 条</summary>
+                {visible.map((note) => <button key={note.id} className={note.id === current.id ? "on" : ""} onClick={() => setNoteId(note.id)}><b>{quickNoteTitle(note)}</b><small>{quickNotePreview(note)}</small></button>)}
+              </details>
+            )}
+          </>
+        ) : (
+          <div className="rail-notes-empty">
+            <p>{noteQuery.trim() ? "没有匹配的笔记。" : "还没有笔记。记录行情事实、假设与失效条件，再用 AI 复盘。"}</p>
+            <button className="drawer-primary" onClick={create}>新建笔记</button>
+          </div>
+        )}
+      </div>
+    );
+  }
+  if (type === "calculator") {
+    const result = positionSize({
+      account: riskForm.account, riskPercent: riskForm.riskPercent, entry: riskForm.entry,
+      stop: riskForm.stop, takeProfit: riskForm.target, side: riskForm.side,
+    });
+    const rounds = drawdownTable({ account: riskForm.account, riskPercent: riskForm.riskPercent, losses: Math.min(50, Math.max(1, Number(riskForm.losses) || 10)) });
+    const set = (key) => (event) => setRiskForm((form) => ({ ...(form && typeof form === "object" ? form : {}), [key]: event.target.value }));
+    return (
+      <div className="rail-panel rail-calculator">
+        <header className="rail-calc-head"><small>仓位与风险</small><b>风险计算器</b></header>
+        <div className="rail-calc-grid">
+          <label><span>账户权益</span><input aria-label="账户权益" inputMode="decimal" value={riskForm.account || ""} onChange={set("account")} placeholder="10000" /></label>
+          <label><span>单笔风险 %</span><input aria-label="单笔风险比例" inputMode="decimal" value={riskForm.riskPercent || ""} onChange={set("riskPercent")} placeholder="1" /></label>
+          <label><span>方向</span><select aria-label="交易方向" value={riskForm.side || "买入"} onChange={set("side")}><option>买入</option><option>卖出</option></select></label>
+          <label><span>进场价</span><input aria-label="进场价" inputMode="decimal" value={riskForm.entry || ""} onChange={set("entry")} /></label>
+          <label><span>止损价</span><input aria-label="止损价" inputMode="decimal" value={riskForm.stop || ""} onChange={set("stop")} /></label>
+          <label><span>止盈价</span><input aria-label="止盈价" inputMode="decimal" value={riskForm.target || ""} onChange={set("target")} /></label>
+        </div>
+        <div className="rail-calc-presets">{RISK_PRESETS.map((value) => <button key={value} className={String(value) === String(riskForm.riskPercent) ? "on" : ""} onClick={() => setRiskForm((form) => ({ ...(form && typeof form === "object" ? form : {}), riskPercent: String(value) }))}>{value}%</button>)}</div>
+        {result.ready ? (
+          <dl className="rail-calc-metrics">{result.metrics.map((row) => <div key={row.label}><dt>{row.label}</dt><dd>{row.value}</dd></div>)}</dl>
+        ) : (
+          <ul className="rail-calc-gaps">{result.gaps.map((gap, index) => <li key={index}>{gap}</li>)}</ul>
+        )}
+        {result.warnings?.length > 0 && <ul className="rail-calc-warnings">{result.warnings.map((row, index) => <li key={index}>{row}</li>)}</ul>}
+        {rounds.length > 0 && (
+          <details className="rail-calc-drawdown">
+            <summary>连续亏损推演</summary>
+            <table><thead><tr><th>笔数</th><th>权益</th><th>回撤</th><th>需涨幅</th></tr></thead><tbody>
+              {rounds.map((row) => <tr key={row.round}><td>{row.round}</td><td>{row.equity}</td><td className="loss">-{row.drawdown}%</td><td>{row.recovery === null ? "—" : `+${row.recovery}%`}</td></tr>)}
+            </tbody></table>
+            <p>按每笔固定比例亏损等比缩水；固定金额亏损的结果会更差。</p>
+          </details>
+        )}
+        <p className="rail-calc-note">仅做本地算术，不读取账户余额、不查询行情，也不会提交任何委托。</p>
+      </div>
+    );
+  }
+  if (type === "news") return <NewsFeedRail symbol={symbol} go={go} marketMode={marketMode}/>;
   if (type === "funds")
     return (
       <div className="rail-panel">
@@ -4867,7 +5087,7 @@ function RailPanel({ type, say, go, watch, setWatch, symbol = "BTC" }) {
         </button>
       </div>
     );
-  return (
+  if (type === "etf") return (
     <div className="rail-panel">
       <p className="drawer-note">美国现货 BTC ETF</p>
       <div className="flow-summary">
